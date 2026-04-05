@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Primary gradient — deeper, richer -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a8fa8"/>
+      <stop offset="40%" stop-color="#0e7490"/>
+      <stop offset="100%" stop-color="#5b5bd6"/>
+    </linearGradient>
+    <!-- Glass highlight gradient -->
+    <linearGradient id="glass" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.1"/>
+    </linearGradient>
+    <!-- Inner vault glow -->
+    <radialGradient id="vaultGlow" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#67e8f9" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Shadow filter -->
+    <filter id="innerShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feOffset dx="0" dy="4" result="offset"/>
+      <feComposite in="SourceGraphic" in2="offset" operator="over"/>
+    </filter>
+    <!-- Top edge highlight -->
+    <linearGradient id="topEdge" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Container — rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Glass overlay -->
+  <rect width="512" height="512" rx="112" fill="url(#glass)"/>
+
+  <!-- Inner glow -->
+  <rect width="512" height="512" rx="112" fill="url(#vaultGlow)"/>
+
+  <!-- Top edge refraction -->
+  <rect x="48" y="12" width="416" height="2" rx="1" fill="url(#topEdge)"/>
+
+  <!-- Vault shield — outer -->
+  <path d="M256 96 L376 172 L376 320 C376 356 336 392 256 424 C176 392 136 356 136 320 L136 172 Z"
+    fill="none" stroke="white" stroke-width="22" stroke-linejoin="round" stroke-opacity="0.9"/>
+
+  <!-- Vault shield — inner fill (frosted) -->
+  <path d="M256 118 L362 186 L362 316 C362 346 328 378 256 406 C184 378 150 346 150 316 L150 186 Z"
+    fill="white" fill-opacity="0.06"/>
+
+  <!-- Vault door lines — horizontal -->
+  <line x1="172" y1="248" x2="340" y2="248" stroke="white" stroke-width="3" stroke-opacity="0.15" stroke-linecap="round"/>
+  <line x1="186" y1="290" x2="326" y2="290" stroke="white" stroke-width="3" stroke-opacity="0.12" stroke-linecap="round"/>
+
+  <!-- Vault lock — circle -->
+  <circle cx="256" cy="260" r="44" fill="none" stroke="white" stroke-width="14" stroke-opacity="0.85"/>
+
+  <!-- Lock handle — horizontal bar -->
+  <rect x="216" y="252" width="80" height="16" rx="8" fill="white" fill-opacity="0.85"/>
+
+  <!-- Lock keyhole -->
+  <circle cx="256" cy="260" r="8" fill="white" fill-opacity="0.95"/>
+
+  <!-- Checkmark — approval/verified -->
+  <path d="M232 340 L252 358 L288 316"
+    fill="none" stroke="white" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7"/>
+
+  <!-- Subtle bottom shadow inside squircle -->
+  <rect x="40" y="440" width="432" height="60" rx="70" fill="black" fill-opacity="0.06"/>
+</svg>

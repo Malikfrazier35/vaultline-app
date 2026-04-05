@@ -1,0 +1,13 @@
+{
+  "name": "Vaultline — Treasury Management",
+  "short_name": "Vaultline",
+  "description": "Real-time cash visibility, AI-powered forecasting, and multi-entity treasury management.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0C1222",
+  "theme_color": "#22D3EE",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

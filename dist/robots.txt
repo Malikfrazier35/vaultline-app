@@ -1,0 +1,47 @@
+User-agent: *
+Allow: /
+
+# Block authenticated dashboard pages
+Disallow: /dashboard
+Disallow: /position
+Disallow: /cash-visibility
+Disallow: /forecast
+Disallow: /scenarios
+Disallow: /currencies
+Disallow: /entities
+Disallow: /transactions
+Disallow: /banks
+Disallow: /import
+Disallow: /reports
+Disallow: /payments
+Disallow: /payment-hub
+Disallow: /alerts
+Disallow: /time
+Disallow: /ecosystem
+Disallow: /integrations
+Disallow: /api
+Disallow: /docs
+Disallow: /audit
+Disallow: /audit-center
+Disallow: /sso
+Disallow: /security-center
+Disallow: /privacy-center
+Disallow: /team
+Disallow: /billing
+Disallow: /settings
+Disallow: /ux
+Disallow: /support
+Disallow: /resources
+Disallow: /marketing
+Disallow: /industry
+Disallow: /data-intelligence
+Disallow: /design-system
+Disallow: /automation
+Disallow: /opportunities
+Disallow: /weaknesses
+Disallow: /threats
+Disallow: /partner-admin
+Disallow: /super-admin
+Disallow: /admin
+
+Sitemap: https://www.vaultline.app/sitemap.xml
