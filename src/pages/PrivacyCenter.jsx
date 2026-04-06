@@ -65,7 +65,7 @@ export default function PrivacyCenter() {
   const records = data?.processing_records || []
   const retention = data?.retention_policies || []
 
-  if (loading) return <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-t3" /></div>
+  if (loading) return <SkeletonPage />
 
   return (
     <div className="space-y-6">

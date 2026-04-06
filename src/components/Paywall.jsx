@@ -17,7 +17,7 @@ const PLANS = [
   },
   {
     name: 'Enterprise', price: '$2,499', period: '/mo',
-    features: ['Unlimited connections', 'Priority support', 'Custom integrations', 'SSO / SAML', 'Uptime SLA'],
+    features: ['Unlimited connections', 'Priority support', 'Accounting sync', 'Security center', 'Compliance reports'],
     priceId: 'price_1TAdogFV8yRihVmrKdDLEbP7',
   },
 ]

@@ -123,8 +123,8 @@ function applyTheme(theme) {
 
 export function useTheme() {
   const [theme, setThemeState] = useState(() => {
-    if (typeof window === 'undefined') return 'dark'
-    return localStorage.getItem('vaultline-theme') || 'dark'
+    if (typeof window === 'undefined') return 'light'
+    return localStorage.getItem('vaultline-theme') || 'light'
   })
 
   useEffect(() => {

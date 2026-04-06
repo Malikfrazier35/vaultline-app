@@ -1,3 +1,4 @@
+import { SkeletonPage } from "@/components/Skeleton"
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/components/Toast'
@@ -55,7 +56,7 @@ export default function MarketingHub() {
 
   const stats = data?.stats || {}
 
-  if (loading) return <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-t3" /></div>
+  if (loading) return <SkeletonPage />
 
   return (
     <div className="space-y-6">

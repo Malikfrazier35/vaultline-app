@@ -26,10 +26,10 @@ export function useChartTheme() {
 
     // Bars — glass-like with inner glow
     bar: {
-      inflows: isDark ? 'rgba(52,211,153,0.55)' : 'rgba(5,150,105,0.7)',
-      inflowsHover: isDark ? 'rgba(52,211,153,0.8)' : 'rgba(5,150,105,0.9)',
-      outflows: isDark ? 'rgba(251,113,133,0.35)' : 'rgba(225,29,72,0.55)',
-      outflowsHover: isDark ? 'rgba(251,113,133,0.6)' : 'rgba(225,29,72,0.75)',
+      inflows: isDark ? 'rgba(52,211,153,0.7)' : '#059669',
+      inflowsHover: isDark ? 'rgba(52,211,153,0.9)' : '#047857',
+      outflows: isDark ? 'rgba(251,113,133,0.5)' : '#DC2626',
+      outflowsHover: isDark ? 'rgba(251,113,133,0.75)' : '#B91C1C',
     },
 
     // Lines — glowing strokes

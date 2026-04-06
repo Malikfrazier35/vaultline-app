@@ -58,7 +58,7 @@ export default function ResourceHub() {
     load()
   }
 
-  if (loading) return <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-t3" /></div>
+  if (loading) return <SkeletonPage />
 
   const featured = data?.featured || []
   const quickLinks = data?.quick_links || []

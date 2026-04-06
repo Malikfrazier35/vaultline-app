@@ -9,6 +9,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { Link } from 'react-router-dom'
 import GrowthNudge from '@/components/GrowthNudge'
 import { MaskedBalance } from '@/components/MaskedValue'
+import BankLogo from '@/components/BankLogo'
 import OnboardingChecklist from '@/components/Onboarding'
 import { ValueReinforcement, NPSSurvey, MilestoneBanner } from '@/components/CustomerJourney'
 import { SectionBoundary } from '@/components/ErrorBoundary'
@@ -315,10 +316,10 @@ export default function Dashboard() {
                     <><Area dataKey="cumulative" name="Cumulative" type="monotone" stroke={isDark ? '#22D3EE' : '#0891B2'} strokeWidth={2.5} fill="url(#dashCumGrad)" dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: isDark ? '#0C1323' : '#fff', fill: isDark ? '#22D3EE' : '#0891B2' }} /></>
                   )}
                   {/* Flow mode: bars + net line */}
-                  {chartMode === 'flow' && !hiddenSeries.has('inflows') && <Bar dataKey="inflows" name="Inflows" fill="url(#dashInflowGrad)" radius={[3, 3, 0, 0]} />}
-                  {chartMode === 'flow' && !hiddenSeries.has('outflows') && <Bar dataKey="outflows" name="Outflows" fill="url(#dashOutflowGrad)" radius={[3, 3, 0, 0]} />}
+                  {chartMode === 'flow' && !hiddenSeries.has('inflows') && <Bar dataKey="inflows" name="Inflows" fill="url(#dashInflowGrad)" radius={[6, 6, 2, 2]} animationBegin={200} animationDuration={800} animationEasing="ease-out" />}
+                  {chartMode === 'flow' && !hiddenSeries.has('outflows') && <Bar dataKey="outflows" name="Outflows" fill="url(#dashOutflowGrad)" radius={[6, 6, 2, 2]} animationBegin={350} animationDuration={800} animationEasing="ease-out" />}
                   {chartMode === 'flow' && !hiddenSeries.has('net') && <Area dataKey="net" name="Net Trend" legendType="none" tooltipType="none" stroke="none" fill="url(#dashNetGrad)" />}
-                  {chartMode === 'flow' && !hiddenSeries.has('net') && <Line dataKey="net" name="Net Flow" type="monotone" stroke={ct.line.primary} strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: isDark ? '#0C1323' : '#fff', fill: ct.line.primary }} />}
+                  {chartMode === 'flow' && !hiddenSeries.has('net') && <Line dataKey="net" name="Net Flow" type="monotone" stroke={ct.line.primary} strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: isDark ? '#0C1323' : '#fff', fill: ct.line.primary }} animationBegin={600} animationDuration={1000} animationEasing="ease-out" />}
                   {/* Overlays — work in both modes */}
                   {showMA && <Line dataKey="ma7" name="7-Day Avg" type="monotone" stroke={isDark ? '#34D399' : '#059669'} strokeWidth={2} strokeDasharray="4 3" dot={false} connectNulls />}
                   {showEMA && <Line dataKey="ema14" name="EMA-14" type="monotone" stroke={isDark ? '#FBBF24' : '#D97706'} strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls />}
@@ -360,10 +361,12 @@ export default function Dashboard() {
             <div className="space-y-2">
               {accounts.slice(0, 4).map((acct) => (
                 <div key={acct.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-deep active:bg-deep transition group">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-extrabold text-white shrink-0 shadow-sm"
-                    style={{ background: acct.bank_connections?.institution_color || '#1565C0' }}>
-                    {acct.bank_connections?.institution_name?.slice(0, 2).toUpperCase() || '??'}
-                  </div>
+                  <BankLogo
+                    name={acct.bank_connections?.institution_name}
+                    color={acct.bank_connections?.institution_color}
+                    size={36}
+                    className="shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold text-t1 truncate">{acct.bank_connections?.institution_name || acct.name}</p>
                     <p className="text-[11px] text-t3 capitalize">{acct.type}</p>

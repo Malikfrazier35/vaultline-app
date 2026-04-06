@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react'
 import Layout from '@/components/Layout'
 import Paywall from '@/components/Paywall'
 import ErrorBoundary, { SectionBoundary } from '@/components/ErrorBoundary'
+import CookieConsent from '@/components/CookieConsent'
 
 // Retry-capable lazy loader — retries chunk loads up to 3 times with 1s delay
 function lazyRetry(importFn, retries = 3) {
@@ -51,6 +52,7 @@ const AuditCenter = lazyRetry(() => import('@/pages/AuditCenter'))
 const Privacy = lazyRetry(() => import('@/pages/Privacy'))
 const Terms = lazyRetry(() => import('@/pages/Terms'))
 const SecurityPage = lazyRetry(() => import('@/pages/SecurityPage'))
+const HowItWorks = lazyRetry(() => import('@/pages/HowItWorks'))
 const Dashboard = lazyRetry(() => import('@/pages/Dashboard'))
 const CashPosition = lazyRetry(() => import('@/pages/CashPosition'))
 const Forecasting = lazyRetry(() => import('@/pages/Forecasting'))
@@ -149,6 +151,7 @@ export default function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/security" element={<SecurityPage />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/products/financeos" element={<FinanceOSService />} />
             <Route path="/products/parallax" element={<ParallaxService />} />
             <Route path="/admin" element={<SuperAdmin />} />
@@ -205,6 +208,7 @@ export default function App() {
           </Routes>
         </Suspense>
       </AuthProvider>
+      <CookieConsent />
     </BrowserRouter>
     </ErrorBoundary>
   )

@@ -1,3 +1,4 @@
+import { SkeletonPage } from "@/components/Skeleton"
 import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/hooks/useTheme'
@@ -86,7 +87,7 @@ export default function SuperAdmin() {
     await fetchData()
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-void"><div className="text-center"><div className="w-8 h-8 border-2 border-cyan border-t-transparent rounded-full animate-spin mx-auto mb-4" /><p className="text-t3 text-sm">Loading platform data...</p></div></div>
+  if (loading) return <SkeletonPage />
 
   if (selectedOrg) {
     const org = orgs.find(o => o.id === selectedOrg)

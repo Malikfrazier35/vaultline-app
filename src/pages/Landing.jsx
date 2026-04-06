@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import ThemeToggle from '@/components/ThemeToggle'
 import { useEffect, useRef, useState, useMemo } from 'react'
@@ -14,7 +14,7 @@ import {
 const FEATURES = [
   { icon: Eye, title: 'Real-Time Cash Visibility', desc: 'Every account, every bank, every dollar — updated continuously across all institutions.', metric: '< 60s sync', gradient: 'from-cyan to-sky-400' },
   { icon: Brain, title: 'AI-Powered Forecasting', desc: '30/60/90-day cash projections that learn from your patterns and get smarter over time.', metric: '3 AI models', gradient: 'from-purple to-indigo-400' },
-  { icon: Plug, title: 'Bank & ERP Connections', desc: 'Connect Chase, BofA, Mercury, SVB, QuickBooks, Xero, NetSuite, and Sage.', metric: 'Plaid-powered', gradient: 'from-green to-emerald-400' },
+  { icon: Plug, title: 'Bank & ERP Connections', desc: 'Connect your banks, credit unions, and accounting platforms in under 60 seconds.', metric: 'Thousands of banks', gradient: 'from-green to-emerald-400' },
   { icon: Shield, title: 'Enterprise Security', desc: 'SOC 2 ready architecture, AES-256 encryption, row-level isolation. Your data never touches another org.', metric: 'SOC 2 Ready', gradient: 'from-amber to-orange-400' },
   { icon: BarChart3, title: 'Board-Ready Reports', desc: 'One-click treasury summaries, cash flow waterfalls, and variance analysis.', metric: '1-click export', gradient: 'from-rose-400 to-pink-500' },
   { icon: Zap, title: 'Treasury Copilot', desc: 'Ask questions in plain English. Get answers grounded in your actual financial data.', metric: 'Claude AI', gradient: 'from-cyan to-purple' },
@@ -33,10 +33,10 @@ const TESTIMONIALS = [
   { metric: '∞ Entities', metricLabel: 'Multi-entity support', title: 'Multi-Entity Consolidation', desc: 'Roll up subsidiaries, BUs, and international entities with automated intercompany eliminations and currency conversion.' },
 ]
 
-const INTEGRATIONS = ['JPMorgan Chase', 'Bank of America', 'Mercury', 'SVB', 'Wells Fargo', 'Citi', 'QuickBooks', 'Xero', 'Sage', 'NetSuite', 'Plaid', 'Stripe']
+const INTEGRATIONS = ['Major Banks', 'Credit Unions', 'Neobanks', 'Fintech Platforms', 'Accounting Software', 'ERP Systems', 'Payment Processors', 'Corporate Cards', 'Investment Accounts', 'Money Market Funds', 'Treasury Platforms', 'Payroll Systems']
 
 const HOW_IT_WORKS = [
-  { step: '01', title: 'Connect your banks', desc: 'Link all your bank accounts and ERPs in under 60 seconds via Plaid or direct API.', icon: Plug },
+  { step: '01', title: 'Connect your banks', desc: 'Link all your bank accounts and accounting platforms in under 60 seconds via secure integrations.', icon: Plug },
   { step: '02', title: 'See your position', desc: 'Get a unified view of cash across every entity, account, and currency — updated continuously.', icon: Eye },
   { step: '03', title: 'Forecast & optimize', desc: 'AI-powered projections, scenario modeling, and copilot insights to maximize your treasury.', icon: Brain },
 ]
@@ -144,7 +144,8 @@ export default function Landing() {
   const [annualPricing, setAnnualPricing] = useState(false)
   useSEO({ title: 'Cloud Treasury Management for Mid-Market Finance Teams', description: 'Real-time cash visibility, AI forecasting, and multi-entity treasury management. Replace spreadsheets with crystal-clear cash intelligence. From $599/mo.', canonical: '/' })
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-void"><div className="w-8 h-8 border-2 border-cyan border-t-transparent rounded-full animate-spin" /></div>
+  // Redirect to dashboard if already logged in (don't block rendering while checking)
+  if (!loading && user) return <Navigate to="/dashboard" replace />
 
   return (
     <div className="min-h-screen bg-void text-t1 overflow-x-hidden">
@@ -453,7 +454,7 @@ export default function Landing() {
         <FadeIn>
           <div className="max-w-4xl mx-auto text-center">
             <h3 className="font-display text-[36px] font-extrabold mb-3 tracking-tight">Connect everything</h3>
-            <p className="text-t3 mb-4 text-[16px]">Thousands of banks via Plaid, plus direct integrations with leading accounting platforms.</p>
+            <p className="text-t3 mb-4 text-[16px]">Thousands of banks and financial institutions supported, plus direct integrations with leading accounting platforms.</p>
             <p className="text-[13px] text-t3 font-mono mb-12">Average connection time: <span className="text-cyan font-bold">47 seconds</span></p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               {INTEGRATIONS.map((name, i) => (
@@ -527,7 +528,7 @@ export default function Landing() {
                     Your subscription removes CO2 from the atmosphere.
                   </h3>
                   <p className="text-[14px] leading-relaxed max-w-lg" style={{ color: isDark ? '#94A3B8' : '#475569' }}>
-                    1% of Vaultline revenue funds direct air capture and geological sequestration via Stripe Climate.
+                    1% of Vaultline revenue funds direct air capture and geological sequestration via verified carbon removal partners.
                   </p>
                 </div>
                 <div className="shrink-0">
@@ -740,7 +741,7 @@ export default function Landing() {
           <div className="flex items-start justify-between mb-10">
             <div>
               <h1 className="font-display text-xl font-black tracking-tight mb-2">Vault<span className="bg-gradient-to-r from-cyan to-purple bg-clip-text text-transparent">line</span></h1>
-              <p className="text-[13px] text-t2 max-w-xs leading-relaxed mb-4">Modern treasury management for mid-market finance teams. Real-time visibility, AI-powered insights, and bank-grade security.</p>
+              <p className="text-[13px] text-t2 max-w-xs leading-relaxed mb-4">Modern treasury management for mid-market finance teams. Real-time visibility, AI-powered insights, and SOC 2-ready security.</p>
               {/* Compliance badges in footer */}
               <div className="flex items-center gap-3">
                 {['SOC 2 Ready', 'AES-256', 'SAML SSO'].map(b => (
@@ -801,7 +802,7 @@ export default function Landing() {
           <div className="flex items-center justify-between">
             <p className="text-[13px] text-t3">&copy; 2026 Vaultline. All rights reserved.</p>
             <a href="https://climate.stripe.com/OeA2M0" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[12px] text-t3 hover:text-green transition">
-              <Leaf size={12} className="text-green" /><span>1% to carbon removal via Stripe Climate</span>
+              <Leaf size={12} className="text-green" /><span>1% to carbon removal</span>
             </a>
           </div>
         </div>

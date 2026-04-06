@@ -7,7 +7,7 @@ import { safeInvoke } from '@/lib/safeInvoke'
 import {
   Shield, AlertTriangle, Lock, Eye, Monitor, Globe, Key, Clock,
   Users, RefreshCw, Loader2, Plus, X, Check, ChevronRight,
-  Fingerprint, Wifi, Activity, TrendingUp, Zap
+  Fingerprint, Wifi, Activity, TrendingUp, Zap, FileText
 } from 'lucide-react'
 
 function ScoreRing({ score, size = 120 }) {
@@ -36,6 +36,7 @@ export default function SecurityCenter() {
   const [calculating, setCalculating] = useState(false)
   // IP form
   const [newCidr, setNewCidr] = useState('')
+  const [generatingReport, setGeneratingReport] = useState(false)
   const [newLabel, setNewLabel] = useState('')
   const [ips, setIps] = useState([])
 
@@ -95,7 +96,7 @@ export default function SecurityCenter() {
   const events = data?.events || {}
   const threats = data?.threats || {}
 
-  if (loading) return <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-t3" /></div>
+  if (loading) return <SkeletonPage />
 
   return (
     <div className="space-y-6">
@@ -191,6 +192,40 @@ export default function SecurityCenter() {
                 )
               })}
               {(events.recent || []).length === 0 && <p className="text-[12px] text-t3 text-center py-4">No security events recorded yet</p>}
+            </div>
+          </div>
+
+          {/* Compliance Report */}
+          <div className="glass-card rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <span className="text-[10px] font-mono text-t3 uppercase tracking-wider">COMPLIANCE REPORT</span>
+                <p className="text-[12px] text-t3 mt-1">Generate a SOC 2 evidence package from live security data</p>
+              </div>
+              <button
+                onClick={async () => {
+                  setGeneratingReport(true)
+                  try {
+                    const { data } = await safeInvoke('compliance-report', { action: 'generate' })
+                    if (data?.error) { toast.error(data.error); return }
+                    if (data) {
+                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `vaultline-soc2-report-${new Date().toISOString().slice(0, 10)}.json`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                      toast.success('Compliance report generated')
+                    }
+                  } catch (err) { toast.error('Failed to generate report') }
+                  finally { setGeneratingReport(false) }
+                }}
+                disabled={generatingReport}
+                className="px-5 py-2.5 rounded-xl bg-green/[0.08] border border-green/20 text-[13px] font-semibold text-green hover:bg-green/[0.15] transition shrink-0 flex items-center gap-2 disabled:opacity-50"
+              >
+                {generatingReport ? <><Loader2 size={13} className="animate-spin" /> Generating...</> : <><FileText size={13} /> Generate Report</>}
+              </button>
             </div>
           </div>
         </div>

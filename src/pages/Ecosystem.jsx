@@ -94,7 +94,7 @@ export default function Ecosystem() {
   const convertedRefs = referrals.filter(r => r.status === 'converted' || r.status === 'rewarded').length
   const totalRewards = referrals.filter(r => r.status === 'rewarded').reduce((s, r) => s + (r.reward_amount || 0), 0)
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-cyan border-t-transparent rounded-full animate-spin" /></div>
+  if (loading) return <SkeletonPage />
 
   return (
     <div className="max-w-[1000px] mx-auto space-y-6">

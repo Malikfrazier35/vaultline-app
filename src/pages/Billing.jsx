@@ -26,12 +26,12 @@ const PLANS = [
     moPrice: 2499, yrPrice: 1999, annual: '$23,988/yr',
     moPriceId: 'price_1TAdogFV8yRihVmrKdDLEbP7',
     yrPriceId: 'price_1TAdokFV8yRihVmrvGYisOLP',
-    features: ['Unlimited bank connections', 'AI copilot + custom models', 'Multi-currency & FX alerts', 'Scenario modeling', 'Custom ERP integrations', 'SSO & audit logs', 'Priority support', 'Uptime SLA'],
+    features: ['Unlimited bank connections', 'AI copilot + scenario modeling', 'Multi-currency & FX alerts', 'Scenario modeling', 'Accounting software sync', 'Security center & audit logs', 'Priority email support', 'Compliance report generator'],
   },
   {
     name: 'Custom', icon: Shield, desc: 'Tailored for large organizations', color: 'amber',
     talkToSales: true,
-    features: ['Everything in Enterprise', 'Multi-region deployment', 'Custom SLA & uptime', 'Dedicated infrastructure', 'On-premise option', 'White-glove onboarding', 'Executive QBRs'],
+    features: ['Everything in Enterprise', 'SSO / SAML integration', 'Custom SLA & uptime guarantee', 'Dedicated onboarding', 'Custom API integrations', 'Volume discounts', 'Quarterly business reviews'],
   },
 ]
 

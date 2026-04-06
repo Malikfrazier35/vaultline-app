@@ -60,7 +60,7 @@ export default function IndustryHub() {
   const onboardingSteps = onboarding?.steps || []
   const completedSteps = onboardingSteps.filter(s => s.status === 'completed').length
 
-  if (loading) return <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-t3" /></div>
+  if (loading) return <SkeletonPage />
 
   return (
     <div className="space-y-6">

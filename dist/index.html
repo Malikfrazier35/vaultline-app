@@ -11,10 +11,20 @@
     <!-- <meta name="google-site-verification" content="XXXX" /> -->
 
     <!-- Google tag (gtag.js) — GA4 + Google Ads -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWFEGEPQ9C"></script>
+    <!-- Consent defaults to denied — CookieConsent component grants after user accepts -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){try{dataLayer.push(arguments)}catch(e){}}
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        wait_for_update: 500
+      });
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWFEGEPQ9C"></script>
+    <script>
       gtag('js', new Date());
       gtag('config', 'G-HWFEGEPQ9C');
       gtag('config', 'AW-18032992189');
@@ -28,7 +38,7 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://www.vaultline.app" />
     <meta name="theme-color" content="#0C1222" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#FFFBF5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#FAFBFC" media="(prefers-color-scheme: light)" />
     <meta name="color-scheme" content="dark light" />
 
     <!-- Favicons -->
@@ -85,8 +95,8 @@
             "AI-powered cash forecasting",
             "Multi-entity treasury consolidation",
             "Multi-currency FX management",
-            "Plaid bank integrations",
-            "QuickBooks and Xero sync",
+            "Secure bank integrations",
+            "Accounting software sync",
             "Scenario modeling",
             "Audit logging",
             "SSO and MFA security",
@@ -128,7 +138,7 @@
           "name": "What banks does Vaultline connect to?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Vaultline connects to over 12,000 financial institutions via Plaid, including Chase, Bank of America, Mercury, SVB, Wells Fargo, and Citi. It also integrates with QuickBooks, Xero, NetSuite, and Sage for ERP sync."
+            "text": "Vaultline connects to thousands of financial institutions through secure bank integrations, supporting major banks, credit unions, and fintech platforms. It also syncs with popular accounting software for seamless reconciliation."
           }
         },
         {
@@ -144,7 +154,7 @@
           "name": "Is Vaultline secure?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Vaultline uses SOC 2-ready architecture with AES-256 encryption, row-level data isolation, MFA authentication, HSTS with 2-year preload, Content Security Policy headers, and automated audit logging. Each organization's data is completely isolated at the database level."
+            "text": "Vaultline uses SOC 2-ready architecture with pgsodium field-level encryption, row-level data isolation, password complexity enforcement, HSTS with 2-year preload, Content Security Policy headers, and automated audit logging. Each organization's data is completely isolated at the database level."
           }
         }
       ]
@@ -156,53 +166,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <script>
-      // Apply saved theme before first paint
+      // Apply saved theme before first paint — defaults to light for new visitors
       (function() {
-        var t = localStorage.getItem('vaultline-theme');
-        if (t === 'light') {
+        var t = localStorage.getItem('vaultline-theme') || 'light';
+        if (t === 'dark') {
           var v = {
-            '--color-void':'#F8FAFC',
-            '--color-deep':'#F1F5F9',
-            '--color-surface':'#FFFFFF',
-            '--color-card':'#FFFFFF',
-            '--color-elevated':'#FFFFFF',
-            '--color-t1':'#0F172A',
-            '--color-t2':'#475569',
+            '--color-void':'#030711',
+            '--color-deep':'#070D19',
+            '--color-surface':'#0B1120',
+            '--color-card':'#0C1323',
+            '--color-elevated':'#141E30',
+            '--color-t1':'#F1F5F9',
+            '--color-t2':'#94A3B8',
             '--color-t3':'#64748B',
-            '--color-t4':'#94A3B8',
-            '--color-border':'rgba(15,23,42,0.08)',
-            '--color-border-hover':'rgba(15,23,42,0.16)',
-            '--color-border-cyan':'rgba(8,145,178,0.2)',
-            '--color-cyan':'#0891B2',
-            '--color-cyan-bright':'#06B6D4',
-            '--color-cyan-glow':'rgba(8,145,178,0.08)',
-            '--color-green':'#059669',
-            '--color-green-soft':'rgba(5,150,105,0.08)',
-            '--color-red':'#E11D48',
-            '--color-red-soft':'rgba(225,29,72,0.06)',
-            '--color-amber':'#D97706',
-            '--color-amber-soft':'rgba(217,119,6,0.06)',
-            '--color-purple':'#7C3AED',
-            '--color-purple-soft':'rgba(124,58,237,0.06)'
+            '--color-t4':'#475569',
+            '--color-border':'rgba(30,48,80,0.4)',
+            '--color-border-hover':'rgba(30,48,80,0.7)',
+            '--color-border-cyan':'rgba(34,211,238,0.25)',
+            '--color-cyan':'#22D3EE',
+            '--color-cyan-bright':'#67E8F9',
+            '--color-cyan-glow':'rgba(34,211,238,0.12)',
+            '--color-green':'#34D399',
+            '--color-green-soft':'rgba(52,211,153,0.1)',
+            '--color-red':'#FB7185',
+            '--color-red-soft':'rgba(251,113,133,0.08)',
+            '--color-amber':'#FBBF24',
+            '--color-amber-soft':'rgba(251,191,36,0.08)',
+            '--color-purple':'#818CF8',
+            '--color-purple-soft':'rgba(129,140,248,0.1)'
           };
           var r = document.documentElement;
           for (var k in v) r.style.setProperty(k, v[k]);
         }
       })();
     </script>
-    <script type="module" crossorigin src="/assets/index-lOG9l-6C.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/vendor-react-CWDCpFz3.js">
+    <script type="module" crossorigin src="/assets/index-DEw9HLyh.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-6iHHRFpw.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-supabase-hwi2RHdP.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-charts-BDUcpOre.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-icons-Bx_dUJns.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-Bjh6oYGv.css">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-icons-CTcAOAFm.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-charts-DpyUTWPr.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DVsrbmMC.css">
   </head>
   <body class="bg-void text-t1 antialiased">
     <div id="root">
-      <!-- Loading splash: visible during React boot, prevents white screen on hard refresh -->
-      <div id="app-loading" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#030711;color:#F1F5F9;font-family:system-ui,sans-serif;">
-        <div style="width:44px;height:44px;border:2px solid rgba(34,211,238,0.12);border-top-color:#22D3EE;border-radius:50%;animation:vl-spin 0.8s linear infinite;margin-bottom:16px;"></div>
-        <p style="font-size:12px;color:#475569;font-family:monospace;letter-spacing:0.08em;">VAULTLINE</p>
+      <!-- Loading splash: theme-aware, visible during React boot -->
+      <div id="app-loading" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--color-void, #030711);color:var(--color-t1, #F1F5F9);font-family:system-ui,sans-serif;">
+        <div style="width:44px;height:44px;border:2px solid var(--color-border, rgba(30,48,80,0.4));border-top-color:var(--color-cyan, #22D3EE);border-radius:50%;animation:vl-spin 0.8s linear infinite;margin-bottom:16px;"></div>
+        <p style="font-size:12px;color:var(--color-t3, #475569);font-family:monospace;letter-spacing:0.08em;">VAULTLINE</p>
         <style>@keyframes vl-spin{to{transform:rotate(360deg)}}</style>
       </div>
     </div>

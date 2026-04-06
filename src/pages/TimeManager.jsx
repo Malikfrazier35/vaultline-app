@@ -1,3 +1,4 @@
+import { SkeletonPage } from "@/components/Skeleton"
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/components/Toast'
@@ -81,7 +82,7 @@ export default function TimeManager() {
   const timeWeek = data?.time_this_week || {}
   const fmtTime = s => { const m = Math.floor(s / 60); const sec = s % 60; return `${m}:${sec.toString().padStart(2, '0')}` }
 
-  if (loading) return <div className="flex items-center justify-center py-32"><Loader2 size={20} className="animate-spin text-t3" /></div>
+  if (loading) return <SkeletonPage />
 
   return (
     <div className="space-y-6">

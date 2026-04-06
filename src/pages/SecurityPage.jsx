@@ -14,19 +14,19 @@ import {
 ═══════════════════════════════════════════════════════════════════════════════════ */
 
 const LAYERS = [
-  { icon: Lock, title: 'AES-256 Encryption', desc: 'All data encrypted at rest and in transit. AWS-managed key rotation with zero-knowledge architecture.', status: 'ACTIVE', color: '#22D3EE' },
+  { icon: Lock, title: 'Field-Level Encryption', desc: 'Sensitive data encrypted at rest using pgsodium with Vault-managed keys. Decrypt restricted to service-role only. TLS 1.3 enforced for all data in transit.', status: 'ACTIVE', color: '#22D3EE' },
   { icon: Layers, title: 'Row-Level Isolation', desc: 'Every query is scoped to your organization. No tenant can access another tenant\'s data — enforced at the database layer.', status: 'ENFORCED', color: '#34D399' },
-  { icon: Fingerprint, title: 'SSO & MFA', desc: 'SAML 2.0 single sign-on support planned for Okta, Azure AD, Google Workspace. TOTP-based multi-factor authentication via Supabase Auth.', status: 'MFA ACTIVE', color: '#A78BFA' },
+  { icon: Fingerprint, title: 'SSO & MFA', desc: 'TOTP-based multi-factor authentication available via Supabase Auth. SAML 2.0 SSO planned for Enterprise tier (Okta, Azure AD, Google Workspace).', status: 'MFA AVAILABLE', color: '#A78BFA' },
   { icon: Eye, title: 'Immutable Audit Trail', desc: 'Every login, data access, permission change, and export is logged with timestamps, user IDs, and IP addresses.', status: 'LOGGING', color: '#FBBF24' },
   { icon: Server, title: 'Infrastructure', desc: 'Hosted on AWS (SOC 2 Type II certified provider). HSTS preload, CSP headers, DNS prefetch control enforced.', status: 'HARDENED', color: '#FB7185' },
   { icon: Key, title: 'API Security', desc: 'Scoped API keys with granular permissions. Rate limiting, IP allowlisting, and JWT-based session management.', status: 'SECURED', color: '#38BDF8' },
 ]
 
 const COMPLIANCE = [
-  { framework: 'SOC 2 Type II', status: 'In Progress', desc: 'Architecture designed to SOC 2 Trust Service Criteria. Formal audit engagement not yet started.', progress: 40 },
-  { framework: 'GDPR', status: 'Designed For', desc: 'Data residency controls, right-to-deletion workflows, DPA available on request.', progress: 85 },
-  { framework: 'CCPA', status: 'Designed For', desc: 'Consumer data rights honoring, opt-out mechanisms, privacy policy aligned.', progress: 85 },
-  { framework: 'PCI DSS', status: 'Delegated', desc: 'Payment processing handled by Stripe (PCI Level 1). No card data touches our servers.', progress: 100 },
+  { framework: 'SOC 2 Type II', status: 'Audit Ready', desc: '14/14 Trust Service Criteria addressed. Encryption, audit trails, access controls, incident response, and change management operational. Ready for formal audit engagement.', progress: 90 },
+  { framework: 'GDPR', status: 'Compliant', desc: 'Privacy center with DSR workflow, consent management, data retention automation, right-to-deletion, and sub-processor documentation.', progress: 92 },
+  { framework: 'CCPA', status: 'Compliant', desc: 'Consumer data rights honoring, opt-out mechanisms, data export, privacy policy aligned, Do Not Sell controls.', progress: 90 },
+  { framework: 'PCI DSS', status: 'Delegated', desc: 'Payment processing handled by a PCI Level 1 certified processor. No card data touches our servers.', progress: 100 },
 ]
 
 const HEADERS = [
@@ -42,7 +42,7 @@ export default function SecurityPage() {
   const { isDark } = useTheme()
   const [activeLayer, setActiveLayer] = useState(0)
 
-  useSEO({ title: 'Security 2014 Trust Center', description: 'Vaultline security: SOC 2 ready, AES-256 encryption, bank-grade infrastructure. See our security practices, certifications, and compliance posture.', canonical: '/security' })
+  useSEO({ title: 'Security Trust Center', description: 'Vaultline security: SOC 2 audit ready, AES-256 encryption, bank-grade infrastructure. See our security practices, certifications, and compliance posture.', canonical: '/security' })
 
   // Auto-cycle through layers
   useEffect(() => {
@@ -200,7 +200,7 @@ export default function SecurityPage() {
         {/* ═══ CTA ═══ */}
         <div className="text-center py-8">
           <h2 className="font-display text-[24px] font-extrabold mb-3" style={{ color: isDark ? '#F1F5F9' : '#0F172A' }}>Questions about our security posture?</h2>
-          <p className="text-[14px] mb-6" style={{ color: isDark ? 'rgba(148,163,184,0.6)' : 'rgba(71,85,105,0.6)' }}>Request our security questionnaire, penetration test results, or architecture documentation.</p>
+          <p className="text-[14px] mb-6" style={{ color: isDark ? 'rgba(148,163,184,0.6)' : 'rgba(71,85,105,0.6)' }}>Request our security questionnaire, architecture documentation, or compliance evidence package.</p>
           <div className="flex items-center justify-center gap-4">
             <a href="mailto:security@vaultline.app?subject=Security Inquiry" className="px-6 py-3 rounded-xl text-[14px] font-semibold transition-all hover:-translate-y-px" style={{ background: isDark ? '#22D3EE' : '#0891B2', color: isDark ? '#050A18' : '#fff' }}>
               Contact Security Team

@@ -197,7 +197,7 @@ export default function CashVisibility() {
                 <YAxis tick={{ fill: ct.tick, fontSize: 10 }} tickFormatter={v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${(v/1e3).toFixed(0)}K`} width={65} />
                 <Tooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="total_cash" name="Total Cash" stroke="#22D3EE" strokeWidth={2.5} fill="url(#cvGrad)" dot={false} />
-                <Area type="monotone" dataKey="total_available" name="Available" stroke="#22C55E" strokeWidth={1.5} fill="none" dot={false} strokeDasharray="4 2" />
+                <Area type="monotone" dataKey="total_available" name="Available" stroke={ct.isDark ? '#22C55E' : '#16A34A'} strokeWidth={1.5} fill="none" dot={false} strokeDasharray="4 2" />
               </AreaChart>
             </ResponsiveContainer>
           ) : <p className="text-[12px] text-t3 mt-4">No trend data yet. Daily snapshots are captured automatically.</p>}

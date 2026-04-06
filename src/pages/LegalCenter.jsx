@@ -52,7 +52,14 @@ export default function LegalCenter() {
   // GPC
   const [gpcDetected, setGpcDetected] = useState(false)
   // Subprocessors
-  const [subprocessors, setSubprocessors] = useState([])
+  const [subprocessors, setSubprocessors] = useState([
+    { name: 'Supabase, Inc.', purpose: 'Database hosting, authentication, real-time subscriptions', data_categories: 'All user and financial data', location: 'United States (AWS us-east-1)', transfer_mechanism: 'Standard Contractual Clauses', security_certifications: 'SOC 2 Type II', added_date: '2026-01-01' },
+    { name: 'Stripe, Inc.', purpose: 'Payment processing, subscription billing', data_categories: 'Billing and payment data', location: 'United States (global)', transfer_mechanism: 'Standard Contractual Clauses', security_certifications: 'PCI DSS Level 1, SOC 2 Type II', added_date: '2026-01-01' },
+    { name: 'Plaid, Inc.', purpose: 'Bank account linking, balance and transaction sync', data_categories: 'Financial account data', location: 'United States', transfer_mechanism: 'Standard Contractual Clauses', security_certifications: 'SOC 2 Type II', added_date: '2026-01-01' },
+    { name: 'Vercel, Inc.', purpose: 'Application hosting, CDN, edge functions', data_categories: 'Application logs, request metadata', location: 'Global edge network', transfer_mechanism: 'Standard Contractual Clauses', security_certifications: 'SOC 2 Type II', added_date: '2026-01-01' },
+    { name: 'Google LLC', purpose: 'Analytics (GA4), advertising (Google Ads)', data_categories: 'Usage analytics, ad conversion data (with consent)', location: 'United States', transfer_mechanism: 'Standard Contractual Clauses', security_certifications: 'ISO 27001, SOC 2', added_date: '2026-03-01' },
+    { name: 'Google Favicons API', purpose: 'Bank institution logo display', data_categories: 'Domain names only (no user data)', location: 'Global', transfer_mechanism: 'N/A', security_certifications: 'N/A', added_date: '2026-04-06' },
+  ])
   // Legal docs
   const [legalDocs, setLegalDocs] = useState([])
   useSEO({ title: 'Legal & Privacy Center', description: 'Vaultline legal center: privacy policy, terms, cookie preferences, Do Not Sell or Share, subprocessor list, and privacy rights portal.', canonical: '/legal' })
@@ -62,7 +69,7 @@ export default function LegalCenter() {
     // Detect GPC
     if (navigator.globalPrivacyControl) setGpcDetected(true)
     // Load subprocessors
-    safeInvoke('legal-ops', { action: 'list_subprocessors' }).then(({ data }) => setSubprocessors(data?.subprocessors || []))
+    // Subprocessors loaded inline — no edge function needed
     // Load legal docs
     safeInvoke('legal-ops', { action: 'list_legal_docs' }).then(({ data }) => setLegalDocs(data?.documents || []))
   }, [])
@@ -363,18 +370,18 @@ export default function LegalCenter() {
                     <div className="flex items-center gap-3 mt-2 text-[10px] font-mono text-t4">
                       <span><Globe size={9} className="inline" /> {sp.location}</span>
                       {sp.transfer_mechanism && <span>Transfer: {sp.transfer_mechanism}</span>}
-                      {sp.data_categories?.length > 0 && <span>Data: {sp.data_categories.join(', ')}</span>}
+                      {sp.data_categories && <span>Data: {Array.isArray(sp.data_categories) ? sp.data_categories.join(', ') : sp.data_categories}</span>}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {(sp.security_certifications || []).map(cert => (
+                    {(Array.isArray(sp.security_certifications) ? sp.security_certifications : (sp.security_certifications || '').split(', ').filter(Boolean)).map(cert => (
                       <span key={cert} className="text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-green/[0.06] text-green border border-green/[0.08]">{cert}</span>
                     ))}
                   </div>
                 </div>
               </div>
             ))}
-            {subprocessors.length === 0 && <div className="text-center py-12"><Loader2 size={20} className="animate-spin text-t3 mx-auto" /></div>}
+            {subprocessors.length === 0 && <p className="text-center py-12 text-t3 text-sm">No sub-processors listed.</p>}
             <p className="text-[10px] text-t4 text-center mt-6">To receive notification of changes to this list, contact <a href="mailto:privacy@vaultline.app" className="text-cyan hover:underline">privacy@vaultline.app</a>.</p>
           </div>
         )}

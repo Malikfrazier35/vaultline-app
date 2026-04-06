@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useLocation, Link } from 'react-router-dom'
 import ErrorBoundary, { SectionBoundary } from '@/components/ErrorBoundary'
+import MobileNav from '@/components/MobileNav'
 import { useAuth } from '@/hooks/useAuth'
 import { usePlaid } from '@/hooks/usePlaid'
 import {
@@ -424,7 +425,7 @@ export default function Layout() {
         </SectionBoundary>
 
         {/* Page content — terminal grid background */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-[1] terminal-grid">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8 relative z-[1] terminal-grid">
           <ErrorBoundary>
             <div key={location.pathname} className="page-enter">
               <Outlet />
@@ -446,13 +447,16 @@ export default function Layout() {
         </div>
       </div>
 
-      {/* Copilot FAB */}
+      {/* Copilot FAB — lifted on mobile to clear tab bar */}
       <button
         data-copilot onClick={() => setCopilotOpen(!copilotOpen)}
-        className="fixed bottom-7 right-7 w-[52px] h-[52px] rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center shadow-[0_4px_24px_rgba(34,211,238,0.25)] hover:shadow-[0_6px_32px_rgba(34,211,238,0.35)] hover:scale-105 active:scale-95 transition-all z-50"
+        className="fixed bottom-20 lg:bottom-7 right-5 lg:right-7 w-[48px] h-[48px] lg:w-[52px] lg:h-[52px] rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center shadow-[0_4px_24px_rgba(34,211,238,0.25)] hover:shadow-[0_6px_32px_rgba(34,211,238,0.35)] hover:scale-105 active:scale-95 transition-all z-50"
       >
-        <MessageSquare size={22} className="text-void" />
+        <MessageSquare size={20} className="text-void" />
       </button>
+
+      {/* Mobile bottom tab navigation */}
+      <MobileNav />
 
       <SectionBoundary name="Copilot" height="h-0">
         <Copilot open={copilotOpen} onClose={() => setCopilotOpen(false)} />
