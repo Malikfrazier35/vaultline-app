@@ -229,13 +229,16 @@ export default function Layout() {
         {/* Logo */}
         <Link to="/" className="block px-7 py-5 border-b border-border hover:bg-deep active:bg-deep transition">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Vaultline" className="w-8 h-8 rounded-lg shadow-[0_2px_12px_rgba(34,211,238,0.2)]" />
+            {org?.logo_url ? (
+              <img src={org.logo_url} alt={org.name || 'Company'} className="w-8 h-8 rounded-lg object-contain bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)]" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
+            ) : null}
+            <img src="/logo.svg" alt="Vaultline" className="w-8 h-8 rounded-lg shadow-[0_2px_12px_rgba(34,211,238,0.2)]" style={org?.logo_url ? { display: 'none' } : {}} />
             {!collapsed && (
               <div>
                 <h1 className="font-display text-[18px] font-extrabold tracking-[-0.02em]">
-                  Vault<span className="bg-gradient-to-r from-cyan to-purple bg-clip-text text-transparent">line</span>
+                  {org?.logo_url ? (org?.name || 'Vaultline') : <>Vault<span className="bg-gradient-to-r from-cyan to-purple bg-clip-text text-transparent">line</span></>}
                 </h1>
-                <p className="text-[11px] text-t3/70 uppercase tracking-[0.12em] font-semibold -mt-0.5">Treasury</p>
+                <p className="text-[11px] text-t3/70 uppercase tracking-[0.12em] font-semibold -mt-0.5">{org?.logo_url ? 'Powered by Vaultline' : 'Treasury'}</p>
               </div>
             )}
           </div>
@@ -355,7 +358,8 @@ export default function Layout() {
         {/* User card */}
         <div className="px-4 py-4 border-t border-border">
           <div className={clsx('flex items-center gap-3 p-2 rounded-xl hover:bg-deep active:bg-deep transition', collapsed && 'justify-center')}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan/80 to-purple/80 flex items-center justify-center text-[13px] font-bold text-white shadow-[0_2px_10px_rgba(34,211,238,0.15)]">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-bold text-white shadow-[0_2px_10px_rgba(34,211,238,0.15)]"
+              style={{ background: org?.brand_color ? `linear-gradient(135deg, ${org.brand_color}, ${org.brand_color}99)` : 'linear-gradient(135deg, rgba(34,211,238,0.8), rgba(129,140,248,0.8))' }}>
               {initials}
             </div>
             {!collapsed && (

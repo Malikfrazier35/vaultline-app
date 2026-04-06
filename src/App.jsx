@@ -79,8 +79,27 @@ const NotFound = lazyRetry(() => import('@/pages/NotFound'))
 
 function Spinner() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-void">
-      <div className="w-8 h-8 border-2 border-cyan border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex bg-void">
+      {/* Sidebar skeleton */}
+      <div className="w-[220px] border-r border-border bg-surface hidden lg:block">
+        <div className="px-7 py-5 border-b border-border">
+          <div className="skeleton h-8 w-32 rounded-lg" />
+        </div>
+        <div className="px-4 py-6 space-y-2">
+          {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton h-9 w-full rounded-lg" style={{ animationDelay: `${i * 0.05}s` }} />)}
+        </div>
+      </div>
+      {/* Content skeleton */}
+      <div className="flex-1 p-8">
+        <div className="space-y-6 max-w-5xl">
+          <div className="skeleton h-8 w-48 rounded-lg" />
+          <div className="skeleton h-4 w-72 rounded" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1,2,3,4].map(i => <div key={i} className="skeleton h-24 rounded-xl" style={{ animationDelay: `${i * 0.1}s` }} />)}
+          </div>
+          <div className="skeleton h-64 rounded-xl" style={{ animationDelay: '0.3s' }} />
+        </div>
+      </div>
     </div>
   )
 }
@@ -89,8 +108,9 @@ function ProtectedRoute({ children }) {
   const { user, org, loading } = useAuth()
   if (loading) return <Spinner />
   if (!user) return <Navigate to="/login" replace />
-  // Only allow active (paid) users. Everyone else sees the paywall.
-  if (org?.plan_status !== 'active') return <Paywall />
+  // Allow active and trialing users. Block canceled/past_due.
+  const allowed = ['active', 'trialing']
+  if (org?.plan_status && !allowed.includes(org.plan_status)) return <Paywall />
   return children
 }
 

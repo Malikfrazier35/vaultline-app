@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { safeInvoke } from '@/lib/safeInvoke'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/components/Toast'
 import {
   Building2, User, Bell, Shield, Palette, Globe, MapPin, Phone,
   Mail, Briefcase, Camera, Check, X, ChevronRight, Save,
   AlertTriangle, Trash2, Database, Users, CreditCard, Clock, ArrowRight, AlertCircle,
-  Download, Lock, FileText
+  Download, Lock, FileText, Sparkles, Loader2
 } from 'lucide-react'
 
 const INDUSTRIES = [
@@ -33,6 +34,8 @@ export default function Settings() {
   const [tab, setTab] = useState('company')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [brandDomain, setBrandDomain] = useState(org?.domain || '')
+  const [enriching, setEnriching] = useState(false)
   const [orgData, setOrgData] = useState({})
   const [profileData, setProfileData] = useState({})
   const [autoSaveStatus, setAutoSaveStatus] = useState(null) // null | 'saving' | 'saved' | 'error'
@@ -317,6 +320,78 @@ export default function Settings() {
             </div>
           </SectionCard>
 
+          <SectionCard title="Brand Identity" sub="Auto-enrich your dashboard with company branding">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                {org?.logo_url ? (
+                  <img src={org.logo_url} alt={org.name} className="w-14 h-14 rounded-xl object-contain bg-white border border-border shadow-sm" />
+                ) : (
+                  <div className="w-14 h-14 rounded-xl bg-deep border border-border flex items-center justify-center">
+                    <Building2 size={20} className="text-t3" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="text-[13px] font-semibold text-t1">{org?.domain ? `${org.domain}` : 'No domain set'}</p>
+                  <p className="text-[11px] text-t3 mt-0.5">
+                    {org?.brand_enriched_at ? `Enriched ${new Date(org.brand_enriched_at).toLocaleDateString()}` : 'Enter your company domain to auto-pull logo and brand colors'}
+                  </p>
+                  {org?.domain_verified && <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-green mt-1"><Check size={10} /> Domain verified</span>}
+                </div>
+                {org?.brand_color && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg border border-border shadow-sm" style={{ background: org.brand_color }} />
+                    <span className="text-[11px] font-mono text-t3">{org.brand_color}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={brandDomain}
+                  onChange={e => setBrandDomain(e.target.value)}
+                  placeholder="acmecorp.com"
+                  className="flex-1 bg-deep border border-border rounded-xl px-4 py-2.5 text-[13px] text-t1 font-mono placeholder:text-t4 focus:border-cyan focus:outline-none transition"
+                  disabled={!isOwnerOrAdmin}
+                />
+                <button
+                  onClick={async () => {
+                    if (!brandDomain.trim()) return
+                    setEnriching(true)
+                    try {
+                      const { data } = await safeInvoke('brand-enrich', { action: 'enrich', domain: brandDomain.trim(), org_id: org?.id, user_id: user?.id })
+                      if (data?.error) { toast.error(data.error); return }
+                      if (data?.success) {
+                        toast.success(`Brand enriched: ${data.company_name || data.domain}`)
+                        refetch?.()
+                      }
+                    } catch (err) { toast.error('Enrichment failed') }
+                    finally { setEnriching(false) }
+                  }}
+                  disabled={!isOwnerOrAdmin || enriching || !brandDomain.trim()}
+                  className="px-5 py-2.5 rounded-xl bg-cyan/[0.08] border border-cyan/20 text-[13px] font-semibold text-cyan hover:bg-cyan/[0.15] transition shrink-0 flex items-center gap-2 disabled:opacity-50"
+                >
+                  {enriching ? <><Loader2 size={13} className="animate-spin" /> Enriching...</> : <><Sparkles size={13} /> Enrich</>}
+                </button>
+              </div>
+
+              {org?.domain && !org?.domain_verified && (
+                <div className="terminal-inset rounded-xl p-4">
+                  <p className="text-[12px] text-t2 font-medium mb-1">Verify domain ownership (optional)</p>
+                  <p className="text-[11px] text-t3 mb-2">Add a DNS TXT record to prove you own this domain. This prevents impersonation.</p>
+                  <button
+                    onClick={async () => {
+                      const { data } = await safeInvoke('brand-enrich', { action: 'verify_domain', domain: org.domain, org_id: org?.id, user_id: user?.id })
+                      if (data?.verified) { toast.success('Domain verified!'); refetch?.() }
+                      else if (data?.verification_code) { toast.info(`Add TXT record: ${data.verification_code}`); alert(`Add this TXT record to your DNS:\n\n${data.verification_code}\n\nThen click verify again.`) }
+                    }}
+                    className="text-[11px] font-mono text-cyan hover:text-cyan/80 transition"
+                  >Verify DNS →</button>
+                </div>
+              )}
+            </div>
+          </SectionCard>
+
           {isOwnerOrAdmin && (
             <div className="flex justify-end">
               <SaveButton saving={saving} saved={saved} onClick={saveOrg} />
@@ -535,20 +610,48 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={async () => {
+                    // 1. Rate limit check via security-ops
+                    try {
+                      const { data: check } = await safeInvoke('security-ops', { action: 'export_check' })
+                      if (check && !check.allowed) {
+                        toast.error(check.reason, 'Export blocked')
+                        return
+                      }
+                    } catch {}
+
+                    // 2. Re-authenticate before export
+                    const pw = prompt('Re-enter your password to confirm data export:')
+                    if (!pw) return
+                    const { error: authErr } = await supabase.auth.signInWithPassword({ email: profile?.email || user?.email, password: pw })
+                    if (authErr) { toast.error('Incorrect password. Export denied.'); return }
+
                     toast.info('Generating export...')
                     try {
                       const tables = ['profiles', 'accounts', 'transactions', 'bank_connections', 'cash_position', 'daily_balances', 'forecasts', 'audit_log', 'notifications']
-                      const exportData = { exported_at: new Date().toISOString(), user_id: user.id, org_id: org?.id }
+                      const exportData = {
+                        exported_at: new Date().toISOString(),
+                        user_id: user.id,
+                        org_id: org?.id,
+                        watermark: `Exported by ${profile?.full_name || user?.email} on ${new Date().toISOString()} — Vaultline Confidential`,
+                      }
                       for (const t of tables) {
                         const { data } = await supabase.from(t).select('*').eq(t === 'profiles' ? 'id' : 'org_id', t === 'profiles' ? user.id : org?.id).limit(10000)
-                        exportData[t] = data || []
+                        // Mask sensitive fields in export
+                        exportData[t] = (data || []).map(row => {
+                          const masked = { ...row }
+                          if (masked.account_number) masked.account_number = '****' + String(masked.account_number).slice(-4)
+                          if (masked.routing_number) masked.routing_number = '****' + String(masked.routing_number).slice(-4)
+                          if (masked.access_token) masked.access_token = '[REDACTED]'
+                          if (masked.item_id) masked.item_id = '[REDACTED]'
+                          return masked
+                        })
                       }
                       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
                       const url = URL.createObjectURL(blob)
                       const a = document.createElement('a'); a.href = url; a.download = `vaultline-data-export-${new Date().toISOString().slice(0, 10)}.json`; a.click()
                       URL.revokeObjectURL(url)
                       toast.success('Data exported')
-                      await logAuditEvent('data_export', 'privacy', null, { tables: tables.length, format: 'json' })
+                      await logAuditEvent('data_export', 'privacy', null, { tables: tables.length, format: 'json', ip: navigator.userAgent?.slice(0, 100) })
                     } catch (err) { toast.error(err.message, 'Export failed') }
                   }}
                   className="px-5 py-2.5 rounded-xl bg-cyan/[0.08] border border-cyan/20 text-[13px] font-semibold text-cyan hover:bg-cyan/[0.15] transition shrink-0"

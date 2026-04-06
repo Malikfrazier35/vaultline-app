@@ -168,45 +168,39 @@ export function ValueReinforcement() {
   const [dismissed, setDismissed] = useState(() => {
     const saved = localStorage.getItem('vaultline-value-dismissed')
     if (!saved) return false
-    // Only dismiss for current month
     const dismissedMonth = new Date(JSON.parse(saved)).getMonth()
     return dismissedMonth === new Date().getMonth()
   })
-
-  // Only show for active/trialing users with real data, first week of month
-  const dayOfMonth = new Date().getDate()
-  if (dismissed || dayOfMonth > 7) return null
-  if (!org || (org.plan_status !== 'active' && org.plan_status !== 'trialing')) return null
-  if (!transactions.length && !accounts.length) return null
 
   const stats = useMemo(() => {
     const now = new Date()
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
 
-    const monthTx = transactions.filter(t => {
+    const monthTx = (transactions || []).filter(t => {
       const d = new Date(t.date)
       return d >= lastMonth && d <= lastMonthEnd
     })
 
     const totalReconciled = monthTx.length
     const totalVolume = monthTx.reduce((s, t) => s + Math.abs(t.amount || 0), 0)
-
-    // Estimated hours saved: ~2 min per manual reconciliation, 30 min daily position check
-    const hoursSaved = Math.round((totalReconciled * 2 / 60) + (30 * 22 / 60)) // 22 working days
-
-    // Balance checks automated
-    const balanceChecks = accounts.length * 22 // daily per account per working day
+    const hoursSaved = Math.round((totalReconciled * 2 / 60) + (30 * 22 / 60))
+    const balanceChecks = (accounts || []).length * 22
 
     return {
       totalReconciled,
       totalVolume,
       hoursSaved,
       balanceChecks,
-      accounts: accounts.length,
+      accounts: (accounts || []).length,
     }
   }, [transactions, accounts])
 
+  // All hooks above — safe to return early below
+  const dayOfMonth = new Date().getDate()
+  if (dismissed || dayOfMonth > 7) return null
+  if (!org || (org.plan_status !== 'active' && org.plan_status !== 'trialing')) return null
+  if (!(transactions || []).length && !(accounts || []).length) return null
   if (stats.totalReconciled === 0 && stats.accounts === 0) return null
 
   function dismiss() {

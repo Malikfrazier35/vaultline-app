@@ -8,6 +8,7 @@ import { ChartTooltip } from '@/components/ChartTooltip'
 import { useTheme } from '@/hooks/useTheme'
 import { Link } from 'react-router-dom'
 import GrowthNudge from '@/components/GrowthNudge'
+import { MaskedBalance } from '@/components/MaskedValue'
 import OnboardingChecklist from '@/components/Onboarding'
 import { ValueReinforcement, NPSSurvey, MilestoneBanner } from '@/components/CustomerJourney'
 import { SectionBoundary } from '@/components/ErrorBoundary'
@@ -152,9 +153,9 @@ export default function Dashboard() {
       <SectionBoundary name="Onboarding" height="h-auto"><OnboardingChecklist /></SectionBoundary>
 
       {/* Lifecycle engagement — value recap, milestones, NPS */}
-      <ValueReinforcement />
-      <MilestoneBanner />
-      <NPSSurvey />
+      <SectionBoundary name="ValueReinforcement" height="h-auto"><ValueReinforcement /></SectionBoundary>
+      <SectionBoundary name="MilestoneBanner" height="h-auto"><MilestoneBanner /></SectionBoundary>
+      <SectionBoundary name="NPSSurvey" height="h-auto"><NPSSurvey /></SectionBoundary>
 
       {/* Stat cards */}
       <SectionBoundary name="Key Metrics" height="h-[120px]">
@@ -368,7 +369,7 @@ export default function Dashboard() {
                     <p className="text-[11px] text-t3 capitalize">{acct.type}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-mono text-[14px] font-bold text-t1 tracking-tight terminal-data">${acct.current_balance?.toLocaleString()}</p>
+                    <MaskedBalance value={acct.current_balance} className="font-bold text-t1 tracking-tight terminal-data" size="sm" />
                     {totalCash > 0 && <p className="text-[11px] text-t3">{(acct.current_balance / totalCash * 100).toFixed(0)}%</p>}
                   </div>
                 </div>

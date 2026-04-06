@@ -1,61 +1,61 @@
 import { useState, useEffect, useCallback } from 'react'
 
 const LIGHT_VARS = {
-  // ── Warm backgrounds: cream/sand instead of cold slate ──
-  '--color-void': '#FFFBF5',         // warm cream
-  '--color-deep': '#FFF7ED',         // soft peach-white
+  // ── Cool professional backgrounds ──
+  '--color-void': '#FAFBFC',
+  '--color-deep': '#F1F5F9',
   '--color-surface': '#FFFFFF',
   '--color-card': '#FFFFFF',
-  '--color-elevated': '#FFFCF8',
-  '--color-border': 'rgba(180, 140, 100, 0.12)',        // warm sand
-  '--color-border-hover': 'rgba(180, 140, 100, 0.22)',
+  '--color-elevated': '#F8FAFC',
+  '--color-border': 'rgba(15, 23, 42, 0.08)',
+  '--color-border-hover': 'rgba(15, 23, 42, 0.16)',
   '--color-border-cyan': 'rgba(14, 165, 180, 0.22)',
-  // ── Text: warm ink tones ──
-  '--color-t1': '#1C1410',           // warm near-black
-  '--color-t2': '#5C4E42',           // warm brown-gray
-  '--color-t3': '#8B7E72',           // warm stone
-  '--color-t4': '#B5A89C',           // warm muted
-  // ── Accent colors: vivid but warm-shifted ──
-  '--color-cyan': '#0E9AAA',         // warm teal
-  '--color-cyan-bright': '#14B8C8',
-  '--color-cyan-glow': 'rgba(14, 154, 170, 0.08)',
+  // ── Text: cool slate tones ──
+  '--color-t1': '#0F172A',
+  '--color-t2': '#475569',
+  '--color-t3': '#94A3B8',
+  '--color-t4': '#CBD5E1',
+  // ── Accent colors ──
+  '--color-cyan': '#0891B2',
+  '--color-cyan-bright': '#06B6D4',
+  '--color-cyan-glow': 'rgba(8, 145, 178, 0.06)',
   '--color-green': '#16A34A',
-  '--color-green-soft': 'rgba(22, 163, 74, 0.07)',
-  '--color-red': '#E11D48',
-  '--color-red-soft': 'rgba(225, 29, 72, 0.06)',
+  '--color-green-soft': 'rgba(22, 163, 74, 0.06)',
+  '--color-red': '#DC2626',
+  '--color-red-soft': 'rgba(220, 38, 38, 0.05)',
   '--color-amber': '#D97706',
-  '--color-amber-soft': 'rgba(217, 119, 6, 0.07)',
+  '--color-amber-soft': 'rgba(217, 119, 6, 0.06)',
   '--color-purple': '#7C3AED',
-  '--color-purple-soft': 'rgba(124, 58, 237, 0.06)',
-  // ── Warm glass system ──
-  '--glass-bg': 'rgba(255, 252, 248, 0.75)',
-  '--glass-border': 'rgba(180, 140, 100, 0.10)',
-  '--glass-highlight': 'rgba(255, 255, 255, 0.8)',
-  '--glass-shadow': '0 8px 32px rgba(120, 80, 30, 0.06), 0 0 0 1px rgba(180, 140, 100, 0.06)',
-  // ── Warm glass input ──
-  '--glass-input-bg': 'rgba(255, 247, 237, 0.6)',
-  '--glass-input-border': 'rgba(180, 140, 100, 0.12)',
-  '--glass-input-shadow': 'inset 0 1px 2px rgba(120, 80, 30, 0.04), inset 0 0 0 1px rgba(180, 140, 100, 0.04)',
-  // ── Warm terminal ──
-  '--terminal-status-bg': 'rgba(255, 247, 237, 0.9)',
-  '--terminal-status-border': 'rgba(14, 154, 170, 0.12)',
-  '--terminal-inset-bg': 'rgba(255, 247, 237, 0.7)',
-  '--terminal-inset-border': 'rgba(180, 140, 100, 0.08)',
-  '--terminal-inset-shadow': 'inset 0 1px 3px rgba(120, 80, 30, 0.04), inset 0 0 0 1px rgba(180, 140, 100, 0.03)',
-  '--terminal-label-bg': 'rgba(14, 154, 170, 0.06)',
-  '--terminal-label-border': 'rgba(14, 154, 170, 0.15)',
-  '--terminal-scanline-color': 'rgba(120, 80, 30, 0.012)',
-  '--terminal-grid-color': 'rgba(14, 154, 170, 0.03)',
+  '--color-purple-soft': 'rgba(124, 58, 237, 0.05)',
+  // ── Glass system ──
+  '--glass-bg': 'rgba(255, 255, 255, 0.8)',
+  '--glass-border': 'rgba(15, 23, 42, 0.06)',
+  '--glass-highlight': 'rgba(255, 255, 255, 0.9)',
+  '--glass-shadow': '0 1px 3px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15, 23, 42, 0.04)',
+  // ── Glass input ──
+  '--glass-input-bg': 'rgba(241, 245, 249, 0.6)',
+  '--glass-input-border': 'rgba(15, 23, 42, 0.08)',
+  '--glass-input-shadow': 'inset 0 1px 2px rgba(15, 23, 42, 0.03)',
+  // ── Terminal system ──
+  '--terminal-status-bg': 'rgba(248, 250, 252, 0.95)',
+  '--terminal-status-border': 'rgba(8, 145, 178, 0.1)',
+  '--terminal-inset-bg': 'rgba(241, 245, 249, 0.7)',
+  '--terminal-inset-border': 'rgba(15, 23, 42, 0.06)',
+  '--terminal-inset-shadow': 'inset 0 1px 2px rgba(15, 23, 42, 0.03)',
+  '--terminal-label-bg': 'rgba(8, 145, 178, 0.05)',
+  '--terminal-label-border': 'rgba(8, 145, 178, 0.12)',
+  '--terminal-scanline-color': 'rgba(15, 23, 42, 0.008)',
+  '--terminal-grid-color': 'rgba(8, 145, 178, 0.03)',
   '--terminal-live-color': '#16A34A',
   '--terminal-live-glow': 'rgba(22, 163, 74, 0.4)',
   '--noise-opacity': '0',
-  // ── Warm-mode exclusive: splash gradients ──
-  '--warm-gradient-sidebar': 'linear-gradient(180deg, #FFF7ED 0%, #FFF1E3 50%, #FDE8D0 100%)',
-  '--warm-gradient-header': 'linear-gradient(135deg, rgba(14,154,170,0.04) 0%, rgba(217,119,6,0.04) 50%, rgba(225,29,72,0.02) 100%)',
-  '--warm-gradient-kpi': 'linear-gradient(135deg, rgba(14,154,170,0.06) 0%, rgba(124,58,237,0.04) 100%)',
-  '--warm-accent-line': 'linear-gradient(90deg, #0E9AAA, #D97706, #E11D48)',
-  '--warm-card-shadow': '0 4px 20px rgba(180, 140, 100, 0.08)',
-  '--warm-sidebar-active': 'rgba(14, 154, 170, 0.08)',
+  // ── Light-mode gradients (cool) ──
+  '--warm-gradient-sidebar': 'linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 50%, #E2E8F0 100%)',
+  '--warm-gradient-header': 'linear-gradient(135deg, rgba(8,145,178,0.03) 0%, rgba(99,102,241,0.02) 100%)',
+  '--warm-gradient-kpi': 'linear-gradient(135deg, rgba(8,145,178,0.04) 0%, rgba(124,58,237,0.03) 100%)',
+  '--warm-accent-line': 'linear-gradient(90deg, #0891B2, #6366F1)',
+  '--warm-card-shadow': '0 1px 3px rgba(15, 23, 42, 0.04)',
+  '--warm-sidebar-active': 'rgba(8, 145, 178, 0.06)',
 }
 
 const DARK_VARS = {
