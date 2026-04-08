@@ -189,7 +189,7 @@ export default function App() {
               <Route path="alerts" element={<SafePage name="Alerts"><Alerts /></SafePage>} />
               <Route path="currencies" element={<SafePage name="Multi-Currency"><UpgradeGate feature="multi_currency"><MultiCurrency /></UpgradeGate></SafePage>} />
               <Route path="entities" element={<SafePage name="Entities"><UpgradeGate feature="multi_entity"><Entities /></UpgradeGate></SafePage>} />
-              <Route path="api" element={<SafePage name="API"><ApiAccess /></SafePage>} />
+              <Route path="api" element={<SafePage name="API"><UpgradeGate feature="api_access"><ApiAccess /></UpgradeGate></SafePage>} />
               <Route path="docs" element={<SafePage name="API Docs"><ApiDocs /></SafePage>} />
               <Route path="audit" element={<SafePage name="Audit Log"><UpgradeGate feature="audit_center"><AuditLog /></UpgradeGate></SafePage>} />
               <Route path="integrations" element={<SafePage name="Integrations"><Integrations /></SafePage>} />
@@ -207,7 +207,7 @@ export default function App() {
               <Route path="cash-visibility" element={<SafePage name="Cash Visibility"><CashVisibility /></SafePage>} />
               <Route path="ux" element={<SafePage name="UX"><UXCenter /></SafePage>} />
               <Route path="resources" element={<SafePage name="Resources"><ResourceHub /></SafePage>} />
-              <Route path="copilot" element={<SafePage name="Treasury Operations"><UpgradeGate feature="copilot"><CopilotCenter /></UpgradeGate></SafePage>} />
+              <Route path="copilot" element={<SafePage name="Treasury Operations"><CopilotCenter /></SafePage>} />
               <Route path="payment-hub" element={<SafePage name="Payment Hub"><PaymentHub /></SafePage>} />
               <Route path="design-system" element={<SafePage name="Design System"><DesignSystem /></SafePage>} />
               <Route path="automation" element={<SafePage name="Automation"><AutomationCenter /></SafePage>} />

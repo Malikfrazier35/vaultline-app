@@ -14,13 +14,14 @@ export const PLAN_FEATURES = {
     forecast_days: 30,
     pages: [
       'home', 'dashboard', 'position', 'forecast', 'transactions',
-      'banks', 'payments', 'reports', 'team', 'settings', 'billing',
+      'banks', 'payments', 'reports', 'alerts', 'copilot',
+      'team', 'settings', 'billing',
     ],
     features: [
       'cash_position', 'basic_reports', 'email_alerts', 'transaction_tagging',
     ],
     blocked_features: [
-      'copilot', 'scenarios', 'multi_currency', 'custom_reports',
+      'scenarios', 'multi_currency', 'custom_reports',
       'api_access', 'slack_alerts', 'security_center', 'audit_center',
       'sso', 'compliance_reports', 'data_import', 'entities',
     ],
