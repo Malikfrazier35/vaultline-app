@@ -103,7 +103,27 @@ export function usePlanGate() {
   }), [plan, config])
 }
 
-// ── Upgrade Prompt Component ───────────────────────────────────
+// ── Time Period Gating ────────────────────────────────────────
+export const PLAN_PERIODS = {
+  starter:    ['7D', '30D'],
+  growth:     ['7D', '30D', '90D', 'MTD', 'QTD'],
+  enterprise: ['7D', '30D', '90D', 'MTD', 'QTD', 'YTD', 'FY'],
+}
+
+export function getAllowedPeriods(plan) {
+  return PLAN_PERIODS[plan] || PLAN_PERIODS.starter
+}
+
+export function isPeriodAllowed(plan, period) {
+  return (PLAN_PERIODS[plan] || PLAN_PERIODS.starter).includes(period)
+}
+
+// Required plan for a given period
+export function periodRequiredPlan(period) {
+  if (PLAN_PERIODS.starter.includes(period)) return 'starter'
+  if (PLAN_PERIODS.growth.includes(period)) return 'growth'
+  return 'enterprise'
+}
 export function UpgradeGate({ feature, children, fallback }) {
   const { hasFeature, requiredPlan, label } = usePlanGate()
 

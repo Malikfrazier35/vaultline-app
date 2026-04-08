@@ -1,5 +1,6 @@
 import { useTreasury } from '@/hooks/useTreasury'
 import { useAuth } from '@/hooks/useAuth'
+import { isPeriodAllowed, periodRequiredPlan } from '@/lib/planEngine'
 import { DollarSign, TrendingUp, Clock, CheckCircle, ArrowUpRight, ArrowDownRight, Sparkles, Activity, CreditCard, ChevronRight, RefreshCw, Gift, Package, Copy, ArrowRight } from 'lucide-react'
 import { BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, AreaChart, Area, ReferenceLine } from 'recharts'
 import { useMemo, useState, useEffect } from 'react'
@@ -259,9 +260,15 @@ export default function Dashboard() {
               </div>
               {/* Period */}
               <div className="flex items-center gap-0.5 border border-border rounded-lg p-0.5">
-                {['7D', '30D', '90D'].map(p => (
-                  <button key={p} onClick={() => setChartPeriod(p)} className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${chartPeriod === p ? 'bg-cyan/[0.08] text-cyan' : 'text-t3 hover:text-t2'}`}>{p}</button>
-                ))}
+                {['7D', '30D', '90D'].map(p => {
+                  const allowed = isPeriodAllowed(org?.plan || 'starter', p)
+                  return (
+                    <button key={p} onClick={() => allowed ? setChartPeriod(p) : null} title={!allowed ? `Upgrade to ${periodRequiredPlan(p)} for ${p} view` : ''}
+                      className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${chartPeriod === p ? 'bg-cyan/[0.08] text-cyan' : allowed ? 'text-t3 hover:text-t2' : 'text-t4/40 cursor-not-allowed'}`}>
+                      {p}{!allowed && ' 🔒'}
+                    </button>
+                  )
+                })}
               </div>
               {/* Overlays */}
               <button onClick={() => setShowMA(!showMA)} className={`px-2 py-1 rounded-md text-[10px] font-bold transition-all ${showMA ? 'bg-green/[0.08] text-green border border-green/[0.12]' : 'text-t3 border border-transparent hover:text-t2'}`}>MA7</button>

@@ -3,6 +3,7 @@ import { SkeletonPage } from '@/components/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { safeInvoke } from '@/lib/safeInvoke'
 import { useAuth } from '@/hooks/useAuth'
+import { isPeriodAllowed, periodRequiredPlan } from '@/lib/planEngine'
 import { useToast } from '@/components/Toast'
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch'
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, ReferenceLine, PieChart, Pie, Cell } from 'recharts'
@@ -43,7 +44,7 @@ export default function Forecasting() {
   const ct = useChartTheme()
   const { isDark } = useTheme()
   const [forecastData, setForecastData] = useState([])
-  const [period, setPeriod] = useState('QTD')
+  const [period, setPeriod] = useState('30D')
   const [showBand, setShowBand] = useState(true)
   const [model, setModel] = useState('linear')
   const [showSMA, setShowSMA] = useState(false)
@@ -86,6 +87,7 @@ export default function Forecasting() {
     // Calendar-date cutoff — proper period filtering
     let cutoff
     if (period==='7D') cutoff = new Date(now2.getTime() - 7 * 86400000)
+    else if (period==='30D') cutoff = new Date(now2.getTime() - 30 * 86400000)
     else if (period==='MTD') cutoff = new Date(now2.getFullYear(), now2.getMonth(), 1)
     else if (period==='QTD') { const q = Math.floor(now2.getMonth() / 3) * 3; cutoff = new Date(now2.getFullYear(), q, 1) }
     else cutoff = new Date(now2.getFullYear(), 0, 1) // FY
@@ -468,7 +470,7 @@ export default function Forecasting() {
               </div>
               <div className="w-px h-4 bg-border mx-0.5" />
               <div className="flex items-center gap-1 p-0.5 rounded-lg bg-deep border border-border">
-                {['7D','MTD','QTD','FY'].map(r => (<button key={r} onClick={()=>setPeriod(r)} className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${period===r?'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]':'text-t3 hover:text-t2'}`}>{r}</button>))}
+                {['7D','30D','MTD','QTD','FY'].map(r => { const allowed = isPeriodAllowed(org?.plan||'starter', r); return (<button key={r} onClick={()=>allowed?setPeriod(r):null} title={!allowed?`Upgrade to ${periodRequiredPlan(r)} for ${r}`:''} className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${period===r?'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]':allowed?'text-t3 hover:text-t2':'text-t4/40 cursor-not-allowed'}`}>{r}{!allowed&&' 🔒'}</button>)})}
               </div>
             </div>
           </div>

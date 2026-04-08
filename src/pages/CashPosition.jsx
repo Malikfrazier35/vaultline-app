@@ -3,6 +3,7 @@ import { SkeletonPage } from '@/components/Skeleton'
 import BankLogo from '@/components/BankLogo'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
+import { isPeriodAllowed, periodRequiredPlan } from '@/lib/planEngine'
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch'
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine } from 'recharts'
 import { useMemo, useState, useEffect, useCallback } from 'react'
@@ -27,7 +28,7 @@ export default function CashPosition() {
   const ct = useChartTheme()
   const { isDark } = useTheme()
   const [dailyBalances, setDailyBalances] = useState([])
-  const [period, setPeriod] = useState('MTD') // MTD | QTD | YTD | 7D | 30D
+  const [period, setPeriod] = useState('30D') // Default to 30D (available on all plans)
   const [hiddenAccounts, setHiddenAccounts] = useState(new Set())
   const [chartMode, setChartMode] = useState('position') // position (stacked) | trend (overlay)
   const [acctFilter, setAcctFilter] = useState('all') // all | checking | savings | credit
@@ -187,12 +188,15 @@ export default function CashPosition() {
                 </div>
                 {/* Period selector — accounting periods */}
                 <div className="flex items-center gap-1 p-0.5 rounded-lg bg-deep border border-border">
-                  {['7D', 'MTD', 'QTD', 'YTD'].map(r => (
-                    <button key={r} onClick={() => setPeriod(r)}
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${
-                        period === r ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : 'text-t3 hover:text-t2'
-                      }`}>{r}</button>
-                  ))}
+                  {['7D', '30D', 'MTD', 'QTD', 'YTD'].map(r => {
+                    const allowed = isPeriodAllowed(org?.plan || 'starter', r)
+                    return (
+                      <button key={r} onClick={() => allowed ? setPeriod(r) : null} title={!allowed ? `Upgrade to ${periodRequiredPlan(r)} for ${r} view` : ''}
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${
+                          period === r ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : allowed ? 'text-t3 hover:text-t2' : 'text-t4/40 cursor-not-allowed'
+                        }`}>{r}{!allowed && ' 🔒'}</button>
+                    )
+                  })}
                 </div>
                 <div className="flex items-center gap-1">
                   <button onClick={() => setShowSMA(!showSMA)} className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${showSMA ? 'bg-green/[0.08] text-green border border-green/[0.12]' : 'text-t3 border border-transparent hover:text-t2'}`}>SMA7</button>
