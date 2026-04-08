@@ -29,23 +29,33 @@ export function TreasuryProvider({ children }) {
     if (!opts.silent) setLoading(true)
 
     try {
+      const hideSample = org?.has_real_data === true
+
+      let acctQuery = supabase.from('accounts')
+        .select('*, bank_connections(institution_name, institution_color, status)')
+        .eq('org_id', orgId).eq('is_active', true)
+      if (hideSample) acctQuery = acctQuery.eq('is_sample', false)
+
+      let txQuery = supabase.from('transactions')
+        .select('*, accounts(name, bank_connections(institution_name))')
+        .eq('org_id', orgId)
+      if (hideSample) txQuery = txQuery.eq('is_sample', false)
+
+      let bankQuery = supabase.from('bank_connections').select('*').eq('org_id', orgId)
+      if (hideSample) bankQuery = bankQuery.eq('is_sample', false)
+
+      let balQuery = supabase.from('daily_balances').select('date, balance')
+        .eq('org_id', orgId)
+      if (hideSample) balQuery = balQuery.eq('is_sample', false)
+
       const [acctRes, txRes, posRes, bankRes, fcRes, balRes] = await Promise.all([
-        supabase.from('accounts')
-          .select('*, bank_connections(institution_name, institution_color, status)')
-          .eq('org_id', orgId).eq('is_active', true)
-          .order('current_balance', { ascending: false }),
-        supabase.from('transactions')
-          .select('*, accounts(name, bank_connections(institution_name))')
-          .eq('org_id', orgId)
-          .order('date', { ascending: false })
-          .limit(100),
+        acctQuery.order('current_balance', { ascending: false }),
+        txQuery.order('date', { ascending: false }).limit(100),
         supabase.from('cash_position').select('*').eq('org_id', orgId).maybeSingle(),
-        supabase.from('bank_connections').select('*').eq('org_id', orgId)
-          .order('created_at', { ascending: true }),
+        bankQuery.order('created_at', { ascending: true }),
         supabase.from('forecasts').select('*').eq('org_id', orgId)
           .order('generated_at', { ascending: false }).limit(1).maybeSingle(),
-        supabase.from('daily_balances').select('date, balance')
-          .eq('org_id', orgId).order('date').limit(180),
+        balQuery.order('date').limit(180),
       ])
 
       if (!mountedRef.current) return

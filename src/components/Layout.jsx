@@ -18,6 +18,8 @@ import Copilot from '@/components/Copilot'
 import CommandPalette from '@/components/CommandPalette'
 import { TrialBar, DunningBanner, WinBackBanner } from '@/components/CustomerJourney'
 import NotificationCenter from '@/components/NotificationCenter'
+import SampleDataBanner from '@/components/SampleDataBanner'
+import OnboardingWizard from '@/components/OnboardingWizard'
 import { useNavigation, trackFeature } from '@/hooks/useNavigation'
 import { useTheme } from '@/hooks/useTheme'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -214,6 +216,8 @@ export default function Layout() {
   })()
 
   return (
+    <>
+      {!org?.onboarding_completed && <OnboardingWizard onComplete={() => window.location.reload()} />}
     <div className={`flex h-screen overflow-hidden ${!isDark ? 'warm-accent-top relative' : ''}`}>
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -442,6 +446,7 @@ export default function Layout() {
             {PAGE_GUIDES[location.pathname] && (
               <PageGuide pageId={location.pathname} {...PAGE_GUIDES[location.pathname]} />
             )}
+            <SampleDataBanner />
             <Suspense fallback={<div className="flex items-center justify-center py-32"><div className="w-8 h-8 border-2 border-t4 border-t-cyan rounded-full animate-spin" /></div>}>
             <div key={location.pathname} className="page-enter">
               <Outlet />
@@ -483,5 +488,6 @@ export default function Layout() {
         <CommandPalette />
       </SectionBoundary>
     </div>
+    </>
   )
 }

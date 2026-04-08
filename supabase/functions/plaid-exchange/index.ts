@@ -125,6 +125,9 @@ serve(async (req) => {
       details: { institution_name: institution?.name },
     })
 
+    // Transition from sample data to real data
+    await supabase.from('organizations').update({ has_real_data: true }).eq('id', orgId)
+
     return new Response(
       JSON.stringify({ success: true, connection_id: bankConn.id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

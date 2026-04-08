@@ -29,6 +29,12 @@ export default function Signup() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
+    // Name validation
+    const name = form.fullName.trim()
+    if (name.length < 2) { setError('Please enter your full name'); return }
+    if (!/^[a-zA-Z\s\-'.]+$/.test(name)) { setError('Name can only contain letters, spaces, hyphens, and apostrophes'); return }
+    if (!form.companyName.trim() || form.companyName.trim().length < 2) { setError('Please enter your company name'); return }
+
     // CC6.2 — Password complexity enforcement
     const p = form.password
     if (p.length < 8) { setError('Password must be at least 8 characters'); return }
