@@ -17,21 +17,21 @@ async function checkBackend() {
 
 // Circuit breaker per function
 const failureCount = {}
-const CIRCUIT_BREAKER_THRESHOLD = 2
+const CIRCUIT_BREAKER_THRESHOLD = 5
 
 /**
  * Safe wrapper for supabase.functions.invoke.
  * NEVER throws. Always returns { data, error }.
- * Skips all calls if backend isn't deployed.
- * Circuit breaker: after 2 consecutive 404s per function, silently returns null.
+ * Circuit breaker: after 5 consecutive 404s per function, silently returns null.
  */
 export async function safeInvoke(fnName, body) {
-  // Backend probe: skip everything if edge functions aren't deployed
+  // Backend probe
   const ready = await checkBackend()
   if (!ready) return { data: null, error: 'Backend not deployed' }
 
   // Circuit breaker per function
   if ((failureCount[fnName] || 0) >= CIRCUIT_BREAKER_THRESHOLD) {
+    console.warn(`[safeInvoke] Circuit breaker open for ${fnName} (${failureCount[fnName]} failures)`)
     return { data: null, error: `${fnName} unavailable` }
   }
 

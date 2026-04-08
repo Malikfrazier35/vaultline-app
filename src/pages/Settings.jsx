@@ -359,13 +359,17 @@ export default function Settings() {
                     if (!brandDomain.trim()) return
                     setEnriching(true)
                     try {
-                      const { data } = await safeInvoke('brand-enrich', { action: 'enrich', domain: brandDomain.trim(), org_id: org?.id, user_id: user?.id })
+                      const { data, error: invokeErr } = await safeInvoke('brand-enrich', { action: 'enrich', domain: brandDomain.trim(), org_id: org?.id, user_id: user?.id })
+                      if (invokeErr) { toast.error(invokeErr, 'Enrichment failed'); return }
+                      if (!data) { toast.error('No response from enrichment service'); return }
                       if (data?.error) { toast.error(data.error); return }
                       if (data?.success) {
                         toast.success(`Brand enriched: ${data.company_name || data.domain}`)
                         refetch?.()
+                      } else {
+                        toast.error('Unexpected response from enrichment')
                       }
-                    } catch (err) { toast.error('Enrichment failed') }
+                    } catch (err) { toast.error(err?.message || 'Enrichment failed') }
                     finally { setEnriching(false) }
                   }}
                   disabled={!isOwnerOrAdmin || enriching || !brandDomain.trim()}
