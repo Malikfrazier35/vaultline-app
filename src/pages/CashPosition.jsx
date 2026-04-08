@@ -1,5 +1,6 @@
 import { useTreasury } from '@/hooks/useTreasury'
 import { SkeletonPage } from '@/components/Skeleton'
+import BankLogo from '@/components/BankLogo'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch'
@@ -299,7 +300,7 @@ export default function CashPosition() {
                       <p className="text-[9px] text-t3 font-mono uppercase tracking-wider">TOTAL</p>
                     </div>
                   </>
-                ) : <div className="h-full flex items-center justify-center text-[12px] text-t3 font-mono">NO DATA</div>}
+                ) : <div className="h-full flex flex-col items-center justify-center text-center px-4"><p className="text-[12px] font-semibold text-t2 mb-1">No balance history yet</p><p className="text-[10px] text-t4">Data appears after your first bank sync</p></div>}
               </div>
               {/* Legend with % bars */}
               <div className="space-y-2 mt-3">
@@ -354,10 +355,12 @@ export default function CashPosition() {
             const pct = totalBalance > 0 ? (acct.current_balance / totalBalance * 100) : 0
             return (
               <div key={acct.id} className="flex items-center gap-4 px-6 py-3.5 hover:bg-deep active:bg-deep transition group">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
-                  style={{ background: acct.bank_connections?.institution_color || colors[i % colors.length] }}>
-                  {(acct.bank_connections?.institution_name || acct.name).slice(0, 2).toUpperCase()}
-                </div>
+                <BankLogo
+                  name={acct.bank_connections?.institution_name || acct.name}
+                  color={acct.bank_connections?.institution_color || colors[i % colors.length]}
+                  size={40}
+                  className="shrink-0"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-[14px] font-semibold text-t1 truncate">{acct.bank_connections?.institution_name || acct.name}</p>
@@ -374,7 +377,13 @@ export default function CashPosition() {
               </div>
             )
           })}
-          {accounts.length === 0 && <p className="text-[13px] text-t3 text-center py-10 font-mono">NO ACCOUNTS CONNECTED</p>}
+          {accounts.length === 0 && (
+            <div className="empty-state py-12">
+              <div className="icon"><svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M3 21h18M3 7V5a2 2 0 012-2h14a2 2 0 012 2v2M3 7h18M3 7v11a2 2 0 002 2h14a2 2 0 002-2V7" stroke="currentColor" strokeWidth="1.5"/></svg></div>
+              <p className="title">No accounts connected</p>
+              <p className="desc">Connect a bank via Plaid to see your real-time cash position across all accounts.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

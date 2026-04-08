@@ -1,5 +1,6 @@
 import { useTreasury } from '@/hooks/useTreasury'
 import { SkeletonPage } from '@/components/Skeleton'
+import BankLogo from '@/components/BankLogo'
 import { useState, useMemo, useEffect } from 'react'
 import { TrendingUp, TrendingDown, List, AlertCircle, Search, Download, ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
@@ -196,7 +197,12 @@ export default function Transactions() {
                       <span className="w-[5px] h-[5px] rounded-full" style={{ background: cat.color }} />{cat.label}
                     </span>
                   </td>
-                  <td className="px-6 py-3.5 text-[13px] text-t2">{tx.accounts?.bank_connections?.institution_name || '—'}</td>
+                  <td className="px-6 py-3.5 text-[13px] text-t2">
+                    <span className="inline-flex items-center gap-2">
+                      <BankLogo name={tx.accounts?.bank_connections?.institution_name} size={20} className="shrink-0" />
+                      {tx.accounts?.bank_connections?.institution_name || '—'}
+                    </span>
+                  </td>
                   <td className="px-6 py-3.5">
                     <span className={`font-mono text-[14px] font-bold terminal-data tracking-tight ${isCredit ? 'text-green' : 'text-t1'}`}>
                       {isCredit ? '+' : '-'}${Math.abs(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 0 })}

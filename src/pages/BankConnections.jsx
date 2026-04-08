@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { SkeletonPage } from '@/components/Skeleton'
+import BankLogo from '@/components/BankLogo'
 import { useTreasury } from '@/hooks/useTreasury'
 import { useAuth } from '@/hooks/useAuth'
 import { usePlaid } from '@/hooks/usePlaid'
@@ -178,8 +179,9 @@ export default function BankConnections() {
         </div>
 
         {plaidError && (
-          <div className="flex items-center gap-2 bg-red-soft text-red text-[13px] rounded-xl px-4 py-2.5 mb-3">
-            <AlertCircle size={14} /> {plaidError}
+          <div className="flex items-center justify-between bg-red-soft text-red text-[13px] rounded-xl px-4 py-2.5 mb-3">
+            <div className="flex items-center gap-2"><AlertCircle size={14} /> {plaidError}</div>
+            <button onClick={() => { /* clear via re-render */ window.location.reload() }} className="text-[11px] font-mono hover:underline">Dismiss</button>
           </div>
         )}
 
@@ -189,10 +191,12 @@ export default function BankConnections() {
               const bankAccounts = accounts.filter((a) => a.bank_connection_id === bank.id)
               return (
                 <div key={bank.id} className="glass-card rounded-[14px] p-4 flex items-center gap-3 hover:border-border-cyan transition group">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-extrabold text-white shrink-0"
-                    style={{ background: bank.institution_color || '#1565C0' }}>
-                    {bank.institution_name?.slice(0, 2).toUpperCase()}
-                  </div>
+                  <BankLogo
+                    name={bank.institution_name}
+                    color={bank.institution_color}
+                    size={40}
+                    className="shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-semibold text-t1 truncate">{bank.institution_name}</p>
                     <p className="text-[13px] text-t3 font-mono">{bankAccounts.length} acct{bankAccounts.length !== 1 ? 's' : ''} {bank.last_synced_at && `· ${timeSince(bank.last_synced_at)}`}</p>
