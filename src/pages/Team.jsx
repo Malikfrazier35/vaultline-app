@@ -62,13 +62,18 @@ export default function Team() {
 
   async function load() {
     setLoading(true)
-    const [mRes, iRes] = await Promise.all([
-      supabase.from('profiles').select('*').eq('org_id', org?.id).order('created_at'),
-      supabase.from('invites').select('*').eq('org_id', org?.id).eq('status', 'pending').order('created_at', { ascending: false }),
-    ])
-    setMembers(mRes.data || [])
-    setInvites(iRes.data || [])
-    setLoading(false)
+    try {
+      const [mRes, iRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('org_id', org?.id).order('created_at'),
+        supabase.from('invites').select('*').eq('org_id', org?.id).eq('status', 'pending').order('created_at', { ascending: false }).catch(() => ({ data: [] })),
+      ])
+      setMembers(mRes.data || [])
+      setInvites(iRes?.data || [])
+    } catch (err) {
+      console.error('Team load error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function teamAction(action, body = {}) {

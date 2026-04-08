@@ -48,7 +48,8 @@ export default function BankConnections() {
       if (error) throw new Error(error.message)
       if (data?.error) throw new Error(data.error)
       if (data?.auth_url) window.location.href = data.auth_url
-    } catch (err) { console.error('QB connect error:', err); toast.error(err.message, 'QuickBooks connection failed'); setQbConnecting(false) }
+      else { toast.error('QuickBooks integration not configured yet', 'Coming Soon'); setQbConnecting(false) }
+    } catch (err) { console.error('QB connect error:', err); toast.error(err.message || 'QuickBooks not available', 'Connection failed'); setQbConnecting(false) }
   }
 
   async function syncQuickBooks() {
@@ -67,7 +68,8 @@ export default function BankConnections() {
       if (error) throw new Error(error.message)
       if (data?.error) throw new Error(data.error)
       if (data?.auth_url) window.location.href = data.auth_url
-    } catch (err) { console.error(err); toast.error(err.message, 'Connection failed'); setAcctConnecting(null) }
+      else { toast.error(`${provider} integration not configured yet`, 'Coming Soon'); setAcctConnecting(null) }
+    } catch (err) { console.error(err); toast.error(err.message || 'Not available', 'Connection failed'); setAcctConnecting(null) }
   }
 
   async function syncAccounting(provider) {

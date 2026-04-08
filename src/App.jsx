@@ -7,6 +7,7 @@ import Paywall from '@/components/Paywall'
 import ErrorBoundary, { SectionBoundary } from '@/components/ErrorBoundary'
 import CookieConsent from '@/components/CookieConsent'
 import { ToastProvider } from '@/components/Toast'
+import { UpgradeGate } from '@/lib/planEngine.jsx'
 
 // Retry-capable lazy loader — retries chunk loads up to 3 times with 1s delay
 function lazyRetry(importFn, retries = 3) {
@@ -113,9 +114,13 @@ function ProtectedRoute({ children }) {
   const { user, org, loading } = useAuth()
   if (loading) return <Spinner />
   if (!user) return <Navigate to="/login" replace />
-  // Allow active and trialing users. Block canceled/past_due.
+  // No org or no plan_status → paywall
+  if (!org?.plan_status) return <Paywall />
+  // Expired trial → paywall
+  if (org.plan_status === 'trialing' && org.trial_ends_at && new Date(org.trial_ends_at) < new Date()) return <Paywall />
+  // Allow active and trialing (not expired). Block canceled/past_due.
   const allowed = ['active', 'trialing']
-  if (org?.plan_status && !allowed.includes(org.plan_status)) return <Paywall />
+  if (!allowed.includes(org.plan_status)) return <Paywall />
   return children
 }
 
@@ -175,23 +180,23 @@ export default function App() {
               <Route path="forecast" element={<SafePage name="Forecasting"><Forecasting /></SafePage>} />
               <Route path="transactions" element={<SafePage name="Transactions"><Transactions /></SafePage>} />
               <Route path="banks" element={<SafePage name="Banks"><BankConnections /></SafePage>} />
-              <Route path="import" element={<SafePage name="Import"><DataImport /></SafePage>} />
+              <Route path="import" element={<SafePage name="Import"><UpgradeGate feature="data_import"><DataImport /></UpgradeGate></SafePage>} />
               <Route path="reports" element={<SafePage name="Reports"><Reports /></SafePage>} />
-              <Route path="scenarios" element={<SafePage name="Scenarios"><Scenarios /></SafePage>} />
+              <Route path="scenarios" element={<SafePage name="Scenarios"><UpgradeGate feature="scenarios"><Scenarios /></UpgradeGate></SafePage>} />
               <Route path="payments" element={<SafePage name="Payments"><Payments /></SafePage>} />
               <Route path="alerts" element={<SafePage name="Alerts"><Alerts /></SafePage>} />
-              <Route path="currencies" element={<SafePage name="Multi-Currency"><MultiCurrency /></SafePage>} />
-              <Route path="entities" element={<SafePage name="Entities"><Entities /></SafePage>} />
+              <Route path="currencies" element={<SafePage name="Multi-Currency"><UpgradeGate feature="multi_currency"><MultiCurrency /></UpgradeGate></SafePage>} />
+              <Route path="entities" element={<SafePage name="Entities"><UpgradeGate feature="multi_entity"><Entities /></UpgradeGate></SafePage>} />
               <Route path="api" element={<SafePage name="API"><ApiAccess /></SafePage>} />
               <Route path="docs" element={<SafePage name="API Docs"><ApiDocs /></SafePage>} />
-              <Route path="audit" element={<SafePage name="Audit Log"><AuditLog /></SafePage>} />
+              <Route path="audit" element={<SafePage name="Audit Log"><UpgradeGate feature="audit_center"><AuditLog /></UpgradeGate></SafePage>} />
               <Route path="integrations" element={<SafePage name="Integrations"><Integrations /></SafePage>} />
-              <Route path="sso" element={<SafePage name="SSO"><SSO /></SafePage>} />
+              <Route path="sso" element={<SafePage name="SSO"><UpgradeGate feature="sso"><SSO /></UpgradeGate></SafePage>} />
               <Route path="team" element={<SafePage name="Team"><Team /></SafePage>} />
               <Route path="settings" element={<SafePage name="Settings"><Settings /></SafePage>} />
               <Route path="support" element={<SafePage name="Support"><Support /></SafePage>} />
               <Route path="partner-admin" element={<SafePage name="Partners"><PartnerAdmin /></SafePage>} />
-              <Route path="security-center" element={<SafePage name="Security Center"><SecurityCenter /></SafePage>} />
+              <Route path="security-center" element={<SafePage name="Security Center"><UpgradeGate feature="security_center"><SecurityCenter /></UpgradeGate></SafePage>} />
               <Route path="privacy-center" element={<SafePage name="Privacy Center"><PrivacyCenter /></SafePage>} />
               <Route path="time" element={<SafePage name="Time"><TimeManager /></SafePage>} />
               <Route path="marketing" element={<SafePage name="Marketing"><MarketingHub /></SafePage>} />
@@ -200,7 +205,7 @@ export default function App() {
               <Route path="cash-visibility" element={<SafePage name="Cash Visibility"><CashVisibility /></SafePage>} />
               <Route path="ux" element={<SafePage name="UX"><UXCenter /></SafePage>} />
               <Route path="resources" element={<SafePage name="Resources"><ResourceHub /></SafePage>} />
-              <Route path="copilot" element={<SafePage name="Treasury Operations"><CopilotCenter /></SafePage>} />
+              <Route path="copilot" element={<SafePage name="Treasury Operations"><UpgradeGate feature="copilot"><CopilotCenter /></UpgradeGate></SafePage>} />
               <Route path="payment-hub" element={<SafePage name="Payment Hub"><PaymentHub /></SafePage>} />
               <Route path="design-system" element={<SafePage name="Design System"><DesignSystem /></SafePage>} />
               <Route path="automation" element={<SafePage name="Automation"><AutomationCenter /></SafePage>} />

@@ -25,12 +25,12 @@ import ThemeToggle from '@/components/ThemeToggle'
 const NAV = [
   { section: 'Treasury', items: [
     { to: '/home', icon: ZapIcon, label: 'Home' },
-    { to: '/copilot', icon: Brain, label: 'Treasury Ops' },
+    { to: '/copilot', icon: Brain, label: 'Treasury Ops', minPlan: 'growth' },
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/position', icon: DollarSign, label: 'Cash Position' },
     { to: '/forecast', icon: Activity, label: 'Forecasting' },
-    { to: '/scenarios', icon: Layers, label: 'Scenarios' },
-    { to: '/currencies', icon: Globe, label: 'Multi-Currency' },
+    { to: '/scenarios', icon: Layers, label: 'Scenarios', minPlan: 'growth' },
+    { to: '/currencies', icon: Globe, label: 'Multi-Currency', minPlan: 'growth' },
   ]},
   { section: 'Operations', items: [
     { to: '/transactions', icon: List, label: 'Transactions' },
@@ -40,9 +40,9 @@ const NAV = [
     { to: '/alerts', icon: Bell, label: 'Alerts' },
   ]},
   { section: 'Compliance', items: [
-    { to: '/audit-center', icon: ClipboardCheck, label: 'Audit Center' },
-    { to: '/security-center', icon: Shield, label: 'Security' },
-    { to: '/audit', icon: Eye, label: 'Audit Log' },
+    { to: '/audit-center', icon: ClipboardCheck, label: 'Audit Center', minPlan: 'enterprise' },
+    { to: '/security-center', icon: Shield, label: 'Security', minPlan: 'enterprise' },
+    { to: '/audit', icon: Eye, label: 'Audit Log', minPlan: 'enterprise' },
   ]},
   { section: 'Account', items: [
     { to: '/team', icon: Users, label: 'Team' },
@@ -55,13 +55,13 @@ const NAV = [
 // Extended nav — accessible via sidebar "More" toggle + Cmd+K
 const NAV_MORE = [
   { to: '/cash-visibility', icon: Eye, label: 'Cash Visibility' },
-  { to: '/entities', icon: Building2, label: 'Entities' },
+  { to: '/entities', icon: Building2, label: 'Entities', minPlan: 'growth' },
   { to: '/payment-hub', icon: SendIcon, label: 'Payment Hub' },
-  { to: '/import', icon: Upload, label: 'Import Data' },
+  { to: '/import', icon: Upload, label: 'Import Data', minPlan: 'growth' },
   { to: '/time', icon: Clock, label: 'Time Manager' },
   { to: '/integrations', icon: Plug, label: 'Integrations' },
-  { to: '/api', icon: Code, label: 'API Access' },
-  { to: '/sso', icon: Lock, label: 'SSO & Security' },
+  { to: '/api', icon: Code, label: 'API Access', minPlan: 'growth' },
+  { to: '/sso', icon: Lock, label: 'SSO & Security', minPlan: 'enterprise' },
   { to: '/privacy-center', icon: Eye, label: 'Privacy Center' },
   { to: '/resources', icon: BookOpen, label: 'Resources' },
   { to: '/industry', icon: Building2, label: 'Industry Hub' },
@@ -74,6 +74,13 @@ const NAV_MORE = [
   { to: '/ux', icon: Palette, label: 'UX Preferences' },
   { to: '/design-system', icon: Palette, label: 'Design System' },
 ]
+
+// Plan hierarchy for nav filtering
+const PLAN_RANK = { starter: 0, growth: 1, enterprise: 2 }
+function planAllows(userPlan, minPlan) {
+  if (!minPlan) return true
+  return (PLAN_RANK[userPlan] || 0) >= (PLAN_RANK[minPlan] || 0)
+}
 
 const PAGE_META = {
   '/home': { title: 'Home', sub: 'Command center' },
@@ -126,6 +133,7 @@ export default function Layout() {
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem('vaultline-sidebar') === 'collapsed')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showMore, setShowMore] = useState(false)
+  const userPlan = org?.plan || 'starter'
   const { isDark } = useTheme()
   useNavigation()
 
@@ -248,7 +256,10 @@ export default function Layout() {
 
         {/* Nav */}
         <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-none">
-          {NAV.map((group) => (
+          {NAV.map((group) => {
+            const visibleItems = group.items.filter(item => planAllows(userPlan, item.minPlan))
+            if (visibleItems.length === 0) return null
+            return (
             <div key={group.section} className="mb-7">
               {!collapsed && (
                 <p className="text-[11px] font-semibold text-t3/50 uppercase tracking-[0.12em] px-3 mb-2">
@@ -256,7 +267,7 @@ export default function Layout() {
                 </p>
               )}
               {collapsed && <div className="h-px bg-border/30 mx-2 mb-3 mt-1" />}
-              {group.items.map((item) => (
+              {visibleItems.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
@@ -284,7 +295,7 @@ export default function Layout() {
                 </NavLink>
               ))}
             </div>
-          ))}
+          )})}
 
           {/* More toggle — extended nav items */}
           {!collapsed && (
@@ -293,7 +304,7 @@ export default function Layout() {
                 <span>More</span>
                 <ChevronRight size={12} className={`transition-transform ${showMore ? 'rotate-90' : ''}`} />
               </button>
-              {showMore && NAV_MORE.map((item) => (
+              {showMore && NAV_MORE.filter(item => planAllows(userPlan, item.minPlan)).map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}

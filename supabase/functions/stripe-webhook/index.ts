@@ -65,9 +65,9 @@ serve(async (req) => {
 
           // Plan-based limits
           const PLAN_LIMITS: Record<string, any> = {
-            starter:    { max_bank_connections: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
-            growth:     { max_bank_connections: 10,  forecast_days: 90,  copilot_enabled: false, api_access: true,   multi_currency: false },
-            enterprise: { max_bank_connections: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
+            starter:    { max_bank_connections: 3,   max_team_members: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
+            growth:     { max_bank_connections: 10,  max_team_members: 15,  forecast_days: 90,  copilot_enabled: true,  api_access: true,   multi_currency: true  },
+            enterprise: { max_bank_connections: 999, max_team_members: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
           }
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
 
@@ -92,9 +92,9 @@ serve(async (req) => {
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
 
           const PLAN_LIMITS: Record<string, any> = {
-            starter:    { max_bank_connections: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
-            growth:     { max_bank_connections: 10,  forecast_days: 90,  copilot_enabled: false, api_access: true,   multi_currency: false },
-            enterprise: { max_bank_connections: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
+            starter:    { max_bank_connections: 3,   max_team_members: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
+            growth:     { max_bank_connections: 10,  max_team_members: 15,  forecast_days: 90,  copilot_enabled: true,  api_access: true,   multi_currency: true  },
+            enterprise: { max_bank_connections: 999, max_team_members: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
           }
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
 

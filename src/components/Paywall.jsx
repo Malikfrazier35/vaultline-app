@@ -70,6 +70,11 @@ export default function Paywall() {
               <h2 className="font-display text-3xl font-black mb-3">Reactivate Your Account</h2>
               <p className="text-t3 max-w-md mx-auto">Your subscription has been canceled. Choose a plan to restore access to your treasury dashboard.</p>
             </>
+          ) : org?.plan_status === 'trialing' && org?.trial_ends_at && new Date(org.trial_ends_at) < new Date() ? (
+            <>
+              <h2 className="font-display text-3xl font-black mb-3">Your free trial has ended</h2>
+              <p className="text-t3 max-w-md mx-auto">Choose a plan to continue using Vaultline. Your data is safe and waiting for you.</p>
+            </>
           ) : (
             <>
               <h2 className="font-display text-3xl font-black mb-3">Choose your plan to get started</h2>
