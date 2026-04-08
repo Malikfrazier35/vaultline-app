@@ -66,8 +66,11 @@ serve(async (req) => {
       supabase.from('forecasts').select('*').eq('org_id', orgId).order('generated_at', { ascending: false }).limit(1).single(),
       supabase.from('bank_connections').select('institution_name, status, last_synced_at').eq('org_id', orgId),
       supabase.from('daily_balances').select('date, balance').eq('org_id', orgId).order('date', { ascending: false }).limit(90),
-      supabase.from('copilot_profile').select('*').eq('org_id', orgId).single(),
     ])
+
+    // Non-critical: load customer profile (table may not exist yet)
+    let profileRes = { data: null }
+    try { profileRes = await supabase.from('copilot_profile').select('*').eq('org_id', orgId).single() } catch {}
 
     const accounts = accountsRes.data || []
     const transactions = txRes.data || []
@@ -157,14 +160,16 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'AI service error' }), { status: 502, headers: corsHeaders })
     }
 
-    // Save user message to DB
-    await supabase.from('copilot_messages').insert({
-      org_id: orgId,
-      user_id: user.id,
-      role: 'user',
-      content: message,
-      page_context: page_context || null,
-    })
+    // Save user message (non-critical — don't crash if table missing)
+    try {
+      await supabase.from('copilot_messages').insert({
+        org_id: orgId,
+        user_id: user.id,
+        role: 'user',
+        content: message,
+        page_context: page_context || null,
+      })
+    } catch {}
 
     // Stream response through
     const stream = new ReadableStream({
@@ -197,28 +202,28 @@ serve(async (req) => {
             }
           }
 
-          // Save assistant response to DB
+          // Save assistant response (non-critical)
           if (fullResponse) {
-            await supabase.from('copilot_messages').insert({
-              org_id: orgId,
-              user_id: user.id,
-              role: 'assistant',
-              content: fullResponse,
-            })
+            try {
+              await supabase.from('copilot_messages').insert({
+                org_id: orgId,
+                user_id: user.id,
+                role: 'assistant',
+                content: fullResponse,
+              })
+            } catch {}
 
-            // Update interaction count + auto-learn context
-            const profileUpdate: any = {
-              org_id: orgId,
-              interaction_count: (customerProfile?.interaction_count || 0) + 1,
-              last_updated: new Date().toISOString(),
-            }
-
-            // Auto-populate context on first few interactions
-            if (!customerProfile?.context) {
-              profileUpdate.context = `Org: ${profile.organizations?.name || 'Unknown'}. Plan: ${profile.organizations?.plan || 'starter'}. Banks: ${banks.map((b: any) => b.institution_name).join(', ') || 'none connected'}. Accounts: ${accounts.length}. User: ${profile.full_name || user.email}.`
-            }
-
-            await supabase.from('copilot_profile').upsert(profileUpdate, { onConflict: 'org_id' })
+            try {
+              const profileUpdate: any = {
+                org_id: orgId,
+                interaction_count: (customerProfile?.interaction_count || 0) + 1,
+                last_updated: new Date().toISOString(),
+              }
+              if (!customerProfile?.context) {
+                profileUpdate.context = `Org: ${profile.organizations?.name || 'Unknown'}. Plan: ${profile.organizations?.plan || 'starter'}. Banks: ${banks.map((b: any) => b.institution_name).join(', ') || 'none connected'}. Accounts: ${accounts.length}. User: ${profile.full_name || user.email}.`
+              }
+              await supabase.from('copilot_profile').upsert(profileUpdate, { onConflict: 'org_id' })
+            } catch {}
           }
 
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'))
