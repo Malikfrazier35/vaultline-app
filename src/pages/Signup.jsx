@@ -17,7 +17,7 @@ export default function Signup() {
   const [success, setSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [socialLoading, setSocialLoading] = useState(null)
-  useSEO({ title: 'Get Started', description: 'Create your Vaultline account. 30-day money-back guarantee. Cancel anytime. Real-time treasury management for mid-market finance teams.', canonical: '/signup' })
+  useSEO({ title: 'Create Account', description: 'Start your free trial. No credit card required. Real-time treasury management for mid-market finance teams.', canonical: '/signup' })
 
   if (loading) return null
   if (user) return <Navigate to="/dashboard" replace />
@@ -71,7 +71,7 @@ export default function Signup() {
           <h1 className="font-display text-3xl font-black tracking-tight">
             Vault<span className="bg-gradient-to-r from-cyan to-purple bg-clip-text text-transparent">line</span>
           </h1>
-          <p className="text-[13px] text-t3 mt-2">30-day money-back guarantee · Cancel anytime</p>
+          <p className="text-[13px] text-t3 mt-2">14-day free trial · No credit card required</p>
           <div className="flex items-center justify-center gap-4 mt-4">
             {['SOC 2 Ready', 'AES-256', 'Bank-Grade Security'].map(b => (
               <span key={b} className="text-[9px] font-mono text-t4 border border-border/40 rounded px-2 py-0.5">{b}</span>
@@ -181,7 +181,7 @@ export default function Signup() {
 
                 <button type="submit" disabled={submitting}
                   className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] glow-sm hover:glow-md hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-                  {submitting ? <><Loader2 size={15} className="animate-spin" /> Creating account...</> : 'Get Started'}
+                  {submitting ? <><Loader2 size={15} className="animate-spin" /> Creating account...</> : 'Create Account'}
                 </button>
 
                 <p className="text-center text-[12px] text-t3">Card collected at checkout · Not charged until day 15</p>

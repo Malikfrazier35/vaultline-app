@@ -77,7 +77,7 @@ export default function PaymentHub() {
           <h1 className="font-display text-2xl font-black tracking-tight">Payment Hub</h1>
           <p className="text-[13px] text-t3 mt-0.5">{accounts.length} accounts · {pending.length} pending approvals · {recurring.length} recurring</p>
         </div>
-        <button onClick={() => setShowPayForm(!showPayForm)} className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.15)] hover:-translate-y-px transition-all flex items-center gap-2">
+        <button onClick={() => setShowPayForm(!showPayForm)} className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px transition-all flex items-center gap-2">
           <Send size={14} /> Send Payment
         </button>
       </div>

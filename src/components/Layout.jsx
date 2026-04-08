@@ -12,7 +12,7 @@ import {
   PanelLeftClose, PanelLeftOpen, Menu, X, Clock, Megaphone, Brain, Palette, BookOpen, Send as SendIcon, Zap as ZapIcon,
   Sparkles, AlertTriangle, ShieldAlert, ClipboardCheck, ChevronRight
 } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import clsx from 'clsx'
 import Copilot from '@/components/Copilot'
 import CommandPalette from '@/components/CommandPalette'
@@ -431,9 +431,11 @@ export default function Layout() {
             {PAGE_GUIDES[location.pathname] && (
               <PageGuide pageId={location.pathname} {...PAGE_GUIDES[location.pathname]} />
             )}
+            <Suspense fallback={<div className="flex items-center justify-center py-32"><div className="w-8 h-8 border-2 border-t4 border-t-cyan rounded-full animate-spin" /></div>}>
             <div key={location.pathname} className="page-enter">
               <Outlet />
             </div>
+            </Suspense>
           </ErrorBoundary>
           <ScrollToTop />
         </main>

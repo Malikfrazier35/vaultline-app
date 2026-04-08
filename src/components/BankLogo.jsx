@@ -82,12 +82,9 @@ function getInitials(name) {
   return (words[0][0] + words[1][0]).toUpperCase()
 }
 
-export default function BankLogo({ name, color, size = 36, className = '' }) {
+export default function BankLogo({ name, color, size = 36, className = '', status = null }) {
   const [imgFailed, setImgFailed] = useState(false)
   const domain = getDomain(name)
-  // Try multiple logo sources in priority order
-  // 1. Google high-res favicon (128px, sharp)
-  // 2. DuckDuckGo favicon (32px, fallback)
   const googleUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null
   const duckUrl = domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null
   const logoUrl = imgFailed === 'google' ? duckUrl : googleUrl
@@ -95,37 +92,37 @@ export default function BankLogo({ name, color, size = 36, className = '' }) {
   const initials = getInitials(name)
   const bgColor = color || '#1565C0'
 
-  // If we have a domain and image hasn't failed, try the logo
+  // Status indicator styles
+  const statusDot = status === 'connected' ? 'bg-green' : status === 'syncing' ? 'bg-cyan animate-pulse' : status === 'stale' ? 'bg-amber' : status === 'error' ? 'bg-red' : null
+  const borderClass = status === 'connected' ? 'border-green/20' : status === 'syncing' ? 'border-cyan/20' : 'border-border'
+
+  const wrapper = (children) => (
+    <div className={`relative ${className}`} style={{ width: size, height: size }}>
+      {children}
+      {statusDot && (
+        <span className={`absolute -bottom-0.5 -right-0.5 w-[9px] h-[9px] rounded-full ${statusDot} border-2 border-surface z-10`} />
+      )}
+    </div>
+  )
+
   if (logoUrl && imgFailed !== 'all') {
-    return (
-      <div
-        className={`rounded-xl overflow-hidden flex items-center justify-center bg-white border border-border ${className}`}
-        style={{ width: size, height: size }}
-      >
+    return wrapper(
+      <div className={`rounded-xl overflow-hidden flex items-center justify-center bg-white border ${borderClass} w-full h-full transition-shadow`}>
         <img
           src={logoUrl}
           alt={name}
           className="w-full h-full object-contain p-1"
-          onError={() => {
-            if (imgFailed === false) setImgFailed('google')
-            else setImgFailed('all')
-          }}
+          onError={() => { if (imgFailed === false) setImgFailed('google'); else setImgFailed('all') }}
           loading="lazy"
         />
       </div>
     )
   }
 
-  // Fallback — colored circle with initials
-  return (
+  return wrapper(
     <div
-      className={`rounded-xl flex items-center justify-center text-white font-bold ${className}`}
-      style={{
-        width: size,
-        height: size,
-        background: bgColor,
-        fontSize: Math.round(size * 0.35),
-      }}
+      className={`rounded-xl flex items-center justify-center text-white font-bold border ${borderClass} w-full h-full transition-shadow`}
+      style={{ background: bgColor, fontSize: Math.round(size * 0.35) }}
     >
       {initials}
     </div>

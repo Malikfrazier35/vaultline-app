@@ -208,7 +208,7 @@ export default function SecurityPage() {
               Contact Security Team
             </a>
             <Link to="/signup" className="px-6 py-3 rounded-xl text-[14px] font-semibold border transition-all hover:-translate-y-px" style={{ borderColor: isDark ? 'rgba(34,211,238,0.2)' : 'rgba(8,145,178,0.15)', color: isDark ? '#67E8F9' : '#0891B2' }}>
-              Get Started →
+              Start Free Trial →
             </Link>
           </div>
         </div>

@@ -407,7 +407,7 @@ export default function Settings() {
           <div className="glass-card rounded-2xl p-6 terminal-scanlines relative">
             <div className="flex items-center gap-5">
               <div className="relative group">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan/80 to-purple/80 flex items-center justify-center text-2xl font-bold text-white shadow-[0_4px_20px_rgba(34,211,238,0.2)]">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan/80 to-purple/80 flex items-center justify-center text-2xl font-bold text-white glow-md">
                   {profileData.full_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?'}
                 </div>
               </div>
@@ -762,7 +762,7 @@ export default function Settings() {
               <a href="/billing" className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all flex items-center gap-2">
                 <CreditCard size={14} /> Manage Billing
               </a>
-              <span className="text-[12px] text-t3">30-day money-back guarantee on all plans</span>
+              <span className="text-[12px] text-t3">14-day free trial · No credit card required</span>
             </div>
           </SectionCard>
 
@@ -953,7 +953,7 @@ function Toggle({ label, sub, value, onChange, disabled }) {
 function SaveButton({ saving, saved, onClick }) {
   return (
     <button onClick={onClick} disabled={saving}
-      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[14px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_20px_rgba(34,211,238,0.3)] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50">
+      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[14px] font-semibold glow-sm hover:glow-md hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50">
       {saving ? <div className="w-4 h-4 border-2 border-void border-t-transparent rounded-full animate-spin" /> :
         saved ? <><Check size={15} /> Saved</> : <><Save size={15} /> Save Changes</>}
     </button>

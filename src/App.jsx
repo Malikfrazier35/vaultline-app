@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/hooks/useAuth'
+import { TreasuryProvider } from '@/hooks/useTreasury'
 import { lazy, Suspense } from 'react'
 import Layout from '@/components/Layout'
 import Paywall from '@/components/Paywall'
@@ -137,6 +138,7 @@ export default function App() {
     <BrowserRouter>
       <ToastProvider>
       <AuthProvider>
+      <TreasuryProvider>
         <Suspense fallback={<Spinner />}>
           <Routes>
             {/* Public */}
@@ -210,6 +212,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+      </TreasuryProvider>
       </AuthProvider>
       <CookieConsent />
       </ToastProvider>

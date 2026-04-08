@@ -143,7 +143,7 @@ export default function Landing() {
   const { user, loading } = useAuth()
   const { isDark } = useTheme()
   const [annualPricing, setAnnualPricing] = useState(false)
-  useSEO({ title: 'Cloud Treasury Management for Mid-Market Finance Teams', description: 'Real-time cash visibility, AI forecasting, and multi-entity treasury management. Replace spreadsheets with crystal-clear cash intelligence. From $599/mo.', canonical: '/' })
+  useSEO({ title: 'Cloud Treasury Management for Mid-Market Finance Teams', description: 'Real-time cash visibility, AI forecasting, and multi-entity treasury management. Replace spreadsheets with crystal-clear cash intelligence. From $499/mo.', canonical: '/' })
 
   // Redirect to dashboard if already logged in (don't block rendering while checking)
   if (!loading && user) return <Navigate to="/home" replace />
@@ -249,11 +249,11 @@ export default function Landing() {
           </div>
           <div className="flex items-center justify-center gap-4 animate-slideUp stagger-4">
             <Link to="/signup" className="group px-8 py-3.5 rounded-[12px] bg-gradient-to-r from-cyan to-sky-400 text-white text-[16px] font-bold glow-md hover:-translate-y-1 active:scale-[0.98] hover:glow-lg transition-all flex items-center gap-2">
-              Get Started <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              Start Free Trial <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link to="/roi" className="px-8 py-3.5 rounded-[12px] border border-border text-[16px] font-semibold text-t2 hover:border-cyan/30 hover:text-t1 transition-all backdrop-blur-sm">Calculate Your ROI</Link>
           </div>
-          <p className="text-[12px] text-t3 mt-5 animate-slideUp stagger-4">30-day money-back guarantee · Cancel anytime · No long-term contracts</p>
+          <p className="text-[12px] text-t3 mt-5 animate-slideUp stagger-4">14-day free trial · No credit card required · Cancel anytime</p>
           <div className="flex items-center justify-center gap-6 mt-3 animate-slideUp stagger-4">
             <Link to="/assess" className="text-[12px] text-t3 hover:text-purple transition flex items-center gap-1">Take Treasury Readiness Assessment <ChevronRight size={12} /></Link>
           </div>
@@ -552,7 +552,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <h3 className="font-display text-[36px] font-extrabold text-center mb-3 tracking-tight">Simple, transparent pricing</h3>
-            <p className="text-t3 text-center mb-2 text-[16px]">30-day money-back guarantee on all plans. Cancel anytime.</p>
+            <p className="text-t3 text-center mb-2 text-[16px]">Start free. No credit card required. Upgrade when you're ready.</p>
             <p className="text-[13px] text-center text-cyan font-mono mb-8">No long-term contracts or penalties</p>
             <div className="flex items-center justify-center gap-3.5 mb-14">
               <span className={`text-sm font-medium ${!annualPricing ? 'text-t1' : 'text-t3'}`}>Monthly</span>
@@ -594,7 +594,7 @@ export default function Landing() {
                     <Link to="/signup" className={`block w-full py-3.5 rounded-[12px] text-center text-[15px] font-semibold transition-all ${plan.popular
                       ? 'bg-gradient-to-r from-cyan to-sky-400 text-white glow-sm hover:-translate-y-px active:scale-[0.98]'
                       : 'border border-border text-t2 hover:border-cyan/40 hover:text-cyan'
-                    }`}>Get Started</Link>
+                    }`}>Start Free Trial</Link>
                   )}
                 </div>
               </FadeIn>
@@ -615,9 +615,9 @@ export default function Landing() {
                   Replace manual spreadsheet reconciliation with real-time cash visibility, AI-powered forecasting, and automated reporting.
                 </p>
                 <Link to="/signup" className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-[14px] bg-gradient-to-r from-cyan to-sky-400 text-white text-[16px] font-bold glow-md hover:-translate-y-1 active:scale-[0.98] hover:glow-lg transition-all">
-                  Get Started Today <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  Start Free Trial <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <p className="text-[13px] text-t2 mt-5">30-day money-back guarantee · Cancel anytime · No long-term contracts</p>
+                <p className="text-[13px] text-t2 mt-5">14-day free trial · No credit card required · Cancel anytime</p>
               </div>
             </div>
           </div>

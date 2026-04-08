@@ -53,7 +53,7 @@ export function usePlaid({ onSuccess } = {}) {
 
             onSuccess?.()
           } catch (err) {
-            setError(err.message)
+            setError(err.message); setTimeout(() => setError(null), 8000)
           } finally {
             setLinking(false)
           }
@@ -69,7 +69,7 @@ export function usePlaid({ onSuccess } = {}) {
 
       handler.open()
     } catch (err) {
-      setError(err.message)
+      setError(err.message); setTimeout(() => setError(null), 8000)
       setLinking(false)
     }
   }, [onSuccess])
@@ -89,7 +89,8 @@ export function usePlaid({ onSuccess } = {}) {
 
       return data
     } catch (err) {
-      setError(err.message)
+      setError(err.message); setTimeout(() => setError(null), 8000)
+      setTimeout(() => setError(null), 8000)
     } finally {
       setSyncing(false)
     }

@@ -127,7 +127,7 @@ export default function SuperAdmin() {
                     tab === t.id ? 'bg-cyan/[0.1] text-cyan' : 'bg-card text-t3'
                   }`}>{counts[t.id]}</span>
                 )}
-                {tab === t.id && <div className="absolute bottom-0 left-3 right-3 h-[2px] bg-cyan rounded-t shadow-[0_0_6px_rgba(34,211,238,0.3)]" />}
+                {tab === t.id && <div className="absolute bottom-0 left-3 right-3 h-[2px] bg-cyan rounded-t glow-xs" />}
               </button>
             )
           })}
@@ -622,7 +622,7 @@ function CustomerDetail({ org, onBack, onUpdate, onDelete, isDark, ct }) {
                 detailTab === t.id ? 'text-cyan' : 'text-t3 hover:text-t2'
               }`}>
               <t.icon size={14} strokeWidth={detailTab === t.id ? 2.2 : 1.8} /> {t.label}
-              {detailTab === t.id && <div className="absolute bottom-0 left-3 right-3 h-[2px] bg-cyan rounded-t shadow-[0_0_6px_rgba(34,211,238,0.3)]" />}
+              {detailTab === t.id && <div className="absolute bottom-0 left-3 right-3 h-[2px] bg-cyan rounded-t glow-xs" />}
             </button>
           ))}
         </div>
@@ -938,7 +938,7 @@ function ActivityTab({ platform }) {
                 <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: (actionColors[log.action] || '#64748B') + '18' }}><div className="w-2 h-2 rounded-full" style={{ background: actionColors[log.action] || '#64748B' }} /></div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[14px] text-t1 font-medium">
-                    <span className="font-semibold capitalize" style={{ color: actionColors[log.action] || '#F1F5F9' }}>{log.action}</span>
+                    <span className="font-semibold capitalize" style={{ color: actionColors[log.action] || 'var(--color-t1)' }}>{log.action}</span>
                     {log.resource_type && <span className="text-t2"> · {log.resource_type}</span>}
                   </p>
                   {log.details && <p className="text-[13px] text-t3 truncate mt-0.5">{typeof log.details === 'object' ? JSON.stringify(log.details).slice(0, 80) : log.details}</p>}

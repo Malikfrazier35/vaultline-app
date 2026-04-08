@@ -60,7 +60,7 @@ export default function BurnSimulator() {
         </Link>
         <div className="flex items-center gap-3">
           <Link to="/roi" className="text-[13px] text-t2 hover:text-cyan transition">ROI Calculator</Link>
-          <Link to="/signup" className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold hover:-translate-y-px transition-all">Get Started</Link>
+          <Link to="/signup" className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold hover:-translate-y-px transition-all">Start Free Trial</Link>
         </div>
       </nav>
 
@@ -181,7 +181,7 @@ export default function BurnSimulator() {
             <div className="flex items-center justify-center gap-3">
               <button onClick={() => setStep('input')} className="px-5 py-2.5 rounded-xl border border-border text-[13px] text-t2 hover:border-border-hover transition">Edit & Re-simulate</button>
               <Link to="/signup" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[13px] glow-sm hover:-translate-y-px transition-all flex items-center gap-2">
-                Get Started <ArrowRight size={14} />
+                Start Free Trial <ArrowRight size={14} />
               </Link>
             </div>
           </div>

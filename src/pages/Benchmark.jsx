@@ -66,7 +66,7 @@ export default function Benchmark() {
         </Link>
         <div className="flex items-center gap-3">
           <Link to="/roi" className="text-[13px] text-t2 hover:text-cyan transition">ROI Calculator</Link>
-          <Link to="/signup" className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold hover:-translate-y-px transition-all">Get Started</Link>
+          <Link to="/signup" className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold hover:-translate-y-px transition-all">Start Free Trial</Link>
         </div>
       </nav>
 
@@ -182,7 +182,7 @@ export default function Benchmark() {
               <p className="text-[14px] text-t3 mb-4 max-w-lg mx-auto">Vaultline automates reconciliation, improves forecast accuracy, and gives you real-time cash visibility — moving your score into the top quartile.</p>
               <div className="flex items-center justify-center gap-3">
                 <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] glow-md hover:-translate-y-px transition-all flex items-center gap-2">
-                  Get Started <ArrowRight size={15} />
+                  Start Free Trial <ArrowRight size={15} />
                 </Link>
                 <Link to="/roi" className="px-6 py-3 rounded-xl border border-border text-[14px] text-t2 font-semibold hover:border-border-hover transition-all">
                   Calculate ROI

@@ -171,6 +171,122 @@ serve(async (req) => {
         return json({ success: true })
       }
 
+      case 'anomaly_scan': {
+        const alerts: any[] = []
+
+        // 1. Velocity check — >20 transactions in 1 hour from single account
+        const { data: velocityTx } = await supabase
+          .from('transactions')
+          .select('account_id, date')
+          .eq('org_id', orgId)
+          .gte('created_at', new Date(Date.now() - 3600000).toISOString())
+        const acctCounts: Record<string, number> = {}
+        ;(velocityTx || []).forEach((t: any) => { acctCounts[t.account_id] = (acctCounts[t.account_id] || 0) + 1 })
+        Object.entries(acctCounts).forEach(([acctId, count]) => {
+          if (count > 20) alerts.push({ type: 'velocity', severity: 'high', message: `${count} transactions in 1 hour on account ${acctId.slice(0,8)}`, account_id: acctId })
+        })
+
+        // 2. Balance anomaly — >50% change in 24h
+        const { data: accts } = await supabase.from('accounts').select('id, name, current_balance, previous_balance').eq('org_id', orgId)
+        ;(accts || []).forEach((a: any) => {
+          if (a.previous_balance && a.previous_balance > 0) {
+            const pctChange = Math.abs((a.current_balance - a.previous_balance) / a.previous_balance) * 100
+            if (pctChange > 50) alerts.push({ type: 'balance_anomaly', severity: 'high', message: `${a.name}: balance changed ${pctChange.toFixed(0)}% in 24h`, account_id: a.id })
+          }
+        })
+
+        // 3. After-hours activity check
+        const { data: afterHours } = await supabase
+          .from('security_events')
+          .select('*')
+          .eq('org_id', orgId)
+          .eq('event_type', 'after_hours_login')
+          .gte('created_at', new Date(Date.now() - 86400000).toISOString())
+        if ((afterHours || []).length > 0) {
+          alerts.push({ type: 'after_hours', severity: 'medium', message: `${afterHours!.length} after-hours login(s) in last 24h` })
+        }
+
+        // 4. Failed login spike
+        const { data: failedLogins } = await supabase
+          .from('security_events')
+          .select('*')
+          .eq('org_id', orgId)
+          .eq('event_type', 'failed_login')
+          .gte('created_at', new Date(Date.now() - 3600000).toISOString())
+        if ((failedLogins || []).length >= 5) {
+          alerts.push({ type: 'brute_force', severity: 'critical', message: `${failedLogins!.length} failed login attempts in last hour` })
+        }
+
+        // 5. Data export check
+        const { data: exports } = await supabase
+          .from('audit_log')
+          .select('*')
+          .eq('org_id', orgId)
+          .eq('action', 'data_export')
+          .gte('created_at', new Date(Date.now() - 86400000).toISOString())
+        if ((exports || []).length > 3) {
+          alerts.push({ type: 'data_exfiltration', severity: 'critical', message: `${exports!.length} data exports in last 24h — possible exfiltration` })
+        }
+
+        // 6. Session anomaly — multiple concurrent sessions from different IPs
+        const { data: sessions } = await supabase
+          .from('active_sessions')
+          .select('user_id, ip_address')
+          .eq('org_id', orgId)
+          .eq('revoked', false)
+        const userIps: Record<string, Set<string>> = {}
+        ;(sessions || []).forEach((s: any) => {
+          if (!userIps[s.user_id]) userIps[s.user_id] = new Set()
+          if (s.ip_address) userIps[s.user_id].add(s.ip_address)
+        })
+        Object.entries(userIps).forEach(([uid, ips]) => {
+          if (ips.size > 3) alerts.push({ type: 'session_anomaly', severity: 'high', message: `User ${uid.slice(0,8)} has ${ips.size} active sessions from different IPs`, user_id: uid })
+        })
+
+        // Log critical alerts as security events
+        for (const alert of alerts.filter(a => a.severity === 'critical')) {
+          await supabase.from('security_events').insert({
+            org_id: orgId, event_type: `fraud_${alert.type}`, severity: alert.severity,
+            description: alert.message, user_id: user.id,
+          }).catch(() => {})
+        }
+
+        return json({ alerts, scanned_at: new Date().toISOString(), checks: 6 })
+      }
+
+      case 'export_check': {
+        // Check if user is allowed to export (rate limit + security check)
+        const { data: recentExports } = await supabase
+          .from('audit_log')
+          .select('created_at')
+          .eq('org_id', orgId)
+          .eq('user_id', user.id)
+          .eq('action', 'data_export')
+          .gte('created_at', new Date(Date.now() - 86400000).toISOString())
+          .order('created_at', { ascending: false })
+
+        const exportCount = (recentExports || []).length
+        if (exportCount >= 1) {
+          const lastExport = recentExports![0].created_at
+          const hoursAgo = Math.round((Date.now() - new Date(lastExport).getTime()) / 3600000)
+          return json({ allowed: false, reason: `Rate limited. Last export was ${hoursAgo}h ago. Max 1 per 24h.`, next_allowed_at: new Date(new Date(lastExport).getTime() + 86400000).toISOString() })
+        }
+
+        // Check for unresolved security events
+        const { data: unresolvedEvents } = await supabase
+          .from('security_events')
+          .select('id')
+          .eq('org_id', orgId)
+          .in('severity', ['critical', 'high'])
+          .is('resolved_at', null)
+          .limit(1)
+        if ((unresolvedEvents || []).length > 0) {
+          return json({ allowed: false, reason: 'Export blocked. There are unresolved critical security events on this account. Resolve them first.' })
+        }
+
+        return json({ allowed: true })
+      }
+
       default:
         return json({ error: `Unknown action: ${action}` })
     }

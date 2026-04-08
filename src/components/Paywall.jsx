@@ -73,7 +73,7 @@ export default function Paywall() {
           ) : (
             <>
               <h2 className="font-display text-3xl font-black mb-3">Choose your plan to get started</h2>
-              <p className="text-t3 max-w-md mx-auto">30-day money-back guarantee on all plans. Cancel anytime, no contracts.</p>
+              <p className="text-t3 max-w-md mx-auto">14-day free trial · No credit card required · Cancel anytime</p>
             </>
           )}
           {error && <p className="text-red text-[13px] mt-4 bg-red/[0.06] inline-block px-4 py-2 rounded-lg">{error}</p>}
@@ -103,7 +103,7 @@ export default function Paywall() {
                   ? 'bg-gradient-to-r from-cyan to-sky-400 text-void glow-sm hover:-translate-y-px active:scale-[0.98]'
                   : 'border border-border text-t2 hover:border-border-hover hover:text-t1'
                 }`}>
-                {checkoutLoading === plan.priceId ? <Loader2 size={14} className="animate-spin" /> : <>Get Started <ArrowRight size={14} /></>}
+                {checkoutLoading === plan.priceId ? <Loader2 size={14} className="animate-spin" /> : <>Start Free Trial <ArrowRight size={14} /></>}
               </button>
             </div>
           ))}

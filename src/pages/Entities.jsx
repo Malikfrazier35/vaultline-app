@@ -178,7 +178,7 @@ export default function Entities() {
             ))}
           </div>
           <button onClick={() => { setToast('Entity creation requires bank connection. Connect a new bank to add entities.'); setTimeout(() => setToast(null), 4000) }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px active:scale-[0.98] transition-all">
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px active:scale-[0.98] transition-all">
             <Plus size={14} /> Add Entity
           </button>
         </div>

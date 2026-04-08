@@ -164,7 +164,7 @@ export default function Support() {
           <p className="text-[13px] text-t3 mt-0.5">{openCount} open ticket{openCount !== 1 ? 's' : ''}</p>
         </div>
         {view === 'list' && (
-          <button onClick={() => setView('create')} className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-void text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all shadow-[0_2px_12px_rgba(34,211,238,0.2)] flex items-center gap-2 btn-press">
+          <button onClick={() => setView('create')} className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-void text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all glow-sm flex items-center gap-2 btn-press">
             <Plus size={14} /> New Ticket
           </button>
         )}
@@ -259,7 +259,7 @@ export default function Support() {
                 </select></div>
             </div>
             <div className="flex items-center gap-3 pt-2">
-              <button type="submit" disabled={submitting || !subject.trim() || !body.trim()} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-void text-[14px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all disabled:opacity-50 shadow-[0_2px_12px_rgba(34,211,238,0.2)] flex items-center gap-2 btn-press">
+              <button type="submit" disabled={submitting || !subject.trim() || !body.trim()} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-void text-[14px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all disabled:opacity-50 glow-sm flex items-center gap-2 btn-press">
                 {submitting ? <><span className="w-4 h-4 border-2 border-void border-t-transparent rounded-full animate-spin" /> Submitting...</> : <><Send size={14} /> Submit Ticket</>}
               </button>
               {(subject || body) && <button type="button" onClick={clearDraft} className="text-[12px] text-t3 hover:text-t1 transition">Clear draft</button>}

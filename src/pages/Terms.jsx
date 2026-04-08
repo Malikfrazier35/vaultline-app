@@ -42,7 +42,7 @@ export default function Terms() {
             <p className="mb-2 mt-2"><span className="font-semibold text-t1">Free trial:</span> All plans include a 14-day free trial. No payment method is required to start a trial. At the end of the trial, you must subscribe to continue using the Service.</p>
             <p className="mb-2"><span className="font-semibold text-t1">Payment:</span> Subscription fees are billed in advance on a monthly or annual basis via Stripe, Inc. You authorize us to charge your payment method for the applicable fees. If payment fails, we may suspend access until payment is received.</p>
             <p className="mb-2"><span className="font-semibold text-t1">Cancellation:</span> You may cancel your subscription at any time from the Billing page. Upon cancellation, you retain access until the end of your current billing period. No prorated refunds are provided for partial billing periods.</p>
-            <p><span className="font-semibold text-t1">Refunds:</span> We offer a 30-day money-back guarantee on all new subscriptions. If you are not satisfied within the first 30 days of a paid subscription, contact us for a full refund.</p>
+            <p><span className="font-semibold text-t1">Refunds:</span> All new subscriptions include a 14-day free trial. No payment is required during the trial period. If you choose not to continue, your account will be downgraded automatically at the end of the trial.</p>
           </section>
 
           <section>

@@ -237,9 +237,9 @@ export default function Billing() {
       {/* Guarantees */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {[
-          { icon: Shield, label: '30-Day Guarantee', sub: 'Full refund if not satisfied' },
+          { icon: Shield, label: 'Free Trial', sub: '14 days, no credit card' },
           { icon: CreditCard, label: 'Cancel Anytime', sub: 'No long-term contracts or penalties' },
-          { icon: Clock, label: 'Money-Back Guarantee', sub: '30-day refund if not satisfied' },
+          { icon: Clock, label: 'Cancel Anytime', sub: 'No contracts or commitments' },
         ].map(g => (
           <div key={g.label} className="glass-card rounded-xl p-4 flex items-center gap-3">
             <g.icon size={16} className="text-t3 shrink-0" />

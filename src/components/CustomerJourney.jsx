@@ -46,7 +46,7 @@ export function TrialBar() {
             isCritical ? 'bg-red' : isUrgent ? 'bg-amber' : 'bg-cyan'
           }`} style={{ width: `${progress}%` }} />
         </div>
-        <span className="text-[11px] text-t3 font-mono hidden sm:inline">30-day money-back guarantee</span>
+        <span className="text-[11px] text-t3 font-mono hidden sm:inline">14-day free trial</span>
       </div>
       <div className="flex items-center gap-2">
         <Link to="/billing"
@@ -151,7 +151,7 @@ export function FeatureGate({ feature, currentPlan, requiredPlan, limit, current
             Upgrade to {requiredPlan} for more.
           </p>
           <Link to="/billing"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all">
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px transition-all">
             <Crown size={13} /> Upgrade to {requiredPlan}
           </Link>
         </div>

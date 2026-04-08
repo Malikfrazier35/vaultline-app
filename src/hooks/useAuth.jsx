@@ -112,37 +112,36 @@ export function AuthProvider({ children }) {
         // Log login event only on fresh sign-in (not page refresh)
         if (signedInRef.current) {
           signedInRef.current = false
-          try {
-            await supabase.from('audit_log').insert({
-              org_id: prof.org_id, user_id: userId,
-              action: 'login', resource_type: 'auth',
-              details: {
-                email: prof.email,
-                user_agent: navigator.userAgent?.slice(0, 200),
-                timestamp: new Date().toISOString(),
-                login_method: 'password',
-              },
-            })
-            // Also log as security event for monitoring dashboard (CC7.2)
-            await supabase.from('security_events').insert({
-              org_id: prof.org_id,
-              event_type: 'successful_login',
-              severity: 'info',
-              description: `User ${prof.email} signed in`,
+          // Fire-and-forget — don't block login on audit writes
+          const oid = prof.org_id
+          supabase.from('audit_log').insert({
+            org_id: oid, user_id: userId,
+            action: 'login', resource_type: 'auth',
+            details: {
+              email: prof.email,
+              user_agent: navigator.userAgent?.slice(0, 200),
+              timestamp: new Date().toISOString(),
+              login_method: 'password',
+            },
+          }).then(() => {}).catch(() => {})
+          supabase.from('security_events').insert({
+            org_id: oid,
+            event_type: 'successful_login',
+            severity: 'info',
+            description: `User ${prof.email} signed in`,
+            user_id: userId,
+          }).then(() => {}).catch(() => {})
+          // After-hours detection (CC7.2)
+          const hour = new Date().getHours()
+          if (hour < 6 || hour > 22) {
+            supabase.from('security_events').insert({
+              org_id: oid,
+              event_type: 'after_hours_login',
+              severity: 'warning',
+              description: `After-hours login by ${prof.email} at ${new Date().toLocaleTimeString()}`,
               user_id: userId,
-            })
-            // After-hours detection (CC7.2 — anomaly monitoring)
-            const hour = new Date().getHours()
-            if (hour < 6 || hour > 22) {
-              await supabase.from('security_events').insert({
-                org_id: prof.org_id,
-                event_type: 'after_hours_login',
-                severity: 'warning',
-                description: `After-hours login by ${prof.email} at ${new Date().toLocaleTimeString()}`,
-                user_id: userId,
-              })
-            }
-          } catch {}
+            }).then(() => {}).catch(() => {})
+          }
         }
 
         // Check MFA requirement — completely non-throwing

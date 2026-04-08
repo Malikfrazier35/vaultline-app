@@ -140,7 +140,7 @@ export default function Team() {
         </div>
         {isAdmin && (
           <button onClick={() => setShowInvite(!showInvite)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px active:scale-[0.98] transition-all">
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px active:scale-[0.98] transition-all">
             <UserPlus size={15} /> Invite
           </button>
         )}

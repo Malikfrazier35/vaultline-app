@@ -47,7 +47,7 @@ export function useNavigation() {
       const timeOnPage = Date.now() - pageEnteredAt
       // Only track pages with >500ms dwell (skip instant redirects)
       if (timeOnPage > 500) {
-        await safeInvoke('navigation', {
+        safeInvoke('navigation', {
             action: 'page_view',
             session_id: SESSION_ID,
             page_path: path,
