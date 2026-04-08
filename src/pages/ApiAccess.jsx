@@ -1,18 +1,74 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { Key, Copy, Eye, EyeOff, Check, Shield, Clock, BarChart3, Code, Zap, BookOpen, RefreshCw, Terminal, AlertTriangle, Globe, Lock, RotateCw, Trash2 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { useToast } from '@/components/Toast'
+import { Key, Copy, Eye, EyeOff, Check, Shield, Clock, BarChart3, Code, Zap, BookOpen, RefreshCw, Terminal, AlertTriangle, Globe, Lock, RotateCw, Trash2, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
+
+function generateKey(prefix = 'vl_live') {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let key = prefix + '_'
+  for (let i = 0; i < 32; i++) key += chars.charAt(Math.floor(Math.random() * chars.length))
+  return key
+}
 
 export default function ApiAccess() {
   const { org, profile } = useAuth()
-  const [showKey, setShowKey] = useState(false)
+  const toast = useToast()
+  const [showKey, setShowKey] = useState(null)
   const [copied, setCopied] = useState(null)
   const [activeTab, setActiveTab] = useState('keys')
-  const [rotateConfirm, setRotateConfirm] = useState(false)
-  const [toast, setToast] = useState(null)
+  const [keys, setKeys] = useState([])
+  const [loadingKeys, setLoadingKeys] = useState(true)
+  const [creating, setCreating] = useState(false)
+  const [newKeyName, setNewKeyName] = useState('')
+  const [justCreatedKey, setJustCreatedKey] = useState(null)
 
   useEffect(() => { document.title = 'API Access \u2014 Vaultline' }, [])
 
+  const loadKeys = useCallback(async () => {
+    if (!org?.id) return
+    const { data } = await supabase.from('api_keys').select('*').eq('org_id', org.id).order('created_at', { ascending: false })
+    setKeys(data || [])
+    setLoadingKeys(false)
+  }, [org?.id])
+
+  useEffect(() => { loadKeys() }, [loadKeys])
+
+  async function createKey() {
+    if (!newKeyName.trim()) { toast.error('Enter a key name'); return }
+    setCreating(true)
+    const fullKey = generateKey('vl_live')
+    const keyPrefix = fullKey.slice(0, 12)
+    const keySuffix = fullKey.slice(-4)
+    const { error } = await supabase.from('api_keys').insert({
+      org_id: org.id,
+      name: newKeyName.trim(),
+      key_prefix: keyPrefix,
+      key_suffix: keySuffix,
+      key_hash: btoa(fullKey),
+      scopes: ['read:accounts', 'read:transactions', 'read:forecast'],
+      created_by: profile?.id,
+    })
+    if (error) {
+      toast.error('Failed to create key — table may not exist yet')
+    } else {
+      setJustCreatedKey(fullKey)
+      toast.success('API key created — copy it now, it won\'t be shown again')
+      setNewKeyName('')
+      loadKeys()
+    }
+    setCreating(false)
+  }
+
+  async function revokeKey(keyId) {
+    if (!confirm('Revoke this API key? This cannot be undone.')) return
+    await supabase.from('api_keys').update({ revoked_at: new Date().toISOString() }).eq('id', keyId)
+    toast.success('Key revoked')
+    loadKeys()
+  }
+
+  // Fallback: if api_keys table doesn't exist, show legacy deterministic key
   const apiKey = `vl_live_${org?.id?.replace(/-/g, '').slice(0, 24) || 'xxxxxxxxxxxxxxxxxxxx'}`
   const sandboxKey = `vl_test_${org?.id?.replace(/-/g, '').slice(0, 24) || 'xxxxxxxxxxxxxxxxxxxx'}`
 
@@ -92,7 +148,7 @@ export default function ApiAccess() {
               <button key={t.id} onClick={() => setActiveTab(t.id)}
                 className={`relative flex items-center gap-2 px-5 py-3.5 text-[13px] font-mono font-medium transition-colors flex-1 justify-center ${activeTab === t.id ? 'text-cyan' : 'text-t3 hover:text-t2'}`}>
                 <t.icon size={14} /> {t.label}
-                {activeTab === t.id && <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-cyan rounded-t shadow-[0_0_6px_rgba(34,211,238,0.3)]" />}
+                {activeTab === t.id && <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-cyan rounded-t glow-xs" />}
               </button>
             ))}
           </div>
@@ -156,9 +212,9 @@ export default function ApiAccess() {
 
                 {/* Key management */}
                 <div className="flex items-center gap-3">
-                  <button onClick={() => { if (rotateConfirm) { setToast('Key rotated. Old key will expire in 24h.'); setRotateConfirm(false); setTimeout(() => setToast(null), 3000) } else { setRotateConfirm(true); setTimeout(() => setRotateConfirm(false), 5000) } }}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-mono font-semibold transition-all ${rotateConfirm ? 'bg-red/[0.08] text-red border border-red/[0.12]' : 'border border-border text-t3 hover:text-amber hover:border-amber/[0.15]'}`}>
-                    <RotateCw size={12} /> {rotateConfirm ? 'CONFIRM ROTATE' : 'ROTATE KEY'}
+                  <button onClick={() => { toast.info('Key rotation coming soon'); }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-mono font-semibold transition-all border border-border text-t3 hover:text-amber hover:border-amber/[0.15]">
+                    <RotateCw size={12} /> ROTATE KEY
                   </button>
                   <Link to="/docs" className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-border text-[12px] font-mono text-t3 hover:text-cyan hover:border-cyan/[0.15] transition-all">
                     <BookOpen size={12} /> VIEW FULL DOCS

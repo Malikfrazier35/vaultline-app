@@ -113,8 +113,8 @@ export default function AuditLog() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="w-6 h-6 border-2 border-cyan border-t-transparent rounded-full animate-spin" />
+          <div className="space-y-3">
+            {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton h-12 w-full rounded-lg" style={{ animationDelay: `${i * 0.05}s` }} />)}
           </div>
         ) : filtered.length > 0 ? (
           <div className="divide-y divide-border/15">

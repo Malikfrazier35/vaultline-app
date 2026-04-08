@@ -5,6 +5,7 @@ import Layout from '@/components/Layout'
 import Paywall from '@/components/Paywall'
 import ErrorBoundary, { SectionBoundary } from '@/components/ErrorBoundary'
 import CookieConsent from '@/components/CookieConsent'
+import { ToastProvider } from '@/components/Toast'
 
 // Retry-capable lazy loader — retries chunk loads up to 3 times with 1s delay
 function lazyRetry(importFn, retries = 3) {
@@ -21,6 +22,8 @@ function lazyRetry(importFn, retries = 3) {
 
 // Lazy load all pages — only Landing loads immediately
 import Landing from '@/pages/Landing'
+const LPDemo = lazyRetry(() => import('@/pages/LPDemo'))
+const LPTrial = lazyRetry(() => import('@/pages/LPTrial'))
 const Login = lazyRetry(() => import('@/pages/Login'))
 const Signup = lazyRetry(() => import('@/pages/Signup'))
 const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'))
@@ -53,6 +56,7 @@ const Privacy = lazyRetry(() => import('@/pages/Privacy'))
 const Terms = lazyRetry(() => import('@/pages/Terms'))
 const SecurityPage = lazyRetry(() => import('@/pages/SecurityPage'))
 const HowItWorks = lazyRetry(() => import('@/pages/HowItWorks'))
+const Home = lazyRetry(() => import('@/pages/Home'))
 const Dashboard = lazyRetry(() => import('@/pages/Dashboard'))
 const CashPosition = lazyRetry(() => import('@/pages/CashPosition'))
 const Forecasting = lazyRetry(() => import('@/pages/Forecasting'))
@@ -74,9 +78,6 @@ const AuditLog = lazyRetry(() => import('@/pages/AuditLog'))
 const Integrations = lazyRetry(() => import('@/pages/Integrations'))
 const SSO = lazyRetry(() => import('@/pages/SSO'))
 const ApiDocs = lazyRetry(() => import('@/pages/ApiDocs'))
-const Ecosystem = lazyRetry(() => import('@/pages/Ecosystem'))
-const FinanceOSService = lazyRetry(() => import('@/pages/FinanceOSService'))
-const ParallaxService = lazyRetry(() => import('@/pages/ParallaxService'))
 const NotFound = lazyRetry(() => import('@/pages/NotFound'))
 
 function Spinner() {
@@ -133,6 +134,7 @@ export default function App() {
   return (
     <ErrorBoundary>
     <BrowserRouter>
+      <ToastProvider>
       <AuthProvider>
         <Suspense fallback={<Spinner />}>
           <Routes>
@@ -148,12 +150,12 @@ export default function App() {
             <Route path="/burn-simulator" element={<BurnSimulator />} />
             <Route path="/legal" element={<LegalCenter />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/lp/demo" element={<LPDemo />} />
+            <Route path="/lp/trial" element={<LPTrial />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/security" element={<SecurityPage />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/products/financeos" element={<FinanceOSService />} />
-            <Route path="/products/parallax" element={<ParallaxService />} />
             <Route path="/admin" element={<SuperAdmin />} />
 
             {/* Protected — requires authentication but NOT payment (billing access) */}
@@ -163,6 +165,8 @@ export default function App() {
 
             {/* Protected — requires authentication AND active payment */}
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+              <Route index element={<Navigate to="/home" replace />} />
+              <Route path="home" element={<SafePage name="Home"><Home /></SafePage>} />
               <Route path="dashboard" element={<SafePage name="Dashboard"><Dashboard /></SafePage>} />
               <Route path="position" element={<SafePage name="Cash Position"><CashPosition /></SafePage>} />
               <Route path="forecast" element={<SafePage name="Forecasting"><Forecasting /></SafePage>} />
@@ -182,9 +186,6 @@ export default function App() {
               <Route path="sso" element={<SafePage name="SSO"><SSO /></SafePage>} />
               <Route path="team" element={<SafePage name="Team"><Team /></SafePage>} />
               <Route path="settings" element={<SafePage name="Settings"><Settings /></SafePage>} />
-              <Route path="ecosystem" element={<SafePage name="Ecosystem"><Ecosystem /></SafePage>} />
-              <Route path="suite/financeos" element={<SafePage name="FinanceOS"><FinanceOSService /></SafePage>} />
-              <Route path="suite/parallax" element={<SafePage name="Parallax"><ParallaxService /></SafePage>} />
               <Route path="support" element={<SafePage name="Support"><Support /></SafePage>} />
               <Route path="partner-admin" element={<SafePage name="Partners"><PartnerAdmin /></SafePage>} />
               <Route path="security-center" element={<SafePage name="Security Center"><SecurityCenter /></SafePage>} />
@@ -209,6 +210,7 @@ export default function App() {
         </Suspense>
       </AuthProvider>
       <CookieConsent />
+      </ToastProvider>
     </BrowserRouter>
     </ErrorBoundary>
   )

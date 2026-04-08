@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import ThemeToggle from '@/components/ThemeToggle'
@@ -145,10 +146,11 @@ export default function Landing() {
   useSEO({ title: 'Cloud Treasury Management for Mid-Market Finance Teams', description: 'Real-time cash visibility, AI forecasting, and multi-entity treasury management. Replace spreadsheets with crystal-clear cash intelligence. From $599/mo.', canonical: '/' })
 
   // Redirect to dashboard if already logged in (don't block rendering while checking)
-  if (!loading && user) return <Navigate to="/dashboard" replace />
+  if (!loading && user) return <Navigate to="/home" replace />
 
   return (
     <div className="min-h-screen bg-void text-t1 overflow-x-hidden">
+      <AnimatedBackground variant="particles" />
       {/* Gradient mesh */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-40%] right-[-20%] w-[900px] h-[900px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #22D3EE 0%, transparent 60%)', animation: 'float1 20s ease-in-out infinite' }} />
@@ -212,7 +214,7 @@ export default function Landing() {
               </Link>
             ) : (<>
               <Link to="/login" className="text-[14px] text-t2 hover:text-t1 transition font-medium">Sign In</Link>
-              <Link to="/signup" className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-void text-[14px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all shadow-[0_2px_16px_rgba(34,211,238,0.25)]">Get Started</Link>
+              <Link to="/signup" className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[14px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all glow-sm">Get Started</Link>
             </>)}
           </div>
         </div>
@@ -246,7 +248,7 @@ export default function Landing() {
             ))}
           </div>
           <div className="flex items-center justify-center gap-4 animate-slideUp stagger-4">
-            <Link to="/signup" className="group px-8 py-3.5 rounded-[12px] bg-gradient-to-r from-cyan to-sky-400 text-void text-[16px] font-bold shadow-[0_4px_28px_rgba(34,211,238,0.3)] hover:-translate-y-1 active:scale-[0.98] hover:shadow-[0_8px_40px_rgba(34,211,238,0.4)] transition-all flex items-center gap-2">
+            <Link to="/signup" className="group px-8 py-3.5 rounded-[12px] bg-gradient-to-r from-cyan to-sky-400 text-white text-[16px] font-bold glow-md hover:-translate-y-1 active:scale-[0.98] hover:glow-lg transition-all flex items-center gap-2">
               Get Started <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link to="/roi" className="px-8 py-3.5 rounded-[12px] border border-border text-[16px] font-semibold text-t2 hover:border-cyan/30 hover:text-t1 transition-all backdrop-blur-sm">Calculate Your ROI</Link>
@@ -296,7 +298,7 @@ export default function Landing() {
                   <div className="relative p-[1px] rounded-lg overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-cyan via-purple to-cyan opacity-30" style={{ backgroundSize: '200%', animation: 'shimmer 3s linear infinite' }} />
                     <div className="relative bg-card rounded-lg px-4 py-2.5">
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '4px 4px 0 0', background: 'rgba(34,211,238,0.04)', border: '1px solid rgba(34,211,238,0.08)', borderBottom: 'none', fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#22D3EE' : '#0891B2' }}>AI INSIGHT</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '4px 4px 0 0', background: isDark ? 'rgba(34,211,238,0.04)' : 'rgba(8,145,178,0.04)', border: isDark ? '1px solid rgba(34,211,238,0.08)' : '1px solid rgba(8,145,178,0.08)', borderBottom: 'none', fontFamily: 'JetBrains Mono, monospace', fontSize: '9px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#22D3EE' : '#0891B2' }}>AI INSIGHT</span>
                       <p className="text-[12px] text-t3 mt-0.5">$2.8M idle cash detected in Chase Operating. Recommend sweep to high-yield savings.</p>
                     </div>
                   </div>
@@ -492,19 +494,19 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ════ CLIMATE ════ */}
+      {/* ════ SECURITY TRUST ════ */}
       <section className="py-24 px-6 relative overflow-hidden">
         <FadeIn>
-          <a href="https://climate.stripe.com/OeA2M0" target="_blank" rel="noopener noreferrer" className="block max-w-5xl mx-auto group">
+          <Link to="/how-it-works" className="block max-w-5xl mx-auto group">
             <div className="relative rounded-[24px] overflow-hidden cursor-pointer" style={{
-              background: isDark ? 'linear-gradient(135deg, #041210 0%, #071a15 30%, #0a1f1a 60%, #040d0a 100%)' : 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 30%, #a7f3d0 60%, #ecfdf5 100%)',
-              border: `1px solid ${isDark ? 'rgba(52,211,153,0.12)' : 'rgba(5,150,105,0.15)'}`,
-              boxShadow: isDark ? '0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(52,211,153,0.06)' : '0 20px 60px rgba(5,150,105,0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
+              background: isDark ? 'linear-gradient(135deg, #04101a 0%, #071825 30%, #0a1f30 60%, #040d1a 100%)' : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #bae6fd 60%, #f0f9ff 100%)',
+              border: `1px solid ${isDark ? 'rgba(34,211,238,0.12)' : 'rgba(8,145,178,0.15)'}`,
+              boxShadow: isDark ? '0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(34,211,238,0.06)' : '0 20px 60px rgba(8,145,178,0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
             }}>
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {[
-                  { x: '15%', y: '20%', size: 220, color: isDark ? 'rgba(52,211,153,0.06)' : 'rgba(5,150,105,0.06)' },
-                  { x: '70%', y: '60%', size: 180, color: isDark ? 'rgba(34,211,238,0.04)' : 'rgba(8,145,178,0.05)' },
+                  { x: '15%', y: '20%', size: 220, color: isDark ? 'rgba(34,211,238,0.06)' : 'rgba(8,145,178,0.06)' },
+                  { x: '70%', y: '60%', size: 180, color: isDark ? 'rgba(129,140,248,0.04)' : 'rgba(124,58,237,0.05)' },
                 ].map((orb, i) => (
                   <div key={i} className="absolute rounded-full" style={{
                     left: orb.x, top: orb.y, width: orb.size, height: orb.size,
@@ -516,32 +518,32 @@ export default function Landing() {
               <div className="relative px-10 py-12 flex items-center gap-12">
                 <div className="shrink-0">
                   <div className="w-[100px] h-[100px] rounded-[24px] flex items-center justify-center" style={{
-                    background: isDark ? 'linear-gradient(145deg, rgba(52,211,153,0.1) 0%, rgba(52,211,153,0.03) 100%)' : 'linear-gradient(145deg, rgba(5,150,105,0.1) 0%, rgba(5,150,105,0.03) 100%)',
-                    border: `1px solid ${isDark ? 'rgba(52,211,153,0.15)' : 'rgba(5,150,105,0.12)'}`,
+                    background: isDark ? 'linear-gradient(145deg, rgba(34,211,238,0.1) 0%, rgba(34,211,238,0.03) 100%)' : 'linear-gradient(145deg, rgba(8,145,178,0.1) 0%, rgba(8,145,178,0.03) 100%)',
+                    border: `1px solid ${isDark ? 'rgba(34,211,238,0.15)' : 'rgba(8,145,178,0.12)'}`,
                   }}>
-                    <Leaf size={40} strokeWidth={1.5} style={{ color: isDark ? '#34D399' : '#059669', transform: 'rotate(-12deg)' }} className="group-hover:scale-110 group-hover:rotate-0 transition-all duration-500" />
+                    <Shield size={40} strokeWidth={1.5} style={{ color: isDark ? '#22D3EE' : '#0891B2' }} className="group-hover:scale-110 transition-all duration-500" />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-mono font-bold uppercase tracking-[0.12em] mb-2" style={{ color: isDark ? '#34D399' : '#059669' }}>CARBON-NEGATIVE TREASURY</p>
+                  <p className="text-[12px] font-mono font-bold uppercase tracking-[0.12em] mb-2" style={{ color: isDark ? '#22D3EE' : '#0891B2' }}>SOC 2-READY ARCHITECTURE</p>
                   <h3 className="font-display text-[24px] font-extrabold tracking-tight leading-[1.2] mb-2" style={{ color: isDark ? '#F1F5F9' : '#0F172A' }}>
-                    Your subscription removes CO2 from the atmosphere.
+                    Your data is encrypted, isolated, and audited.
                   </h3>
                   <p className="text-[14px] leading-relaxed max-w-lg" style={{ color: isDark ? '#94A3B8' : '#475569' }}>
-                    1% of Vaultline revenue funds direct air capture and geological sequestration via verified carbon removal partners.
+                    Field-level encryption, row-level tenant isolation, immutable audit trails, and 6-point anomaly detection — built into every plan.
                   </p>
                 </div>
                 <div className="shrink-0">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all" style={{
-                    background: isDark ? 'rgba(52,211,153,0.08)' : 'rgba(5,150,105,0.06)',
-                    border: `1px solid ${isDark ? 'rgba(52,211,153,0.15)' : 'rgba(5,150,105,0.12)'}`,
+                    background: isDark ? 'rgba(34,211,238,0.08)' : 'rgba(8,145,178,0.06)',
+                    border: `1px solid ${isDark ? 'rgba(34,211,238,0.15)' : 'rgba(8,145,178,0.12)'}`,
                   }}>
-                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" style={{ color: isDark ? '#34D399' : '#059669' }} />
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" style={{ color: isDark ? '#22D3EE' : '#0891B2' }} />
                   </div>
                 </div>
               </div>
             </div>
-          </a>
+          </Link>
         </FadeIn>
       </section>
 
@@ -564,7 +566,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {PLANS.map((plan, i) => (
               <FadeIn key={plan.name} delay={i * 120}>
-                <div className={`border rounded-[18px] p-8 flex flex-col relative backdrop-blur-sm transition-all hover:-translate-y-1 active:scale-[0.98] ${plan.popular ? 'border-cyan/50 shadow-[0_0_30px_rgba(34,211,238,0.15)]' : 'border-border hover:border-border'}`}>
+                <div className={`border rounded-[18px] p-8 flex flex-col relative backdrop-blur-sm transition-all hover:-translate-y-1 active:scale-[0.98] ${plan.popular ? 'border-cyan/50 glow-md' : 'border-border hover:border-border'}`}>
                   {plan.popular && (
                     <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan to-purple text-void text-[12px] font-bold px-4 py-1 rounded-full uppercase tracking-wider shadow-lg">Most Popular</span>
                   )}
@@ -590,7 +592,7 @@ export default function Landing() {
                     <a href="mailto:sales@vaultline.app" className="block w-full py-3.5 rounded-[12px] text-center text-[15px] font-semibold border border-border text-t2 hover:border-cyan/40 hover:text-cyan transition-all">Talk to Sales</a>
                   ) : (
                     <Link to="/signup" className={`block w-full py-3.5 rounded-[12px] text-center text-[15px] font-semibold transition-all ${plan.popular
-                      ? 'bg-gradient-to-r from-cyan to-sky-400 text-void shadow-[0_2px_16px_rgba(34,211,238,0.25)] hover:-translate-y-px active:scale-[0.98]'
+                      ? 'bg-gradient-to-r from-cyan to-sky-400 text-white glow-sm hover:-translate-y-px active:scale-[0.98]'
                       : 'border border-border text-t2 hover:border-cyan/40 hover:text-cyan'
                     }`}>Get Started</Link>
                   )}
@@ -612,7 +614,7 @@ export default function Landing() {
                 <p className="text-t3 mb-10 max-w-lg mx-auto text-[16px] leading-relaxed">
                   Replace manual spreadsheet reconciliation with real-time cash visibility, AI-powered forecasting, and automated reporting.
                 </p>
-                <Link to="/signup" className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-[14px] bg-gradient-to-r from-cyan to-sky-400 text-void text-[16px] font-bold shadow-[0_4px_32px_rgba(34,211,238,0.35)] hover:-translate-y-1 active:scale-[0.98] hover:shadow-[0_8px_48px_rgba(34,211,238,0.45)] transition-all">
+                <Link to="/signup" className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-[14px] bg-gradient-to-r from-cyan to-sky-400 text-white text-[16px] font-bold glow-md hover:-translate-y-1 active:scale-[0.98] hover:glow-lg transition-all">
                   Get Started Today <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <p className="text-[13px] text-t2 mt-5">30-day money-back guarantee · Cancel anytime · No long-term contracts</p>
@@ -623,118 +625,6 @@ export default function Landing() {
       </section>
 
       {/* ════ FOOTER ════ */}
-      {/* ════ SUITE / ECOSYSTEM ════ */}
-      <section className="py-20 px-6" id="suite">
-        <FadeIn>
-          <div className="max-w-5xl mx-auto text-center">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.15em] text-purple">THE VAULTLINE SUITE</span>
-            <h2 className="font-display text-3xl font-black tracking-tight mt-3 mb-4">The Only Unified Treasury + FP&A + Compliance Platform</h2>
-            <p className="text-t3 max-w-2xl mx-auto text-[15px] mb-4">No other mid-market solution bundles treasury management, financial planning, and supplier compliance in one subscription. Stop paying three vendors for what should be one platform.</p>
-            
-            {/* Bundle savings callout */}
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-purple/[0.04] border border-purple/[0.12] mb-12">
-              <Sparkles size={16} className="text-purple" />
-              <span className="text-[14px] font-semibold text-t1">Suite Bundle: <span className="font-mono text-purple">$2,799/mo</span></span>
-              <span className="text-[12px] text-t3">Save $499/mo vs separate plans</span>
-              <span className="text-[10px] font-mono text-green bg-green/[0.06] border border-green/[0.08] px-2 py-0.5 rounded">15% OFF</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-              {/* Vaultline — Active */}
-              <div className="glass rounded-2xl p-6 text-left border border-cyan/[0.15] shadow-[0_0_24px_rgba(34,211,238,0.06)] transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-cyan/[0.12] text-cyan bg-cyan/[0.04]">TREASURY</span>
-                  <span className="text-[9px] font-mono text-green bg-green/[0.06] border border-green/[0.08] px-2 py-0.5 rounded">ACTIVE</span>
-                </div>
-                <h3 className="font-display text-[18px] font-bold mb-1">Vaultline</h3>
-                <p className="text-[12px] font-mono text-t3 mb-3">from $499/mo</p>
-                <p className="text-[13px] text-t3 leading-relaxed mb-3">Treasury management. Real-time cash visibility, AI forecasting, multi-currency, bank integrations.</p>
-                <div className="space-y-1.5 mb-4">
-                  {['Cash position dashboard', 'AI forecast (3 models)', 'Multi-currency FX', 'AP/AR tracking', 'Bank & ERP sync'].map(f => (
-                    <div key={f} className="flex items-center gap-2">
-                      <Check size={12} className="text-cyan flex-shrink-0" />
-                      <span className="text-[12px] text-t2">{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link to="/dashboard" className="text-[13px] font-semibold text-cyan flex items-center gap-1 transition-all">Go to Dashboard &rarr;</Link>
-              </div>
-
-              {/* FinanceOS */}
-              <Link to="/products/financeos" className="glass rounded-2xl p-6 text-left border border-border hover:border-blue-400/[0.2] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(96,165,250,0.08)] transition-all group">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-border text-t2 group-hover:border-blue-400/[0.12] group-hover:text-blue-400 group-hover:bg-blue-400/[0.04] transition-all">FP&A</span>
-                  <span className="text-[9px] font-mono text-purple bg-purple/[0.06] border border-purple/[0.08] px-2 py-0.5 rounded">LIVE DEMO</span>
-                </div>
-                <h3 className="font-display text-[18px] font-bold mb-1">FinanceOS</h3>
-                <p className="text-[12px] font-mono text-t3 mb-3">included in Suite</p>
-                <p className="text-[13px] text-t3 leading-relaxed mb-3">Cloud FP&A. Planning, budgeting, consolidation, variance analysis, and AI-powered modeling.</p>
-                <div className="space-y-1.5 mb-4">
-                  {['Budget vs actuals', 'Multi-entity consolidation', 'Variance detective', 'Scenario modeling', 'Board reporting'].map(f => (
-                    <div key={f} className="flex items-center gap-2">
-                      <Check size={12} className="text-blue-400 flex-shrink-0" />
-                      <span className="text-[12px] text-t2">{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <span className="text-[13px] font-semibold text-blue-400 flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Try Interactive Demo <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                </span>
-              </Link>
-
-              {/* Parallax */}
-              <Link to="/products/parallax" className="glass rounded-2xl p-6 text-left border border-border hover:border-amber/[0.2] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(251,191,36,0.06)] transition-all group">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-border text-t2 group-hover:border-amber/[0.12] group-hover:text-amber group-hover:bg-amber/[0.04] transition-all">COMPLIANCE</span>
-                  <span className="text-[9px] font-mono text-purple bg-purple/[0.06] border border-purple/[0.08] px-2 py-0.5 rounded">LIVE DEMO</span>
-                </div>
-                <h3 className="font-display text-[18px] font-bold mb-1">Parallax</h3>
-                <p className="text-[12px] font-mono text-t3 mb-3">included in Suite</p>
-                <p className="text-[13px] text-t3 leading-relaxed mb-3">Aerospace supplier compliance. Questionnaires, CAPA tracking, audit readiness, training matrix.</p>
-                <div className="space-y-1.5 mb-4">
-                  {['AS9100 / CMMC frameworks', 'Questionnaire management', 'CAPA lifecycle', 'Audit calendar', 'Training matrix'].map(f => (
-                    <div key={f} className="flex items-center gap-2">
-                      <Check size={12} className="text-amber flex-shrink-0" />
-                      <span className="text-[12px] text-t2">{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <span className="text-[13px] font-semibold text-amber flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Try Interactive Demo <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                </span>
-              </Link>
-            </div>
-
-            {/* Bundle CTA */}
-            <FadeIn delay={200}>
-              <div className="glass rounded-2xl p-8 border border-purple/[0.12] bg-gradient-to-br from-purple/[0.02] to-cyan/[0.02] text-left max-w-3xl mx-auto">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-purple/[0.12] text-purple bg-purple/[0.04]">SUITE BUNDLE</span>
-                      <span className="text-[10px] font-mono text-green bg-green/[0.06] border border-green/[0.08] px-2 py-0.5 rounded">SAVE 15%</span>
-                    </div>
-                    <h3 className="font-display text-[22px] font-bold mb-2">All three products. One subscription.</h3>
-                    <p className="text-[14px] text-t3 leading-relaxed max-w-md mb-4">Unified treasury management, financial planning, and supplier compliance with shared SSO, consolidated billing, and cross-product data flows.</p>
-                    <div className="flex items-center gap-6 text-[13px] text-t2">
-                      <div className="flex items-center gap-1.5"><Check size={14} className="text-green" /> Single sign-on</div>
-                      <div className="flex items-center gap-1.5"><Check size={14} className="text-green" /> Consolidated billing</div>
-                      <div className="flex items-center gap-1.5"><Check size={14} className="text-green" /> Cross-product insights</div>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0 ml-8">
-                    <div className="font-mono text-[28px] font-black text-t1 tracking-tight">$2,799<span className="text-[14px] text-t3 font-normal">/mo</span></div>
-                    <div className="text-[12px] text-t3 font-mono">or $2,239/mo billed annually</div>
-                    <a href="mailto:sales@vaultline.app?subject=Suite%20Bundle%20Inquiry" className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple text-white font-semibold text-[13px] hover:bg-purple/90 transition-all shadow-lg shadow-purple/20">
-                      Contact Sales <ArrowRight size={14} />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-        </FadeIn>
-      </section>
 
       <footer className="border-t border-border py-14 px-6">
         <div className="max-w-5xl mx-auto">
@@ -764,8 +654,6 @@ export default function Landing() {
                 <div className="flex flex-col gap-2">
                   <Link to="/products/financeos" className="text-[14px] text-t2 hover:text-blue-400 transition">FinanceOS</Link>
                   <Link to="/products/parallax" className="text-[14px] text-t2 hover:text-amber transition">Parallax</Link>
-                  <a href="mailto:sales@vaultline.app?subject=Suite Bundle Inquiry" className="text-[14px] text-t2 hover:text-purple transition">Bundle Pricing</a>
-                  <a href="#suite" className="text-[14px] text-t2 hover:text-purple transition">Why the Suite</a>
                 </div>
               </div>
               <div>
@@ -801,16 +689,16 @@ export default function Landing() {
           <div className="h-px bg-border/30 mb-6" />
           <div className="flex items-center justify-between">
             <p className="text-[13px] text-t3">&copy; 2026 Vaultline. All rights reserved.</p>
-            <a href="https://climate.stripe.com/OeA2M0" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[12px] text-t3 hover:text-green transition">
-              <Leaf size={12} className="text-green" /><span>1% to carbon removal</span>
-            </a>
+            <Link to="/how-it-works" className="flex items-center gap-2 text-[12px] text-t3 hover:text-cyan transition">
+              <Shield size={12} className="text-cyan" /><span>SOC 2-ready security</span>
+            </Link>
           </div>
         </div>
       </footer>
 
       {/* Return-to-dashboard pill */}
       {user && (
-        <Link to="/dashboard" className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-full glass border border-cyan/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_40px_rgba(34,211,238,0.15)] hover:-translate-y-0.5 active:scale-[0.98] transition-all group animate-slideUp stagger-3">
+        <Link to="/dashboard" className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-full glass border border-cyan/[0.15] shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:glow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all group animate-slideUp stagger-3">
           <span className="w-2 h-2 rounded-full bg-green animate-[pulse_3s_ease-in-out_infinite]" />
           <span className="text-[13px] font-medium text-t2 group-hover:text-cyan active:text-cyan transition">Return to Dashboard</span>
           <ArrowRight size={13} className="text-t3 group-hover:text-cyan group-hover:translate-x-0.5 transition-all" />

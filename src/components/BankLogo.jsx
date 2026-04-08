@@ -85,8 +85,8 @@ function getInitials(name) {
 export default function BankLogo({ name, color, size = 36, className = '' }) {
   const [imgFailed, setImgFailed] = useState(false)
   const domain = getDomain(name)
-  // Use Google's high-res favicon service (no auth needed)
-  const logoUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null
+  // DuckDuckGo favicon service — reliable, no auth, no redirects
+  const logoUrl = domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null
 
   const initials = getInitials(name)
   const bgColor = color || '#1565C0'

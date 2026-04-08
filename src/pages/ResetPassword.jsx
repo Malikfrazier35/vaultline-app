@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -45,13 +46,14 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-void relative">
+    <div className="min-h-screen flex items-center justify-center relative" style={{ background:'#FAFBFC', '--color-void':'#FAFBFC','--color-deep':'#F1F5F9','--color-surface':'#FFFFFF','--color-card':'#FFFFFF','--color-elevated':'#F8FAFC','--color-t1':'#0F172A','--color-t2':'#475569','--color-t3':'#94A3B8','--color-t4':'#CBD5E1','--color-border':'rgba(15,23,42,0.08)','--color-border-hover':'rgba(15,23,42,0.16)','--color-border-cyan':'rgba(14,165,180,0.22)','--color-cyan':'#0891B2','--color-cyan-bright':'#06B6D4','--color-cyan-glow':'rgba(8,145,178,0.06)','--color-green':'#16A34A','--color-red':'#DC2626','--color-amber':'#D97706','--color-purple':'#7C3AED' }}>
+      <AnimatedBackground variant="dots" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
-      <div className="absolute w-[800px] h-[800px] top-[-300px] right-[-200px] bg-[radial-gradient(circle,rgba(34,211,238,0.06)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute w-[800px] h-[800px] top-[-300px] right-[-200px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-[420px] px-6">
         <div className="text-center mb-10">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center mx-auto mb-4 shadow-[0_4px_20px_rgba(34,211,238,0.25)]">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center mx-auto mb-4 glow-md">
             <KeyRound size={22} className="text-void" />
           </div>
           <h1 className="font-display text-2xl font-black tracking-tight">Set new password</h1>
@@ -124,7 +126,7 @@ export default function ResetPassword() {
               {error && <div className="text-red text-[13px] bg-red/[0.06] rounded-xl px-3.5 py-2.5 border border-red/[0.1]">{error}</div>}
 
               <button type="submit" disabled={submitting || password.length < 8 || password !== confirm}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_20px_rgba(34,211,238,0.3)] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] glow-sm hover:glow-md hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                 {submitting ? <><Loader2 size={15} className="animate-spin" /> Updating...</> : 'Update Password'}
               </button>
             </form>

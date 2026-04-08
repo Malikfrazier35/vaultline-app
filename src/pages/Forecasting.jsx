@@ -1,7 +1,9 @@
 import { useTreasury } from '@/hooks/useTreasury'
 import { SkeletonPage } from '@/components/Skeleton'
 import { supabase } from '@/lib/supabase'
+import { safeInvoke } from '@/lib/safeInvoke'
 import { useAuth } from '@/hooks/useAuth'
+import { useToast } from '@/components/Toast'
 import { useVisibilityRefetch } from '@/hooks/useVisibilityRefetch'
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, ReferenceLine, PieChart, Pie, Cell } from 'recharts'
 import { useMemo, useState, useEffect, useCallback } from 'react'
@@ -48,6 +50,20 @@ export default function Forecasting() {
   const [showEMA, setShowEMA] = useState(false)
   const [hiddenSeries, setHiddenSeries] = useState(new Set())
   const [chartView, setChartView] = useState('forecast') // forecast | burn
+  const [generating, setGenerating] = useState(false)
+  const toast = useToast()
+
+  async function handleGenerateForecast() {
+    setGenerating(true)
+    const { data, error } = await safeInvoke('generate-forecast', { days: 90 })
+    if (error) {
+      toast.error('Failed to generate forecast: ' + error)
+    } else {
+      toast.success('Forecast generated — 3 models computed')
+      fetchForecastData()
+    }
+    setGenerating(false)
+  }
 
   useEffect(() => { document.title = 'Forecasting \u2014 Vaultline' }, [])
   const fetchForecastData = useCallback(() => {
@@ -433,7 +449,11 @@ export default function Forecasting() {
       <div className="glass-card rounded-2xl overflow-hidden terminal-scanlines relative hover:border-border-hover transition-colors">
         <div className="relative z-[2]">
           <div className="flex items-center justify-between px-5 pt-5 pb-2">
-            <div className="flex items-center gap-3"><span className="terminal-label">FORECAST</span><span className="text-[11px] font-mono text-t3">{chartDataWithAnomalies.length} pts</span>{anomalies.length > 0 && <span className="text-[10px] font-mono text-amber bg-amber/[0.06] border border-amber/[0.08] px-2 py-0.5 rounded">{anomalies.length} anomal{anomalies.length !== 1 ? 'ies' : 'y'}</span>}</div>
+            <div className="flex items-center gap-3"><span className="terminal-label">FORECAST</span><span className="text-[11px] font-mono text-t3">{chartDataWithAnomalies.length} pts</span>{anomalies.length > 0 && <span className="text-[10px] font-mono text-amber bg-amber/[0.06] border border-amber/[0.08] px-2 py-0.5 rounded">{anomalies.length} anomal{anomalies.length !== 1 ? 'ies' : 'y'}</span>}
+              <button onClick={handleGenerateForecast} disabled={generating} className="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all bg-cyan/[0.08] text-cyan border border-cyan/[0.12] hover:bg-cyan/[0.14] disabled:opacity-50 flex items-center gap-1.5">
+                {generating ? <><span className="w-3 h-3 border-2 border-cyan border-t-transparent rounded-full animate-spin" /> Running...</> : <><Zap size={10} /> Generate</>}
+              </button>
+            </div>
             <div className="flex items-center gap-1.5 flex-wrap">
               {MODELS.map(m => { const locked = PLAN_RANK[org?.plan || 'starter'] < PLAN_RANK[m.minPlan]; return (<button key={m.id} onClick={()=>{ if (!locked) setModel(m.id) }} title={locked ? `Requires ${m.minPlan} plan` : m.desc} className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all flex items-center gap-1 ${locked ? 'text-t4 border border-transparent cursor-not-allowed opacity-50' : model===m.id?'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]':'text-t3 hover:text-t2 border border-transparent'}`}>{locked && <Lock size={8} />}{m.label}{!locked && accuracy.recommended?.id===m.id && <Trophy size={8} className="text-green" />}</button>)})}
               <div className="w-px h-4 bg-border mx-0.5" />

@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSEO } from '@/hooks/useSEO'
@@ -129,6 +130,7 @@ export default function HowItWorks() {
 
   return (
     <div className="min-h-screen bg-void text-t1">
+      <AnimatedBackground variant="particles" />
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-deep/95 backdrop-blur-lg">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">

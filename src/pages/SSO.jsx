@@ -145,7 +145,7 @@ export default function SSO() {
                   activeTab === t.id ? 'bg-cyan/[0.08] text-cyan' : 'bg-deep text-t3'
                 }`}>{t.count}</span>
               )}
-              {activeTab === t.id && <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-cyan rounded-t shadow-[0_0_6px_rgba(34,211,238,0.3)]" />}
+              {activeTab === t.id && <div className="absolute bottom-0 left-4 right-4 h-[2px] bg-cyan rounded-t glow-xs" />}
             </button>
           ))}
         </div>
@@ -228,7 +228,7 @@ export default function SSO() {
                     <button key={p.id} onClick={() => { setSelectedProvider(p.id === selectedProvider ? null : p.id); setConfigStep(1) }}
                       className={`flex items-center gap-3 p-4 rounded-xl border text-left transition-all hover:-translate-y-px active:scale-[0.98] ${
                         selectedProvider === p.id
-                          ? 'border-cyan/[0.2] bg-cyan/[0.03] shadow-[0_0_12px_rgba(34,211,238,0.04)]'
+                          ? 'border-cyan/[0.2] bg-cyan/[0.03] glow-xs'
                           : 'border-border hover:border-border-hover'
                       }`}>
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[12px] font-extrabold text-white shrink-0"

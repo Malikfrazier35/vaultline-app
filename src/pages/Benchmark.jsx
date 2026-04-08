@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect, useMemo } from 'react'
 import { SkeletonPage } from '@/components/Skeleton'
 import { useSEO } from '@/hooks/useSEO'
@@ -54,6 +55,7 @@ export default function Benchmark() {
 
   return (
     <div className="min-h-screen bg-void">
+      <AnimatedBackground variant="contours" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
       <div className="absolute w-[800px] h-[800px] top-[-300px] left-[-200px] bg-[radial-gradient(circle,rgba(139,92,246,0.05)_0%,transparent_60%)] pointer-events-none" />
 
@@ -179,7 +181,7 @@ export default function Benchmark() {
               <h3 className="font-display text-xl font-bold mb-2">Ready to improve your score?</h3>
               <p className="text-[14px] text-t3 mb-4 max-w-lg mx-auto">Vaultline automates reconciliation, improves forecast accuracy, and gives you real-time cash visibility — moving your score into the top quartile.</p>
               <div className="flex items-center justify-center gap-3">
-                <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all flex items-center gap-2">
+                <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] glow-md hover:-translate-y-px transition-all flex items-center gap-2">
                   Get Started <ArrowRight size={15} />
                 </Link>
                 <Link to="/roi" className="px-6 py-3 rounded-xl border border-border text-[14px] text-t2 font-semibold hover:border-border-hover transition-all">

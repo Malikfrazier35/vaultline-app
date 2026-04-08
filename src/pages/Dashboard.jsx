@@ -16,7 +16,7 @@ import { SectionBoundary } from '@/components/ErrorBoundary'
 
 import { SkeletonPage } from '@/components/Skeleton'
 
-const CAT = {
+const CATEGORIES_DARK = {
   revenue: { bg: 'bg-green-soft', text: 'text-green', label: 'Revenue', color: '#34D399' },
   payroll: { bg: 'bg-purple-soft', text: 'text-purple', label: 'Payroll', color: '#818CF8' },
   vendor: { bg: 'bg-amber-soft', text: 'text-amber', label: 'Vendor', color: '#FBBF24' },
@@ -25,6 +25,16 @@ const CAT = {
   transfer: { bg: 'bg-cyan-glow', text: 'text-cyan', label: 'Transfer', color: '#22D3EE' },
   operations: { bg: 'bg-deep', text: 'text-t2', label: 'Ops', color: '#94A3B8' },
   other: { bg: 'bg-deep', text: 'text-t3', label: 'Other', color: '#64748B' },
+}
+const CATEGORIES_LIGHT = {
+  revenue: { bg: 'bg-green-soft', text: 'text-green', label: 'Revenue', color: '#16A34A' },
+  payroll: { bg: 'bg-purple-soft', text: 'text-purple', label: 'Payroll', color: '#7C3AED' },
+  vendor: { bg: 'bg-amber-soft', text: 'text-amber', label: 'Vendor', color: '#D97706' },
+  saas: { bg: 'bg-purple-soft', text: 'text-purple', label: 'SaaS', color: '#8B5CF6' },
+  tax: { bg: 'bg-red-soft', text: 'text-red', label: 'Tax', color: '#DC2626' },
+  transfer: { bg: 'bg-cyan-glow', text: 'text-cyan', label: 'Transfer', color: '#0891B2' },
+  operations: { bg: 'bg-deep', text: 'text-t2', label: 'Ops', color: '#64748B' },
+  other: { bg: 'bg-deep', text: 'text-t3', label: 'Other', color: '#94A3B8' },
 }
 
 function fmt(n) {
@@ -46,6 +56,7 @@ export default function Dashboard() {
   const [hiddenSeries, setHiddenSeries] = useState(new Set())
   const ct = useChartTheme()
   const { isDark } = useTheme()
+  const CAT = isDark ? CATEGORIES_DARK : CATEGORIES_LIGHT
 
   useEffect(() => { document.title = 'Dashboard — Vaultline' }, [])
 
@@ -483,100 +494,6 @@ export default function Dashboard() {
       </div>
       </SectionBoundary>
 
-      {/* PRINT AD: Referral + Ecosystem — Kit 5 purple gradient + Kit 4 infographic patterns */}
-      <div className="grid grid-cols-[1fr_1fr] gap-4 mt-2">
-
-        {/* Referral card — Kit 5 deep purple gradient + Kit 4 dot-grid */}
-        <Link to="/ecosystem" className="group relative overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(129,140,248,0.12)]" style={{ background: isDark ? 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%)' : 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 50%, #C7D2FE 100%)' }}>
-          {/* Dot-grid pattern (Kit 4) */}
-          <div className="absolute top-4 left-4 grid grid-cols-4 gap-1.5 opacity-[0.15]">
-            {[...Array(16)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? '#A78BFA' : '#7C3AED' }} />)}
-          </div>
-          <div className="absolute bottom-4 right-4 grid grid-cols-3 gap-1.5 opacity-[0.1]">
-            {[...Array(9)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? '#A78BFA' : '#7C3AED' }} />)}
-          </div>
-          {/* Glow orb */}
-          <div className="absolute -top-10 -right-10 w-[180px] h-[180px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.5) 0%, transparent 70%)' }} />
-
-          <div className="relative z-[2] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: isDark ? 'rgba(167,139,250,0.15)' : 'rgba(124,58,237,0.1)', border: isDark ? '1px solid rgba(167,139,250,0.2)' : '1px solid rgba(124,58,237,0.15)' }}>
-                  <Gift size={16} className={isDark ? 'text-purple-300' : 'text-purple-600'} />
-                </div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em]" style={{ color: isDark ? '#C4B5FD' : '#7C3AED' }}>REFERRAL PROGRAM</span>
-              </div>
-              <div className="flex items-center gap-1 px-2 py-1 rounded-lg" style={{ background: isDark ? 'rgba(34,211,238,0.08)' : 'rgba(6,182,212,0.08)', border: isDark ? '1px solid rgba(34,211,238,0.12)' : '1px solid rgba(6,182,212,0.12)' }}>
-                <DollarSign size={10} className="text-cyan" />
-                <span className="text-[11px] font-mono font-black text-cyan">100</span>
-              </div>
-            </div>
-
-            <h3 className="font-display text-[20px] font-extrabold tracking-tight leading-snug mb-1" style={{ color: isDark ? '#F5F3FF' : '#1E1B4B' }}>
-              Refer a team.<br />
-              <span style={{ color: isDark ? '#A78BFA' : '#7C3AED' }}>Earn $100 credit.</span>
-            </h3>
-            <p className="text-[12px] leading-relaxed mb-4" style={{ color: isDark ? 'rgba(196,181,253,0.7)' : 'rgba(30,27,75,0.6)' }}>
-              They get 20% off first month. You get $100 applied to your next invoice.
-            </p>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(124,58,237,0.06)', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(124,58,237,0.1)' }}>
-                <Copy size={11} style={{ color: isDark ? '#C4B5FD' : '#7C3AED' }} />
-                <span className="text-[12px] font-mono font-bold" style={{ color: isDark ? '#E9D5FF' : '#5B21B6' }}>{org?.referral_code || 'VL-XXXX'}</span>
-              </div>
-              <span className="flex items-center gap-1 text-[11px] font-mono font-semibold group-hover:gap-2 transition-all" style={{ color: isDark ? '#C4B5FD' : '#7C3AED' }}>
-                Manage <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
-              </span>
-            </div>
-          </div>
-        </Link>
-
-        {/* Ecosystem card — Kit 5 product showcase + Kit 4 data hierarchy */}
-        <Link to="/ecosystem" className="group relative overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(34,211,238,0.08)]" style={{ background: isDark ? 'linear-gradient(135deg, #0C1A2E 0%, #0F2847 50%, #0C2D5A 100%)' : 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #BAE6FD 100%)' }}>
-          <div className="absolute top-4 right-4 grid grid-cols-3 gap-1.5 opacity-[0.12]">
-            {[...Array(9)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: isDark ? '#22D3EE' : '#0891B2' }} />)}
-          </div>
-          <div className="absolute -bottom-8 -left-8 w-[160px] h-[160px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.4) 0%, transparent 70%)' }} />
-
-          <div className="relative z-[2] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: isDark ? 'rgba(34,211,238,0.1)' : 'rgba(8,145,178,0.08)', border: isDark ? '1px solid rgba(34,211,238,0.15)' : '1px solid rgba(8,145,178,0.12)' }}>
-                  <Package size={16} className="text-cyan" />
-                </div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.12em]" style={{ color: isDark ? '#67E8F9' : '#0891B2' }}>PRODUCT SUITE</span>
-              </div>
-              <div className="px-2 py-1 rounded-lg" style={{ background: isDark ? 'rgba(52,211,153,0.08)' : 'rgba(5,150,105,0.06)', border: isDark ? '1px solid rgba(52,211,153,0.12)' : '1px solid rgba(5,150,105,0.1)' }}>
-                <span className="text-[10px] font-mono font-bold text-green">SAVE 15%</span>
-              </div>
-            </div>
-
-            <h3 className="font-display text-[20px] font-extrabold tracking-tight leading-snug mb-3" style={{ color: isDark ? '#F0F9FF' : '#0C1A2E' }}>
-              Expand your stack.
-            </h3>
-
-            <div className="flex flex-col gap-1.5 mb-4">
-              {[
-                { name: 'FinanceOS', desc: 'AI-Native FP&A', color: isDark ? '#60A5FA' : '#2563EB', bg: isDark ? 'rgba(96,165,250,0.06)' : 'rgba(37,99,235,0.04)', to: '/products/financeos' },
-                { name: 'Parallax', desc: 'Aerospace Compliance', color: isDark ? '#FBBF24' : '#D97706', bg: isDark ? 'rgba(251,191,36,0.06)' : 'rgba(217,119,6,0.04)', to: '/products/parallax' },
-              ].map(p => (
-                <div key={p.name} className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: p.bg, border: '1px solid ' + p.color + '15' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: p.color }} />
-                    <span className="text-[12px] font-semibold" style={{ color: isDark ? '#E2E8F0' : '#1E293B' }}>{p.name}</span>
-                  </div>
-                  <span className="text-[10px] font-mono" style={{ color: isDark ? 'rgba(148,163,184,0.7)' : 'rgba(71,85,105,0.7)' }}>{p.desc}</span>
-                </div>
-              ))}
-            </div>
-
-            <span className="flex items-center gap-1.5 text-[11px] font-mono font-semibold text-cyan group-hover:gap-2.5 transition-all">
-              Explore ecosystem <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
-            </span>
-          </div>
-        </Link>
-      </div>
     </div>
   )
 }

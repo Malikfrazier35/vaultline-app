@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect } from 'react'
 import { SkeletonPage } from '@/components/Skeleton'
 import { useSEO } from '@/hooks/useSEO'
@@ -189,8 +190,9 @@ export default function Assessment() {
 
   return (
     <div className="min-h-screen bg-void">
+      <AnimatedBackground variant="contours" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
-      <div className="absolute w-[800px] h-[800px] top-[-300px] right-[-200px] bg-[radial-gradient(circle,rgba(34,211,238,0.05)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute w-[800px] h-[800px] top-[-300px] right-[-200px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
 
       <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
         <Link to="/" className="flex items-center gap-2">
@@ -233,7 +235,7 @@ export default function Assessment() {
                     <button key={opt.value} onClick={() => selectAnswer(q.id, opt)}
                       className={`w-full text-left p-4 rounded-xl border transition-all ${
                         selected
-                          ? 'bg-cyan/[0.06] border-cyan/[0.2] shadow-[0_0_16px_rgba(34,211,238,0.06)]'
+                          ? 'bg-cyan/[0.06] border-cyan/[0.2] glow-xs'
                           : 'bg-deep/50 border-border/30 hover:border-border hover:bg-deep'
                       }`}>
                       <div className="flex items-center gap-3">
@@ -262,7 +264,7 @@ export default function Assessment() {
                   </button>
                 ) : Object.keys(answers).length >= QUESTIONS.length - 1 ? (
                   <button onClick={() => setStep('capture')}
-                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[14px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all">
+                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[14px] font-semibold glow-sm hover:-translate-y-px transition-all">
                     See My Results <ArrowRight size={14} />
                   </button>
                 ) : (
@@ -293,7 +295,7 @@ export default function Assessment() {
                     className="w-full px-4 py-3 rounded-xl glass-input text-t1 text-[14px] outline-none focus:border-cyan/40 focus:ring-1 focus:ring-cyan/20 transition placeholder:text-t3" />
                 </div>
                 <button type="submit" disabled={submitting}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4">
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] glow-sm hover:-translate-y-px transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4">
                   {submitting ? <><Loader2 size={15} className="animate-spin" /> Analyzing...</> : <><Zap size={15} /> Get My Report</>}
                 </button>
               </form>
@@ -333,7 +335,7 @@ export default function Assessment() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all flex items-center gap-2">
+                  <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] glow-md hover:-translate-y-px transition-all flex items-center gap-2">
                     Get Started <ArrowRight size={15} />
                   </Link>
                   <Link to="/roi" className="px-6 py-3 rounded-xl border border-border text-[14px] text-t2 font-semibold hover:border-border-hover hover:text-t1 transition-all text-center">

@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect } from 'react'
 import { SkeletonPage } from '@/components/Skeleton'
 import { useSEO } from '@/hooks/useSEO'
@@ -48,6 +49,7 @@ export default function BurnSimulator() {
 
   return (
     <div className="min-h-screen bg-void">
+      <AnimatedBackground variant="contours" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
       <div className="absolute w-[600px] h-[600px] top-[-200px] right-[-100px] bg-[radial-gradient(circle,rgba(251,191,36,0.04)_0%,transparent_60%)] pointer-events-none" />
 
@@ -178,7 +180,7 @@ export default function BurnSimulator() {
 
             <div className="flex items-center justify-center gap-3">
               <button onClick={() => setStep('input')} className="px-5 py-2.5 rounded-xl border border-border text-[13px] text-t2 hover:border-border-hover transition">Edit & Re-simulate</button>
-              <Link to="/signup" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[13px] shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all flex items-center gap-2">
+              <Link to="/signup" className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[13px] glow-sm hover:-translate-y-px transition-all flex items-center gap-2">
                 Get Started <ArrowRight size={14} />
               </Link>
             </div>

@@ -16,8 +16,33 @@ serve(async (req) => {
     event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
   } catch (err) {
     console.error('Webhook sig verification failed:', err.message)
+    await supabase.from('security_events').insert({
+      event_type: 'webhook_signature_failed',
+      severity: 'critical',
+      description: `Stripe webhook signature verification failed: ${err.message}`,
+      metadata: { source: 'stripe', error: err.message },
+    }).catch(() => {})
     return new Response(`Webhook Error: ${err.message}`, { status: 400 })
   }
+
+  // Replay protection — reject duplicate event IDs
+  const { data: existing } = await supabase
+    .from('audit_log')
+    .select('id')
+    .eq('resource_type', 'stripe_webhook')
+    .eq('resource_id', event.id)
+    .limit(1)
+  if (existing && existing.length > 0) {
+    return new Response(JSON.stringify({ received: true, duplicate: true }), { status: 200 })
+  }
+
+  // Log all webhook events for audit trail
+  await supabase.from('audit_log').insert({
+    action: 'stripe_webhook_received',
+    resource_type: 'stripe_webhook',
+    resource_id: event.id,
+    details: { type: event.type, created: event.created, livemode: event.livemode },
+  }).catch(() => {})
 
   const orgFromSub = async (subId: string) => {
     const sub = await stripe.subscriptions.retrieve(subId)
@@ -37,11 +62,21 @@ serve(async (req) => {
         if (orgId) {
           const sub = await stripe.subscriptions.retrieve(session.subscription as string)
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
+
+          // Plan-based limits
+          const PLAN_LIMITS: Record<string, any> = {
+            starter:    { max_bank_connections: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
+            growth:     { max_bank_connections: 10,  forecast_days: 90,  copilot_enabled: false, api_access: true,   multi_currency: false },
+            enterprise: { max_bank_connections: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
+          }
+          const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
+
           await supabase.from('organizations').update({
             plan_status: 'active',
             plan,
             stripe_subscription_id: session.subscription,
             stripe_customer_id: session.customer,
+            ...limits,
           }).eq('id', orgId)
           await supabase.from('growth_events').insert({ org_id: orgId, event: 'conversion', metadata: { plan, price_id: sub.items.data[0]?.price?.id } })
           await supabase.from('audit_log').insert({ org_id: orgId, action: 'subscription_created', details: { plan, subscription_id: session.subscription } })
@@ -55,7 +90,15 @@ serve(async (req) => {
         if (orgId) {
           const status = sub.status === 'active' ? 'active' : sub.status === 'past_due' ? 'past_due' : sub.status === 'trialing' ? 'trialing' : 'canceled'
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
-          await supabase.from('organizations').update({ plan_status: status, plan, stripe_subscription_id: sub.id }).eq('id', orgId)
+
+          const PLAN_LIMITS: Record<string, any> = {
+            starter:    { max_bank_connections: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
+            growth:     { max_bank_connections: 10,  forecast_days: 90,  copilot_enabled: false, api_access: true,   multi_currency: false },
+            enterprise: { max_bank_connections: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
+          }
+          const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
+
+          await supabase.from('organizations').update({ plan_status: status, plan, stripe_subscription_id: sub.id, ...limits }).eq('id', orgId)
         }
         break
       }

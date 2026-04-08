@@ -1,3 +1,5 @@
+import ScrollToTop from '@/components/ScrollToTop'
+import PageGuide, { PAGE_GUIDES } from '@/components/PageGuide'
 import { NavLink, Outlet, useLocation, Link } from 'react-router-dom'
 import ErrorBoundary, { SectionBoundary } from '@/components/ErrorBoundary'
 import MobileNav from '@/components/MobileNav'
@@ -22,6 +24,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 
 const NAV = [
   { section: 'Treasury', items: [
+    { to: '/home', icon: ZapIcon, label: 'Home' },
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/position', icon: DollarSign, label: 'Cash Position' },
     { to: '/forecast', icon: Activity, label: 'Forecasting' },
@@ -57,7 +60,6 @@ const NAV_MORE = [
   { to: '/time', icon: Clock, label: 'Time Manager' },
   { to: '/integrations', icon: Plug, label: 'Integrations' },
   { to: '/api', icon: Code, label: 'API Access' },
-  { to: '/ecosystem', icon: Package, label: 'Ecosystem' },
   { to: '/sso', icon: Lock, label: 'SSO & Security' },
   { to: '/privacy-center', icon: Eye, label: 'Privacy Center' },
   { to: '/resources', icon: BookOpen, label: 'Resources' },
@@ -73,6 +75,7 @@ const NAV_MORE = [
 ]
 
 const PAGE_META = {
+  '/home': { title: 'Home', sub: 'Command center' },
   '/dashboard': { title: 'Dashboard', sub: 'Overview across all entities' },
   '/position': { title: 'Cash Position', sub: 'Real-time balances across all accounts' },
   '/forecast': { title: 'Forecasting', sub: 'AI-powered cash flow predictions' },
@@ -93,9 +96,6 @@ const PAGE_META = {
   '/team': { title: 'Team', sub: 'Manage members & roles' },
   '/settings': { title: 'Settings', sub: 'Workspace & notification preferences' },
   '/docs': { title: 'API Documentation', sub: 'Endpoints, authentication & webhooks' },
-  '/ecosystem': { title: 'Ecosystem', sub: 'Products, referrals & bundle discounts' },
-  '/products/financeos': { title: 'FinanceOS', sub: 'Cloud FP&A — planning, budgeting & consolidation' },
-  '/products/parallax': { title: 'Parallax', sub: 'Aerospace supplier compliance management' },
   '/support': { title: 'Support', sub: 'Tickets, knowledge base & help center' },
   '/partner-admin': { title: 'Partners', sub: 'Referral tracking & commission management' },
   '/security-center': { title: 'Security Center', sub: 'Security posture, events & policies' },
@@ -233,7 +233,7 @@ export default function Layout() {
             {org?.logo_url ? (
               <img src={org.logo_url} alt={org.name || 'Company'} className="w-8 h-8 rounded-lg object-contain bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)]" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex' }} />
             ) : null}
-            <img src="/logo.svg" alt="Vaultline" className="w-8 h-8 rounded-lg shadow-[0_2px_12px_rgba(34,211,238,0.2)]" style={org?.logo_url ? { display: 'none' } : {}} />
+            <img src="/logo.svg" alt="Vaultline" className="w-8 h-8 rounded-lg glow-sm" style={{ ...(!isDark ? { boxShadow: '0 2px 12px rgba(8,145,178,0.1)' } : {}), ...(org?.logo_url ? { display: 'none' } : {}) }} />
             {!collapsed && (
               <div>
                 <h1 className="font-display text-[18px] font-extrabold tracking-[-0.02em]">
@@ -266,7 +266,7 @@ export default function Layout() {
                       'relative flex items-center gap-3 rounded-xl text-[14px] mb-0.5 transition-all duration-200',
                       collapsed ? 'px-0 py-[9px] justify-center' : 'px-3 py-[9px]',
                       isActive
-                        ? 'bg-gradient-to-r from-cyan/[0.12] to-cyan/[0.04] text-cyan font-semibold shadow-[inset_0_0_0_1px_rgba(34,211,238,0.15)]'
+                        ? 'bg-gradient-to-r from-cyan/[0.12] to-cyan/[0.04] text-cyan font-semibold glow-inset'
                         : 'text-t2 hover:bg-deep hover:text-t1'
                     )
                   }
@@ -274,7 +274,7 @@ export default function Layout() {
                   {({ isActive }) => (
                     <>
                       {isActive && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-cyan rounded-r shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-cyan rounded-r shadow-[0_0_8px_var(--color-cyan-glow)]" />
                       )}
                       <item.icon size={17} strokeWidth={isActive ? 2.2 : 1.8} className={clsx(isActive ? 'opacity-100' : 'opacity-60', collapsed && 'mx-auto')} />
                       {!collapsed && item.label}
@@ -301,14 +301,14 @@ export default function Layout() {
                     clsx(
                       'relative flex items-center gap-3 rounded-xl text-[13px] mb-0.5 transition-all duration-200 px-3 py-[7px]',
                       isActive
-                        ? 'bg-gradient-to-r from-cyan/[0.12] to-cyan/[0.04] text-cyan font-semibold shadow-[inset_0_0_0_1px_rgba(34,211,238,0.15)]'
+                        ? 'bg-gradient-to-r from-cyan/[0.12] to-cyan/[0.04] text-cyan font-semibold glow-inset'
                         : 'text-t3 hover:bg-deep hover:text-t1'
                     )
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-cyan rounded-r shadow-[0_0_8px_rgba(34,211,238,0.5)]" />}
+                      {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-cyan rounded-r shadow-[0_0_8px_var(--color-cyan-glow)]" />}
                       <item.icon size={15} strokeWidth={isActive ? 2.2 : 1.8} className={isActive ? 'opacity-100' : 'opacity-50'} />
                       {item.label}
                     </>
@@ -327,7 +327,7 @@ export default function Layout() {
 
         {/* Referral program */}
         {!collapsed && (
-          <Link to="/ecosystem"
+          <Link to="/partner-admin"
             className="mx-4 mb-2 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-purple/[0.04] border border-purple/[0.08] hover:border-purple/[0.16] transition group">
             <Gift size={13} className="text-purple/70 group-hover:text-purple transition shrink-0" />
             <div className="flex-1 min-w-0">
@@ -339,14 +339,14 @@ export default function Layout() {
 
         {/* Carbon-aware indicator */}
         {!collapsed && (
-          <a href="https://climate.stripe.com/OeA2M0" target="_blank" rel="noopener noreferrer"
+          <Link to="/security-center"
             className="mx-4 mb-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-green/[0.04] border border-green/[0.08] hover:border-green/[0.16] transition group">
-            <Leaf size={13} className="text-green/70 group-hover:text-green transition shrink-0" />
+            <Shield size={13} className="text-green/70 group-hover:text-green transition shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold text-green/80 group-hover:text-green transition">1% to Carbon Removal</p>
-              <p className="text-[10px] text-t3 truncate">Stripe Climate member</p>
+              <p className="text-[11px] font-semibold text-green/80 group-hover:text-green transition">SOC 2 Ready</p>
+              <p className="text-[10px] text-t3 truncate">14/14 trust criteria met</p>
             </div>
-          </a>
+          </Link>
         )}
 
         {/* Collapse toggle — desktop only */}
@@ -359,7 +359,7 @@ export default function Layout() {
         {/* User card */}
         <div className="px-4 py-4 border-t border-border">
           <div className={clsx('flex items-center gap-3 p-2 rounded-xl hover:bg-deep active:bg-deep transition', collapsed && 'justify-center')}>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-bold text-white shadow-[0_2px_10px_rgba(34,211,238,0.15)]"
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-bold text-white glow-sm"
               style={{ background: org?.brand_color ? `linear-gradient(135deg, ${org.brand_color}, ${org.brand_color}99)` : 'linear-gradient(135deg, rgba(34,211,238,0.8), rgba(129,140,248,0.8))' }}>
               {initials}
             </div>
@@ -409,7 +409,7 @@ export default function Layout() {
             <button
               onClick={syncAccounts}
               disabled={syncing}
-              className="px-4 py-[7px] rounded-lg bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold shadow-[0_1px_8px_rgba(34,211,238,0.2)] hover:shadow-[0_2px_16px_rgba(34,211,238,0.3)] hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-[7px] rounded-lg bg-gradient-to-r from-cyan/90 to-cyan/70 text-white text-[13px] font-semibold glow-sm glow-sm-h hover:-translate-y-px active:scale-[0.98] active:translate-y-0 transition-all disabled:opacity-50 flex items-center gap-2"
             >
               <RefreshCw size={13} className={syncing ? 'animate-spin' : ''} />
               {syncing ? 'Syncing...' : 'Sync'}
@@ -427,10 +427,14 @@ export default function Layout() {
         {/* Page content — terminal grid background */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8 relative z-[1] terminal-grid">
           <ErrorBoundary>
+            {PAGE_GUIDES[location.pathname] && (
+              <PageGuide pageId={location.pathname} {...PAGE_GUIDES[location.pathname]} />
+            )}
             <div key={location.pathname} className="page-enter">
               <Outlet />
             </div>
           </ErrorBoundary>
+          <ScrollToTop />
         </main>
 
         {/* Terminal status bar */}
@@ -450,7 +454,7 @@ export default function Layout() {
       {/* Copilot FAB — lifted on mobile to clear tab bar */}
       <button
         data-copilot onClick={() => setCopilotOpen(!copilotOpen)}
-        className="fixed bottom-20 lg:bottom-7 right-5 lg:right-7 w-[48px] h-[48px] lg:w-[52px] lg:h-[52px] rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center shadow-[0_4px_24px_rgba(34,211,238,0.25)] hover:shadow-[0_6px_32px_rgba(34,211,238,0.35)] hover:scale-105 active:scale-95 transition-all z-50"
+        className="fixed bottom-20 lg:bottom-7 right-5 lg:right-7 w-[48px] h-[48px] lg:w-[52px] lg:h-[52px] rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all z-50"
       >
         <MessageSquare size={20} className="text-void" />
       </button>

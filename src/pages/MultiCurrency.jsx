@@ -136,7 +136,7 @@ export default function MultiCurrency() {
           return (
             <button key={c.code} onClick={() => setSelectedCurrency(c.code)}
               className={`group flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border transition-all ${
-                selectedCurrency === c.code ? 'border-cyan/[0.2] bg-cyan/[0.04] shadow-[0_0_20px_rgba(34,211,238,0.05)]' : 'border-border hover:border-border-hover'}`}>
+                selectedCurrency === c.code ? 'border-cyan/[0.2] bg-cyan/[0.04] glow-xs' : 'border-border hover:border-border-hover'}`}>
               <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: `${color}15`, border: `1.5px solid ${color}35` }}>
                 <span className="text-[10px] font-display font-extrabold" style={{ color }}>{c.code}</span>
               </div>

@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect } from 'react'
 import { useSEO } from '@/hooks/useSEO'
 import { useTheme } from '@/hooks/useTheme'
@@ -52,6 +53,7 @@ export default function SecurityPage() {
 
   return (
     <div className="min-h-screen" style={{ background: isDark ? '#050A18' : '#F8FAFC' }}>
+      <AnimatedBackground variant="contours" />
 
       {/* ═══ HERO — Cyto/DataGuard glassmorphic pattern ═══ */}
       <div className="relative overflow-hidden" style={{ background: isDark ? 'linear-gradient(160deg, #050A18 0%, #0A1628 30%, #0F1D3A 60%, #0A1628 100%)' : 'linear-gradient(160deg, #F8FAFC 0%, #EFF6FF 30%, #DBEAFE 60%, #EFF6FF 100%)' }}>

@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect } from 'react'
 import { useSEO } from '@/hooks/useSEO'
 import { Link } from 'react-router-dom'
@@ -53,6 +54,7 @@ export default function StatusPage() {
 
   return (
     <div className="min-h-screen bg-void">
+      <AnimatedBackground variant="contours" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
       <nav className="flex items-center justify-between px-8 py-5 max-w-4xl mx-auto">
         <Link to="/" className="flex items-center gap-2">
@@ -64,7 +66,10 @@ export default function StatusPage() {
 
       <div className="max-w-4xl mx-auto px-6 pb-20">
         {loading ? (
-          <div className="flex items-center justify-center py-32"><Loader2 size={24} className="animate-spin text-t3" /></div>
+          <div className="space-y-4">
+            <div className="skeleton h-20 w-full rounded-xl" />
+            {[1,2,3,4].map(i => <div key={i} className="skeleton h-16 w-full rounded-xl" style={{ animationDelay: `${i * 0.08}s` }} />)}
+          </div>
         ) : (
           <div className="space-y-8">
             {/* Overall status hero */}

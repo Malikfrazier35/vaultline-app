@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import {
   Bell, AlertTriangle, TrendingDown, TrendingUp, CreditCard, ArrowDownRight,
-  DollarSign, Check, Clock, Filter, RefreshCw, ChevronRight, Zap, Shield
+  DollarSign, Check, Clock, Filter, RefreshCw, ChevronRight, Zap, Shield, Trash2
 } from 'lucide-react'
 
 function fmt(n) {
@@ -19,8 +19,29 @@ export default function Alerts() {
   const { accounts, transactions, cashPosition, forecast, bankConnections, loading } = useTreasury()
   const { org } = useAuth()
   const [filter, setFilter] = useState('all')
-  const [dismissed, setDismissed] = useState(new Set())
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`vaultline-alerts-dismissed-${org?.id}`)
+      return saved ? new Set(JSON.parse(saved)) : new Set()
+    } catch { return new Set() }
+  })
+  const [customRules, setCustomRules] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`vaultline-alert-rules-${org?.id}`)
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
   const [toast, setToast] = useState(null)
+
+  // Persist dismiss state
+  useEffect(() => {
+    if (org?.id) localStorage.setItem(`vaultline-alerts-dismissed-${org.id}`, JSON.stringify([...dismissed]))
+  }, [dismissed, org?.id])
+
+  // Persist custom rules
+  useEffect(() => {
+    if (org?.id) localStorage.setItem(`vaultline-alert-rules-${org.id}`, JSON.stringify(customRules))
+  }, [customRules, org?.id])
 
   useEffect(() => { document.title = 'Alerts — Vaultline' }, [])
 
@@ -103,6 +124,19 @@ export default function Alerts() {
         time: now, category: 'forecast' })
     }
 
+    // Custom threshold rules
+    customRules.forEach(rule => {
+      const triggered = rule.metric === 'total_cash' ? totalCash < rule.threshold
+        : rule.metric === 'runway' ? runway > 0 && runway < rule.threshold
+        : rule.metric === 'monthly_burn' ? monthlyBurn > rule.threshold
+        : false
+      if (triggered) {
+        list.push({ id: `rule-${rule.id}`, type: rule.severity || 'warning', icon: Bell, color: rule.severity === 'critical' ? 'red' : 'amber',
+          title: rule.name, message: rule.message || `Custom alert: ${rule.metric} threshold breached.`,
+          time: now, category: 'custom' })
+      }
+    })
+
     // Healthy position
     if (list.filter(a => a.type === 'critical').length === 0 && totalCash > 0) {
       list.push({ id: 'healthy', type: 'success', icon: Shield, color: 'green',
@@ -115,7 +149,7 @@ export default function Alerts() {
       const priority = { critical: 0, warning: 1, info: 2, success: 3 }
       return (priority[a.type] || 9) - (priority[b.type] || 9)
     })
-  }, [accounts, transactions, cashPosition, forecast, bankConnections, loading])
+  }, [accounts, transactions, cashPosition, forecast, bankConnections, loading, customRules])
 
   if (loading) return <SkeletonPage />
 
@@ -162,6 +196,7 @@ export default function Alerts() {
           { id: 'transaction', label: 'Transactions' },
           { id: 'forecast', label: 'Forecast' },
           { id: 'connection', label: 'Connections' },
+          { id: 'custom', label: `Rules (${customRules.length})` },
         ].map(t => (
           <button key={t.id} onClick={() => setFilter(t.id)}
             className={`px-4 py-3 text-[13px] font-medium border-b-2 transition ${
@@ -171,6 +206,49 @@ export default function Alerts() {
           </button>
         ))}
       </div>
+
+      {/* Create custom rule */}
+      {filter === 'custom' && (
+        <div className="glass-card rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="terminal-label">CUSTOM ALERT RULES</span>
+            <button onClick={() => {
+              const rule = { id: Date.now(), name: 'Low cash alert', metric: 'total_cash', threshold: 50000, severity: 'critical', message: 'Total cash dropped below $50K' }
+              setCustomRules([...customRules, rule])
+              setToast('Rule created — edit threshold below'); setTimeout(() => setToast(null), 2500)
+            }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono font-bold bg-cyan/[0.06] text-cyan border border-cyan/[0.1] hover:bg-cyan/[0.1] transition">
+              <Bell size={12} /> Add Rule
+            </button>
+          </div>
+          {customRules.length === 0 && <p className="text-[13px] text-t3 text-center py-4">No custom rules yet. Click "Add Rule" to create threshold-based alerts.</p>}
+          {customRules.map((rule, i) => (
+            <div key={rule.id} className="flex items-center gap-3 p-3 rounded-xl bg-deep border border-border">
+              <div className="flex-1 space-y-2">
+                <input value={rule.name} onChange={e => { const r = [...customRules]; r[i] = { ...r[i], name: e.target.value }; setCustomRules(r) }}
+                  className="w-full bg-transparent text-[13px] font-semibold text-t1 outline-none border-none" placeholder="Rule name" />
+                <div className="flex items-center gap-2 flex-wrap">
+                  <select value={rule.metric} onChange={e => { const r = [...customRules]; r[i] = { ...r[i], metric: e.target.value }; setCustomRules(r) }}
+                    className="px-2 py-1 rounded-md text-[11px] font-mono bg-elevated border border-border text-t1">
+                    <option value="total_cash">Total cash below</option>
+                    <option value="runway">Runway below (months)</option>
+                    <option value="monthly_burn">Monthly burn above</option>
+                  </select>
+                  <input type="number" value={rule.threshold} onChange={e => { const r = [...customRules]; r[i] = { ...r[i], threshold: Number(e.target.value) }; setCustomRules(r) }}
+                    className="w-28 px-2 py-1 rounded-md text-[11px] font-mono bg-elevated border border-border text-t1 outline-none" />
+                  <select value={rule.severity} onChange={e => { const r = [...customRules]; r[i] = { ...r[i], severity: e.target.value }; setCustomRules(r) }}
+                    className="px-2 py-1 rounded-md text-[11px] font-mono bg-elevated border border-border text-t1">
+                    <option value="critical">Critical</option>
+                    <option value="warning">Warning</option>
+                    <option value="info">Info</option>
+                  </select>
+                </div>
+              </div>
+              <button onClick={() => { setCustomRules(customRules.filter((_, j) => j !== i)); setToast('Rule deleted'); setTimeout(() => setToast(null), 2000) }}
+                className="p-2 rounded-lg hover:bg-red/[0.08] text-t3 hover:text-red transition"><Trash2 size={14} /></button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Alert list */}
       <div className="space-y-3">

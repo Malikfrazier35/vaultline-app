@@ -149,7 +149,21 @@ export default function Integrations() {
                             <input value={slackUrl} onChange={e => setSlackUrl(e.target.value)}
                               placeholder="https://hooks.slack.com/services/..." 
                               className="flex-1 px-3.5 py-2.5 rounded-xl glass-input text-[13px] text-t1 outline-none focus:border-cyan/40 placeholder:text-t3" />
-                            <button onClick={() => { setToast(`${int.name} — configure in Settings > Integrations, or contact support@vaultline.app`); setTimeout(() => setToast(null), 4000) }}
+                            <button onClick={async () => {
+                              if (int.id === 'quickbooks') {
+                                const { safeInvoke } = await import('@/lib/safeInvoke')
+                                const { data, error } = await safeInvoke('qb-auth', { action: 'start', redirect_uri: `${window.location.origin}/integrations` })
+                                if (data?.auth_url) { window.location.href = data.auth_url }
+                                else { setToast(error || 'QuickBooks OAuth not configured — set QB_CLIENT_ID and QB_CLIENT_SECRET in Supabase secrets'); setTimeout(() => setToast(null), 5000) }
+                              } else if (int.id === 'xero') {
+                                const { safeInvoke } = await import('@/lib/safeInvoke')
+                                const { data, error } = await safeInvoke('acct-auth', { action: 'start', provider: 'xero', redirect_uri: `${window.location.origin}/integrations` })
+                                if (data?.auth_url) { window.location.href = data.auth_url }
+                                else { setToast(error || 'Xero OAuth not configured — contact support@vaultline.app'); setTimeout(() => setToast(null), 5000) }
+                              } else {
+                                setToast(`${int.name} — contact support@vaultline.app to configure`); setTimeout(() => setToast(null), 4000)
+                              }
+                            }}
                               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-mono font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
                               CONNECT
                             </button>

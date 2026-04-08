@@ -114,7 +114,7 @@ export default function LegalCenter() {
   return (
     <div className="min-h-screen bg-void">
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
-      <div className="absolute w-[800px] h-[800px] top-[-300px] left-[-200px] bg-[radial-gradient(circle,rgba(34,211,238,0.04)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute w-[800px] h-[800px] top-[-300px] left-[-200px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
 
       <nav className="relative z-10 flex items-center justify-between px-8 py-5 max-w-5xl mx-auto">
         <Link to="/" className="flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function LegalCenter() {
                 </div>
 
                 <button type="submit" disabled={prSubmitting}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] glow-sm hover:-translate-y-px transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                   {prSubmitting ? <><Loader2 size={15} className="animate-spin" /> Submitting...</> : <><Send size={15} /> Submit Request</>}
                 </button>
 
@@ -343,7 +343,7 @@ export default function LegalCenter() {
                   <button onClick={() => setCookiePrefs({ functional: true, analytics: true, advertising: !gpcDetected, social_media: !gpcDetected })}
                     className="text-[12px] text-t3 hover:text-cyan transition">Accept All</button>
                   <button onClick={saveCookies} disabled={cookieSaving}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[13px] shadow-[0_2px_12px_rgba(34,211,238,0.15)] hover:-translate-y-px transition-all disabled:opacity-50 flex items-center gap-2">
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[13px] glow-sm hover:-translate-y-px transition-all disabled:opacity-50 flex items-center gap-2">
                     {cookieSaving ? <Loader2 size={13} className="animate-spin" /> : cookieSaved ? <Check size={13} /> : null}
                     {cookieSaved ? 'Saved' : 'Save Preferences'}
                   </button>

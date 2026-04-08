@@ -136,7 +136,7 @@ export default function Ecosystem() {
           const status = getProductStatus(product.id)
           const isActive = status?.status === 'active' || status?.status === 'trialing'
           return (
-            <div key={product.id} className={`glass-card rounded-2xl p-5 flex flex-col transition-all hover:-translate-y-1 ${isActive ? `border-${product.color}/[0.15] shadow-[0_0_24px_rgba(34,211,238,0.04)]` : ''}`}>
+            <div key={product.id} className={`glass-card rounded-2xl p-5 flex flex-col transition-all hover:-translate-y-1 ${isActive ? `border-${product.color}/[0.15] glow-xs` : ''}`}>
               <div className="flex items-center justify-between mb-3">
                 <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded border border-border text-t2`}>{product.tagline}</span>
                 {isActive ? (

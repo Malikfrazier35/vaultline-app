@@ -54,7 +54,7 @@ export default function Paywall() {
   return (
     <div className="min-h-screen bg-void flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden">
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
-      <div className="fixed top-[-300px] right-[-200px] w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(34,211,238,0.06)_0%,transparent_60%)] pointer-events-none" />
+      <div className="fixed top-[-300px] right-[-200px] w-[800px] h-[800px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl w-full">
         <div className="text-center mb-12">
@@ -81,7 +81,7 @@ export default function Paywall() {
 
         <div className="grid grid-cols-3 gap-5 mb-10">
           {PLANS.map((plan) => (
-            <div key={plan.name} className={`border rounded-[16px] p-7 flex flex-col relative ${plan.popular ? 'border-cyan shadow-[0_0_12px_rgba(34,211,238,0.4)]' : 'border-border'}`}>
+            <div key={plan.name} className={`border rounded-[16px] p-7 flex flex-col relative ${plan.popular ? 'border-cyan glow-md' : 'border-border'}`}>
               {plan.popular && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan to-purple text-void text-[12px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</span>
               )}
@@ -100,7 +100,7 @@ export default function Paywall() {
               </ul>
               <button onClick={() => startCheckout(plan.priceId)} disabled={checkoutLoading === plan.priceId}
                 className={`w-full py-3 rounded-[10px] text-center text-[14px] font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-60 ${plan.popular
-                  ? 'bg-gradient-to-r from-cyan to-sky-400 text-void shadow-[0_2px_16px_rgba(34,211,238,0.25)] hover:-translate-y-px active:scale-[0.98]'
+                  ? 'bg-gradient-to-r from-cyan to-sky-400 text-void glow-sm hover:-translate-y-px active:scale-[0.98]'
                   : 'border border-border text-t2 hover:border-border-hover hover:text-t1'
                 }`}>
                 {checkoutLoading === plan.priceId ? <Loader2 size={14} className="animate-spin" /> : <>Get Started <ArrowRight size={14} /></>}

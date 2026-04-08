@@ -1,3 +1,4 @@
+import AnimatedBackground from "@/components/AnimatedBackground"
 import { useState, useEffect, useMemo } from 'react'
 import { useSEO } from '@/hooks/useSEO'
 import { Link } from 'react-router-dom'
@@ -102,9 +103,10 @@ export default function ROICalculator() {
 
   return (
     <div className="min-h-screen bg-void">
+      <AnimatedBackground variant="contours" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
       {/* Ambient glow */}
-      <div className="absolute w-[800px] h-[800px] top-[-300px] left-[-200px] bg-[radial-gradient(circle,rgba(34,211,238,0.05)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute w-[800px] h-[800px] top-[-300px] left-[-200px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
       <div className="absolute w-[600px] h-[600px] bottom-[-200px] right-[-100px] bg-[radial-gradient(circle,rgba(129,140,248,0.04)_0%,transparent_60%)] pointer-events-none" />
 
       {/* Nav */}
@@ -160,7 +162,7 @@ export default function ROICalculator() {
               </div>
 
               <button onClick={() => setStep('capture')}
-                className="w-full mt-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:shadow-[0_4px_20px_rgba(34,211,238,0.3)] hover:-translate-y-px active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                className="w-full mt-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] glow-sm hover:glow-md hover:-translate-y-px active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                 See Your Full ROI Report <ArrowRight size={16} />
               </button>
             </div>
@@ -220,7 +222,7 @@ export default function ROICalculator() {
                     className="w-full px-4 py-3 rounded-xl glass-input text-t1 text-[14px] outline-none focus:border-cyan/40 focus:ring-1 focus:ring-cyan/20 transition placeholder:text-t3" />
                 </div>
                 <button type="submit" disabled={submitting}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4">
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[15px] glow-sm hover:-translate-y-px active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4">
                   {submitting ? <><Loader2 size={15} className="animate-spin" /> Processing...</> : <><Zap size={15} /> Get My ROI Report</>}
                 </button>
               </form>
@@ -290,7 +292,7 @@ export default function ROICalculator() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:-translate-y-px transition-all flex items-center gap-2">
+                  <Link to="/signup" className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void font-semibold text-[14px] glow-md hover:-translate-y-px transition-all flex items-center gap-2">
                     Get Started <ArrowRight size={15} />
                   </Link>
                   <Link to="/assess" className="px-6 py-3 rounded-xl border border-border text-[14px] text-t2 font-semibold hover:border-border-hover hover:text-t1 transition-all text-center">

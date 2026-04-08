@@ -19,7 +19,6 @@ const PAGES = [
   { label: 'Multi-Currency', path: '/currencies', icon: Globe, keywords: 'currency fx exchange rate' },
   { label: 'Entities', path: '/entities', icon: Building2, keywords: 'entity subsidiary consolidation' },
   { label: 'Data Import', path: '/import', icon: BarChart3, keywords: 'import csv upload quickbooks xero' },
-  { label: 'Ecosystem', path: '/ecosystem', icon: Package, keywords: 'suite bundle financeos parallax' },
   { label: 'Integrations', path: '/integrations', icon: Plug, keywords: 'integration slack webhook api' },
   { label: 'Team', path: '/team', icon: Users, keywords: 'team invite member role' },
   { label: 'Settings', path: '/settings', icon: Settings, keywords: 'settings profile company branding' },

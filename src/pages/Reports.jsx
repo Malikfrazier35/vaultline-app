@@ -77,7 +77,7 @@ export default function Reports() {
       title = 'Board Treasury Summary'
       const liquidBalance = accounts.filter(a => ['checking', 'savings'].includes(a.type)).reduce((s, a) => s + (a.current_balance || 0), 0)
       const { data: forecasts } = await supabase.from('forecasts').select('*').order('generated_at', { ascending: false }).limit(1).single()
-      content = [`\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550`,`  BOARD TREASURY SUMMARY`,`  ${org?.name || 'Company'} | ${today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`,`  Prepared by: ${profile?.full_name || 'Treasury'}`,`\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550`,``,`KEY METRICS`,`  Total Cash:                 ${fmtK(totalBalance)}`,`  Liquid Cash:                ${fmtK(liquidBalance)}`,`  Banks Connected:            ${bankConnections.length}`,`  Accounts:                   ${accounts.length}`,``,`CASH FLOW (${periodLabel})`,`  Inflows:                    ${fmtK(inflows)}`,`  Outflows:                   ${fmtK(outflows)}`,`  Net:                        ${fmtK(netFlow)}`,``,`RUNWAY`,`  Monthly Burn:               ${forecasts ? fmtK(forecasts.monthly_burn) : 'N/A'}`,`  Runway:                     ${forecasts ? forecasts.runway_months + ' months' : 'N/A'}`,``,`STATUS: ${netFlow >= 0 ? 'POSITIVE cash flow' : 'NEGATIVE \u2014 monitor closely'}`].join('\n')
+      content = [`\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550`,`  BOARD TREASURY SUMMARY`,`  ${org?.name || 'Company'} | ${today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`,`  Prepared by: ${profile?.full_name || 'Treasury'}`,`\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550`,``,`KEY METRICS`,`  Total Cash:                 ${fmtK(report._metrics?.totalBalance || 0)}`,`  Liquid Cash:                ${fmtK(liquidBalance)}`,`  Banks Connected:            ${bankConnections.length}`,`  Accounts:                   ${accounts.length}`,``,`CASH FLOW (${periodLabel})`,`  Inflows:                    ${fmtK(report._metrics?.inflows || 0)}`,`  Outflows:                   ${fmtK(report._metrics?.outflows || 0)}`,`  Net:                        ${fmtK(report._metrics?.netFlow || 0)}`,``,`RUNWAY`,`  Monthly Burn:               ${forecasts ? fmtK(forecasts.monthly_burn) : 'N/A'}`,`  Runway:                     ${forecasts ? forecasts.runway_months + ' months' : 'N/A'}`,``,`STATUS: ${netFlow >= 0 ? 'POSITIVE cash flow' : 'NEGATIVE \u2014 monitor closely'}`].join('\n')
     } else if (id === 'fees') {
       title = 'Bank Fee Analysis'
       const feeTx = recentTx.filter(t => { const d = (t.description || '').toLowerCase(); return d.includes('fee') || d.includes('charge') || d.includes('maintenance') })
@@ -86,7 +86,7 @@ export default function Reports() {
     }
 
     const header = [`\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557`,`\u2551  VAULTLINE \u2014 ${title.toUpperCase()}`,`\u2551  ${org?.name || 'Company'} | Period: ${periodLabel}`,`\u2551  Generated: ${today.toLocaleString()}`,`\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D`,``].join('\n')
-    const result = { id, title, content: header + content, timestamp: new Date().toISOString(), periodLabel }
+    const result = { id, title, content: header + content, timestamp: new Date().toISOString(), periodLabel, _metrics: { totalBalance, netFlow, inflows, outflows, recentTx } }
     setReport(result)
     setHistory(prev => [result, ...prev].slice(0, 10))
     setGenerating(null)
@@ -102,9 +102,79 @@ export default function Reports() {
 
   function downloadReport() {
     if (!report || atExportLimit) return
-    const blob = new Blob([report.content], { type: 'text/plain' })
+
+    let blob, filename
+    if (report.id === 'board') {
+      // Board reports get formatted HTML — print to PDF from browser
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${report.title} — ${org?.name || 'Company'}</title>
+<style>
+  @page { size: letter; margin: 1in; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #0F172A; line-height: 1.6; max-width: 720px; margin: 0 auto; padding: 40px; }
+  .header { border-bottom: 3px solid #0891B2; padding-bottom: 16px; margin-bottom: 24px; }
+  .header h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; color: #0F172A; }
+  .header p { font-size: 12px; color: #64748B; margin: 2px 0; }
+  .header .logo { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+  .header .logo span { color: #0891B2; }
+  .section { margin-bottom: 24px; }
+  .section h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #0891B2; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px; margin: 0 0 12px; }
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .metric { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; }
+  .metric .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #64748B; margin: 0 0 4px; }
+  .metric .value { font-size: 22px; font-weight: 700; color: #0F172A; margin: 0; font-family: 'JetBrains Mono', monospace; }
+  .metric .sub { font-size: 11px; color: #94A3B8; margin: 4px 0 0; }
+  .status { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .status-positive { background: #DCFCE7; color: #166534; }
+  .status-negative { background: #FEE2E2; color: #991B1B; }
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #E2E8F0; font-size: 10px; color: #94A3B8; text-align: center; }
+  @media print { body { padding: 0; } }
+</style></head><body>
+<div class="header">
+  <div class="logo">Vault<span>line</span></div>
+  <h1>${report.title}</h1>
+  <p>${org?.name || 'Company'} — ${report.periodLabel}</p>
+  <p>Prepared by ${profile?.full_name || 'Treasury Team'} on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+</div>
+<div class="section">
+  <h2>Cash position</h2>
+  <div class="metric-grid">
+    <div class="metric"><p class="label">Total cash</p><p class="value">${fmtK(report._metrics?.totalBalance || 0)}</p><p class="sub">${accounts.length} accounts across ${bankConnections.length} banks</p></div>
+    <div class="metric"><p class="label">Liquid cash</p><p class="value">${fmtK(accounts.filter(a => ['checking','savings'].includes(a.type)).reduce((s,a) => s + (a.current_balance||0), 0))}</p><p class="sub">Checking + savings only</p></div>
+    <div class="metric"><p class="label">Net flow (${report.periodLabel})</p><p class="value">${fmtK(report._metrics?.netFlow || 0)}</p><p class="sub"><span class="status ${report._metrics?.netFlow >= 0 ? 'status-positive' : 'status-negative'}">${report._metrics?.netFlow >= 0 ? 'Positive' : 'Negative'}</span></p></div>
+    <div class="metric"><p class="label">Runway</p><p class="value">${forecast?.runway_months ? forecast.runway_months + ' mo' : 'N/A'}</p><p class="sub">Based on ${forecast?.model || 'linear'} model</p></div>
+  </div>
+</div>
+<div class="section">
+  <h2>Cash flow summary</h2>
+  <div class="metric-grid">
+    <div class="metric"><p class="label">Total inflows</p><p class="value" style="color:#166534">${fmtK(report._metrics?.inflows || 0)}</p></div>
+    <div class="metric"><p class="label">Total outflows</p><p class="value" style="color:#991B1B">${fmtK(report._metrics?.outflows || 0)}</p></div>
+  </div>
+</div>
+<div class="section">
+  <h2>Bank connections</h2>
+  ${bankConnections.map(b => `<p style="font-size:13px;margin:4px 0;">● ${b.institution_name || 'Bank'} — <span style="color:#64748B">${b.status}</span></p>`).join('')}
+</div>
+<div class="section">
+  <h2>Top transactions</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <tr style="border-bottom:1px solid #E2E8F0;"><th style="text-align:left;padding:6px 0;color:#64748B;">Date</th><th style="text-align:left;padding:6px 0;color:#64748B;">Description</th><th style="text-align:right;padding:6px 0;color:#64748B;">Amount</th></tr>
+    ${report._metrics?.recentTx?.slice(0,10) || [].map(t => `<tr style="border-bottom:1px solid #F1F5F9;"><td style="padding:6px 0;">${t.date}</td><td style="padding:6px 0;">${(t.description||'').substring(0,40)}</td><td style="text-align:right;padding:6px 0;font-family:monospace;${t.amount>=0?'color:#166534':'color:#0F172A'}">${fmt(t.amount)}</td></tr>`).join('')}
+  </table>
+</div>
+<div class="footer">
+  Generated by Vaultline Treasury Platform — vaultline.app<br>
+  Confidential — ${org?.name || 'Company'} internal use only
+</div>
+</body></html>`
+      blob = new Blob([html], { type: 'text/html' })
+      filename = `vaultline-board-summary-${new Date().toISOString().split('T')[0]}.html`
+    } else {
+      blob = new Blob([report.content], { type: 'text/plain' })
+      filename = `vaultline-${report.id}-${new Date().toISOString().split('T')[0]}.txt`
+    }
+
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url; a.download = `vaultline-${report.id}-${new Date().toISOString().split('T')[0]}.txt`; a.click()
+    const a = document.createElement('a'); a.href = url; a.download = filename; a.click()
     URL.revokeObjectURL(url)
     const key = `vaultline-exports-${new Date().toISOString().slice(0, 7)}`
     const newCount = exportCount + 1
@@ -207,7 +277,7 @@ export default function Reports() {
                   </Link>
                 ) : (
                   <button onClick={downloadReport}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[12px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.15)] hover:-translate-y-px active:scale-[0.98] transition-all">
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[12px] font-semibold glow-sm hover:-translate-y-px active:scale-[0.98] transition-all">
                     <Download size={12} /> DOWNLOAD {exportLimit !== Infinity ? `(${exportCount}/${exportLimit})` : ''}
                   </button>
                 )}

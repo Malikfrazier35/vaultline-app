@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { X, Send, Sparkles, Lock } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 const PLAN_LIMITS = { starter: 20, growth: 100, enterprise: Infinity }
 
@@ -17,6 +17,7 @@ const SUGGESTIONS = [
 
 export default function Copilot({ open, onClose }) {
   const { profile, org } = useAuth()
+  const location = useLocation()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
@@ -93,6 +94,7 @@ export default function Copilot({ open, onClose }) {
           body: JSON.stringify({
             message: text.trim(),
             history: messages.slice(-10),
+            page_context: location.pathname,
           }),
         }
       )

@@ -27,9 +27,19 @@ export default function Scenarios() {
   const ct = useChartTheme()
   const { isDark } = useTheme()
   const [toast, setToast] = useState(null)
-  const [scenarios, setScenarios] = useState(DEFAULT_SCENARIOS)
+  const [scenarios, setScenarios] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`vaultline-scenarios-${org?.id}`)
+      return saved ? JSON.parse(saved) : DEFAULT_SCENARIOS
+    } catch { return DEFAULT_SCENARIOS }
+  })
   const [months, setMonths] = useState(12)
   const [showBands, setShowBands] = useState(true)
+
+  // Persist scenarios to localStorage on every change
+  useEffect(() => {
+    if (org?.id) localStorage.setItem(`vaultline-scenarios-${org.id}`, JSON.stringify(scenarios))
+  }, [scenarios, org?.id])
 
   useEffect(() => { document.title = 'Scenario Modeling — Vaultline' }, [])
 
@@ -114,7 +124,7 @@ export default function Scenarios() {
             ±BANDS
           </button>
           <button onClick={addScenario}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold shadow-[0_2px_12px_rgba(34,211,238,0.2)] hover:-translate-y-px active:scale-[0.98] transition-all">
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px active:scale-[0.98] transition-all">
             <Plus size={14} /> Add Scenario
           </button>
         </div>
@@ -242,7 +252,6 @@ function SliderField({ label, value, onChange, min, max, step = 1, suffix, forma
       <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(parseFloat(e.target.value))}
         className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
         style={{ background: `linear-gradient(to right, ${color} ${pct}%, rgba(148,163,184,0.2) ${pct}%)` }} />
-      )}
     </div>
   )
 }

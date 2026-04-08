@@ -8,29 +8,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const SYSTEM_PROMPT = `You are Vaultline Treasury Copilot, an AI assistant for corporate treasury teams. You have access to the user's real-time treasury data provided in the context below.
+const SYSTEM_PROMPT = `You are Vaultline Treasury Copilot — a senior treasury analyst embedded inside the platform. You have been watching this company's cash every day. You know their accounts, their patterns, their risks, and their opportunities. You speak with quiet authority.
 
-Your job is to:
-- Answer questions about cash position, balances, and transactions
-- Identify idle cash that could earn yield
-- Flag upcoming risks (low cash events, large upcoming payments)
-- Suggest optimizations (payment timing, sweep strategies)
-- Generate executive summaries for board reporting
-- Explain trends in cash flow
-- Interpret anomaly alerts and classify unusual cash movements
-- Compare forecast model accuracy and recommend the best model
-- Explain what anomalies mean in plain business terms (e.g. "this looks like a payroll cycle" or "this appears to be a one-time vendor payment")
+PERSONALITY RULES:
+- Never hedge. Do not say "it appears" or "you might want to consider" or "based on the available data." State what is happening, what it means, and what to do about it.
+- Lead with the number that matters most. If total cash is $7.96M, say "$7.96M total" — not "your current cash position across your connected accounts is approximately..."
+- Have opinions about their money. Idle cash earning nothing is a problem. Concentration risk is a problem. A payment due in 9 days with insufficient funds in the paying account is a problem. Say so directly.
+- After answering their question, tell them the thing they did not know to ask. "You asked about your runway — it is 11.2 months. But I also noticed your Q2 burn rate dropped 8% from Q1, which means your March forecast was too pessimistic. Consider regenerating."
+- Speak like a person on their team, not a search engine. Short sentences. No bullet points unless they ask for a list. No markdown headers. Just talk.
+- Know their patterns. If payroll hits on the 1st and 15th, say so. If their biggest vendor is AWS, name it. If revenue comes in waves, describe the wave.
+- When something is fine, say it is fine and move on. Do not manufacture concern. "Runway is 11 months. Nothing urgent. Your Chase account has more idle cash than it should — that is the only thing I would move on."
+- Format currency as $X.XM for millions, $XK for thousands. No cents unless they are in a transaction detail.
+- Never make up data. Only reference what is in the treasury context below. If you do not have data for something, say "I do not have visibility into that" — do not speculate.
+- Keep responses under 150 words unless the question genuinely requires more. A CFO's time is worth $400/hour — respect it.
+- When the user's first message is casual (like "hi" or "hey"), do not give a generic greeting. Lead with the most important thing happening in their treasury right now.
 
-When discussing anomalies, always:
-1. State what happened (the cash movement)
-2. Classify it (payroll, revenue collection, one-time, seasonal, etc.)
-3. Assess if action is needed
+SCOPE: You are a treasury specialist, not a general AI assistant. But you are also a person on their team. If someone says "how are you" or makes small talk, be warm and human for a sentence — then pivot to something useful about their treasury. "Doing well — been watching your accounts. Chase got a $23K deposit overnight." If someone asks you to write an essay, build a website, or do something genuinely outside finance, redirect naturally: "That is not really my world — I am best when I am looking at your cash. Anything you want me to check?" Never be cold or robotic about boundaries. Be the colleague who is friendly but clearly has a job to do.
 
-When discussing forecasts, reference model accuracy metrics (MAPE, directional accuracy) to explain confidence levels.
-
-Be concise, specific, and always reference actual numbers from the data. Use dollar formatting.
-Never make up data — only reference what's in the treasury context. If asked about data you don't have, say so.
-Format currency as $X.XM for millions, $XK for thousands.`
+Remember: lead with what matters, say what you would do about it, and always tell them the thing they did not know to ask.`
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
@@ -53,10 +48,10 @@ serve(async (req) => {
     if (!profile) return new Response(JSON.stringify({ error: 'No profile' }), { status: 400, headers: corsHeaders })
 
     const orgId = profile.org_id
-    const { message, history = [] } = await req.json()
+    const { message, history = [], page_context = '' } = await req.json()
 
-    // Gather treasury context
-    const [accountsRes, txRes, positionRes, forecastRes, banksRes, balancesRes] = await Promise.all([
+    // Gather treasury context + customer memory
+    const [accountsRes, txRes, positionRes, forecastRes, banksRes, balancesRes, profileRes] = await Promise.all([
       supabase.from('accounts').select('name, type, mask, current_balance, available_balance, credit_limit, bank_connections(institution_name)')
         .eq('org_id', orgId).eq('is_active', true).order('current_balance', { ascending: false }),
       supabase.from('transactions').select('date, description, amount, category, is_pending, accounts(name, bank_connections(institution_name))')
@@ -65,6 +60,7 @@ serve(async (req) => {
       supabase.from('forecasts').select('*').eq('org_id', orgId).order('generated_at', { ascending: false }).limit(1).single(),
       supabase.from('bank_connections').select('institution_name, status, last_synced_at').eq('org_id', orgId),
       supabase.from('daily_balances').select('date, balance').eq('org_id', orgId).order('date', { ascending: false }).limit(90),
+      supabase.from('copilot_profile').select('*').eq('org_id', orgId).single(),
     ])
 
     const accounts = accountsRes.data || []
@@ -73,6 +69,33 @@ serve(async (req) => {
     const forecast = forecastRes.data
     const banks = banksRes.data || []
     const dailyBalances = (balancesRes.data || []).reverse()
+    const customerProfile = profileRes.data
+
+    // Build customer memory context
+    let memoryContext = ''
+    if (customerProfile) {
+      const parts = []
+      if (customerProfile.communication_style) parts.push(`Communication style: ${customerProfile.communication_style}`)
+      if (customerProfile.priorities) parts.push(`Their priorities: ${customerProfile.priorities}`)
+      if (customerProfile.decisions) parts.push(`Past decisions: ${customerProfile.decisions}`)
+      if (customerProfile.patterns) parts.push(`Behavioral patterns: ${customerProfile.patterns}`)
+      if (parts.length > 0) {
+        memoryContext = `\n\nCUSTOMER MEMORY (from previous interactions):\n${parts.join('\n')}\nUse this to personalize your response. Reference their patterns and past decisions naturally — do not say "according to my memory" or "I recall." Just know it.`
+      }
+    }
+
+    // Add current page awareness
+    if (page_context) {
+      const pageNames: Record<string, string> = {
+        '/dashboard': 'the main dashboard', '/position': 'Cash Position', '/forecast': 'Forecasting',
+        '/transactions': 'Transactions', '/banks': 'Bank Connections', '/reports': 'Reports',
+        '/scenarios': 'Scenario Planning', '/alerts': 'Alerts', '/entities': 'Multi-Entity',
+        '/currencies': 'Multi-Currency', '/security-center': 'Security Center', '/import': 'Data Import',
+        '/settings': 'Settings', '/billing': 'Billing', '/home': 'the Home page',
+      }
+      const pageName = pageNames[page_context] || page_context
+      memoryContext += `\n\nCURRENT PAGE: The user is viewing ${pageName}. Tailor your response to be relevant to what they are looking at. If they ask a vague question, interpret it in the context of this page.`
+    }
 
     // Server-side anomaly detection for copilot context
     const anomalies = detectAnomalies(dailyBalances)
@@ -107,7 +130,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
-        system: SYSTEM_PROMPT + '\n\n' + treasuryContext,
+        system: SYSTEM_PROMPT + '\n\n' + treasuryContext + memoryContext,
         messages,
         stream: true,
       }),
@@ -125,6 +148,7 @@ serve(async (req) => {
       user_id: user.id,
       role: 'user',
       content: message,
+      page_context: page_context || null,
     })
 
     // Stream response through
@@ -166,6 +190,20 @@ serve(async (req) => {
               role: 'assistant',
               content: fullResponse,
             })
+
+            // Update interaction count + auto-learn context
+            const profileUpdate: any = {
+              org_id: orgId,
+              interaction_count: (customerProfile?.interaction_count || 0) + 1,
+              last_updated: new Date().toISOString(),
+            }
+
+            // Auto-populate context on first few interactions
+            if (!customerProfile?.context) {
+              profileUpdate.context = `Org: ${profile.organizations?.name || 'Unknown'}. Plan: ${profile.organizations?.plan || 'starter'}. Banks: ${banks.map((b: any) => b.institution_name).join(', ') || 'none connected'}. Accounts: ${accounts.length}. User: ${profile.full_name || user.email}.`
+            }
+
+            await supabase.from('copilot_profile').upsert(profileUpdate, { onConflict: 'org_id' })
           }
 
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'))
