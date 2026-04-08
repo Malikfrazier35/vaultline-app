@@ -27,7 +27,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 const NAV = [
   { section: 'Treasury', items: [
     { to: '/home', icon: ZapIcon, label: 'Home' },
-    { to: '/copilot', icon: Brain, label: 'Treasury Ops', minPlan: 'growth' },
+    { to: '/copilot', icon: Brain, label: 'Treasury Ops' },
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/position', icon: DollarSign, label: 'Cash Position' },
     { to: '/forecast', icon: Activity, label: 'Forecasting' },
@@ -489,24 +489,20 @@ export default function Layout() {
         </div>
       </div>
 
-      {/* Copilot FAB — Growth+ only */}
-      {planAllows(userPlan, 'growth') && (
-        <button
-          data-copilot onClick={() => setCopilotOpen(!copilotOpen)}
-          className="fixed bottom-20 lg:bottom-7 right-5 lg:right-7 w-[48px] h-[48px] lg:w-[52px] lg:h-[52px] rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all z-50"
-        >
-          <MessageSquare size={20} className="text-void" />
-        </button>
-      )}
+      {/* Copilot FAB — all plans */}
+      <button
+        data-copilot onClick={() => setCopilotOpen(!copilotOpen)}
+        className="fixed bottom-20 lg:bottom-7 right-5 lg:right-7 w-[48px] h-[48px] lg:w-[52px] lg:h-[52px] rounded-2xl bg-gradient-to-br from-cyan to-purple flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all z-50"
+      >
+        <MessageSquare size={20} className="text-void" />
+      </button>
 
       {/* Mobile bottom tab navigation */}
       <MobileNav />
 
-      {planAllows(userPlan, 'growth') && (
-        <SectionBoundary name="Copilot" height="h-0">
-          <Copilot open={copilotOpen} onClose={() => setCopilotOpen(false)} />
-        </SectionBoundary>
-      )}
+      <SectionBoundary name="Copilot" height="h-0">
+        <Copilot open={copilotOpen} onClose={() => setCopilotOpen(false)} />
+      </SectionBoundary>
       <SectionBoundary name="Command Palette" height="h-0">
         <CommandPalette />
       </SectionBoundary>
