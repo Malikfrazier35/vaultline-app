@@ -42,6 +42,8 @@ export function useNavigation() {
   // Flush previous page data
   const flushPage = useCallback(async (path) => {
     if (!profile?.id || !path || flushing.current) return
+    // Respect analytics opt-out (CCPA Section 1798.120)
+    if (profile?.analytics_opt_out) return
     flushing.current = true
     try {
       const timeOnPage = Date.now() - pageEnteredAt

@@ -722,6 +722,8 @@ export default function Settings() {
                 { name: 'Stripe', purpose: 'Payment processing', region: 'US' },
                 { name: 'Plaid', purpose: 'Bank account linking and transaction sync', region: 'US' },
                 { name: 'Vercel', purpose: 'Application hosting and CDN', region: 'Global edge' },
+                { name: 'Anthropic', purpose: 'AI Copilot processing (Claude)', region: 'US' },
+                { name: 'Resend', purpose: 'Transactional and onboarding emails', region: 'US' },
               ].map(s => (
                 <div key={s.name} className="terminal-inset rounded-xl p-3.5 flex items-center justify-between">
                   <div>
@@ -731,6 +733,32 @@ export default function Settings() {
                   <span className="text-[10px] font-mono text-t3 bg-void/50 px-2 py-1 rounded">{s.region}</span>
                 </div>
               ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Analytics & Tracking" sub="Control what behavioral data we collect">
+            <div className="terminal-inset rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-[14px] font-semibold text-t1">Usage analytics</p>
+                  <p className="text-[12px] text-t3 mt-1">Page views, feature usage, and scroll depth. Used to improve the product. No data is sold or shared.</p>
+                </div>
+                <button
+                  onClick={async () => {
+                    const current = profile?.analytics_opt_out || false
+                    await supabase.from('profiles').update({ analytics_opt_out: !current }).eq('id', user.id)
+                    refetch?.()
+                    toast.success(!current ? 'Analytics tracking disabled' : 'Analytics tracking enabled')
+                    await logAuditEvent('analytics_opt_out_changed', 'privacy', null, { opt_out: !current })
+                  }}
+                  className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition ${
+                    profile?.analytics_opt_out
+                      ? 'bg-green/[0.08] border border-green/20 text-green'
+                      : 'bg-amber/[0.08] border border-amber/20 text-amber'
+                  }`}
+                >{profile?.analytics_opt_out ? 'Opted Out ✓' : 'Tracking Active'}</button>
+              </div>
+              <p className="text-[11px] text-t3">Under CCPA Section 1798.120, you have the right to opt out of behavioral tracking. Opting out does not affect your access to any features.</p>
             </div>
           </SectionCard>
         </div>

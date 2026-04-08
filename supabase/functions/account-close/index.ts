@@ -83,23 +83,56 @@ serve(async (req) => {
         await supabase.from('profiles').update({ status: 'deactivated' }).eq('org_id', orgId)
         actions.push('team_deactivated')
 
+        // Revoke all Plaid access tokens
+        const PLAID_CLIENT_ID = Deno.env.get('PLAID_CLIENT_ID')
+        const PLAID_SECRET = Deno.env.get('PLAID_SECRET')
+        const PLAID_ENV = Deno.env.get('PLAID_ENV') || 'sandbox'
+        const PLAID_BASE = PLAID_ENV === 'production' ? 'https://production.plaid.com' : PLAID_ENV === 'development' ? 'https://development.plaid.com' : 'https://sandbox.plaid.com'
+
+        const { data: bankConns } = await supabase.from('bank_connections').select('id, plaid_access_token').eq('org_id', orgId)
+        if (bankConns?.length && PLAID_CLIENT_ID && PLAID_SECRET) {
+          for (const conn of bankConns) {
+            if (conn.plaid_access_token) {
+              try {
+                await fetch(`${PLAID_BASE}/item/remove`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ client_id: PLAID_CLIENT_ID, secret: PLAID_SECRET, access_token: conn.plaid_access_token }),
+                })
+              } catch {}
+            }
+          }
+          actions.push('plaid_tokens_revoked')
+        }
+
         // Disconnect all banks
         await supabase.from('bank_connections').update({ status: 'disconnected' }).eq('org_id', orgId)
         actions.push('banks_disconnected')
 
-        // Update org status
+        // Schedule deletion in 30 days (GDPR Article 17 compliance)
+        const deletionDate = new Date(Date.now() + 30 * 86400000).toISOString()
         await supabase.from('organizations').update({
-          plan_status: 'canceled',
+          plan_status: 'pending_deletion',
           closed_at: new Date().toISOString(),
+          deletion_scheduled_at: deletionDate,
           closure_reason: reason || feedback || 'No reason provided',
         }).eq('id', orgId)
-        actions.push('org_closed')
+        actions.push('deletion_scheduled')
+
+        // Invalidate all sessions for org members
+        const { data: members } = await supabase.from('profiles').select('id').eq('org_id', orgId)
+        if (members?.length) {
+          for (const m of members) {
+            try { await supabase.auth.admin.signOut(m.id, 'global') } catch {}
+          }
+          actions.push('sessions_invalidated')
+        }
 
         // Log events
-        await supabase.from('growth_events').insert({ org_id: orgId, user_id: user.id, event: 'churn', metadata: { reason, feedback, actions } })
-        await supabase.from('audit_log').insert({ org_id: orgId, user_id: user.id, action: 'account_closed', details: { reason, feedback, actions } })
+        await supabase.from('growth_events').insert({ org_id: orgId, user_id: user.id, event: 'churn', metadata: { reason, feedback, actions } }).catch(() => {})
+        await supabase.from('audit_log').insert({ org_id: orgId, user_id: user.id, action: 'account_closed', details: { reason, feedback, actions, deletion_scheduled_at: deletionDate } }).catch(() => {})
 
-        return json({ success: true, actions })
+        return json({ success: true, actions, deletion_scheduled_at: deletionDate })
       }
 
       default:

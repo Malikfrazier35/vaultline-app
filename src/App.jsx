@@ -56,6 +56,7 @@ const WeaknessCenter = lazyRetry(() => import('@/pages/WeaknessCenter'))
 const ThreatCenter = lazyRetry(() => import('@/pages/ThreatCenter'))
 const AuditCenter = lazyRetry(() => import('@/pages/AuditCenter'))
 const Privacy = lazyRetry(() => import('@/pages/Privacy'))
+const DoNotSell = lazyRetry(() => import('@/pages/DoNotSell'))
 const Terms = lazyRetry(() => import('@/pages/Terms'))
 const SecurityPage = lazyRetry(() => import('@/pages/SecurityPage'))
 const HowItWorks = lazyRetry(() => import('@/pages/HowItWorks'))
@@ -161,6 +162,7 @@ export default function App() {
             <Route path="/lp/demo" element={<LPDemo />} />
             <Route path="/lp/trial" element={<LPTrial />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/do-not-sell" element={<DoNotSell />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/security" element={<SecurityPage />} />
             <Route path="/how-it-works" element={<HowItWorks />} />

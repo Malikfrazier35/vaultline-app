@@ -674,6 +674,7 @@ export default function Landing() {
                   <Link to="/privacy" className="text-[14px] text-t2 hover:text-t1 transition">Privacy Policy</Link>
                   <Link to="/terms" className="text-[14px] text-t2 hover:text-t1 transition">Terms of Service</Link>
                   <Link to="/legal" className="text-[14px] text-t2 hover:text-t1 transition">Legal & Privacy Center</Link>
+                  <Link to="/do-not-sell" className="text-[14px] text-t2 hover:text-t1 transition">Do Not Sell My Information</Link>
                   <Link to="/legal#dnsspi" onClick={() => {}} className="text-[14px] text-t2 hover:text-amber transition">Do Not Sell or Share</Link>
                 </div>
               </div>
