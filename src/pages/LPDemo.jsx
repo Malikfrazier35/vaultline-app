@@ -27,7 +27,18 @@ export default function LPDemo() {
 
     try {
       await supabase.functions.invoke('lead-capture', {
-        body: { ...form, ...utm, type: 'demo_request', source_page: '/lp/demo' }
+        body: {
+          action: 'capture',
+          email: form.email,
+          full_name: form.name,
+          company_name: form.company,
+          company_size: form.size,
+          source: 'demo_request',
+          utm_source: utm.source,
+          utm_medium: utm.medium,
+          utm_campaign: utm.campaign,
+          page_url: '/lp/demo',
+        }
       })
 
       // Fire Google Ads conversion

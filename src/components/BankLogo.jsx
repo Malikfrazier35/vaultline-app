@@ -85,14 +85,18 @@ function getInitials(name) {
 export default function BankLogo({ name, color, size = 36, className = '' }) {
   const [imgFailed, setImgFailed] = useState(false)
   const domain = getDomain(name)
-  // DuckDuckGo favicon service — reliable, no auth, no redirects
-  const logoUrl = domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null
+  // Try multiple logo sources in priority order
+  // 1. Google high-res favicon (128px, sharp)
+  // 2. DuckDuckGo favicon (32px, fallback)
+  const googleUrl = domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null
+  const duckUrl = domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null
+  const logoUrl = imgFailed === 'google' ? duckUrl : googleUrl
 
   const initials = getInitials(name)
   const bgColor = color || '#1565C0'
 
   // If we have a domain and image hasn't failed, try the logo
-  if (logoUrl && !imgFailed) {
+  if (logoUrl && imgFailed !== 'all') {
     return (
       <div
         className={`rounded-xl overflow-hidden flex items-center justify-center bg-white border border-border ${className}`}
@@ -102,7 +106,10 @@ export default function BankLogo({ name, color, size = 36, className = '' }) {
           src={logoUrl}
           alt={name}
           className="w-full h-full object-contain p-1"
-          onError={() => setImgFailed(true)}
+          onError={() => {
+            if (imgFailed === false) setImgFailed('google')
+            else setImgFailed('all')
+          }}
           loading="lazy"
         />
       </div>
