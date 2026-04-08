@@ -8,19 +8,8 @@ async function checkBackend() {
   if (backendReady !== null) return backendReady
   if (probePromise) return probePromise
   probePromise = (async () => {
-    try {
-      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL || 'https://cosbviiihkxjdqcpksgv.supabase.co'}/functions/v1/growth-engine`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'health' }),
-        signal: AbortSignal.timeout(4000),
-      })
-      // Any non-404 response means the function exists and is deployed
-      backendReady = resp.status !== 404
-    } catch {
-      // Network error or timeout — assume backend is up, let circuit breaker handle per-function
-      backendReady = true
-    }
+    // Always assume backend is ready — let per-function circuit breaker handle failures
+    backendReady = true
     return backendReady
   })()
   return probePromise
