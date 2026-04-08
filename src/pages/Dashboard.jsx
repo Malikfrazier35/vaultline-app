@@ -264,8 +264,8 @@ export default function Dashboard() {
                   const allowed = isPeriodAllowed(org?.plan || 'starter', p)
                   return (
                     <button key={p} onClick={() => allowed ? setChartPeriod(p) : null} title={!allowed ? `Upgrade to ${periodRequiredPlan(p)} for ${p} view` : ''}
-                      className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${chartPeriod === p ? 'bg-cyan/[0.08] text-cyan' : allowed ? 'text-t3 hover:text-t2' : 'text-t4/40 cursor-not-allowed'}`}>
-                      {p}{!allowed && ' 🔒'}
+                      className={`px-2 py-1 rounded-md text-[10px] font-mono font-bold transition-all relative ${chartPeriod === p ? 'bg-cyan/[0.08] text-cyan' : allowed ? 'text-t3 hover:text-t2' : 'text-t4/30 cursor-not-allowed line-through decoration-t4/20'}`}>
+                      {p}
                     </button>
                   )
                 })}

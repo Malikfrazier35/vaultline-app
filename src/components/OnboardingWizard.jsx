@@ -180,7 +180,7 @@ export default function OnboardingWizard({ onComplete }) {
                         </p>
                       ))}
                     </div>
-                    {isSelected && <div className={`mt-3 text-[10px] font-mono font-semibold ${tc} text-center`}>✓ Selected</div>}
+                    {isSelected && <div className={`mt-3 text-[10px] font-mono font-semibold ${tc} text-center`}>Selected</div>}
                   </button>
                 )
               })}

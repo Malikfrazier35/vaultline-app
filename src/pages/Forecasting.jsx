@@ -470,7 +470,7 @@ export default function Forecasting() {
               </div>
               <div className="w-px h-4 bg-border mx-0.5" />
               <div className="flex items-center gap-1 p-0.5 rounded-lg bg-deep border border-border">
-                {['7D','30D','MTD','QTD','FY'].map(r => { const allowed = isPeriodAllowed(org?.plan||'starter', r); return (<button key={r} onClick={()=>allowed?setPeriod(r):null} title={!allowed?`Upgrade to ${periodRequiredPlan(r)} for ${r}`:''} className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${period===r?'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]':allowed?'text-t3 hover:text-t2':'text-t4/40 cursor-not-allowed'}`}>{r}{!allowed&&' 🔒'}</button>)})}
+                {['7D','30D','MTD','QTD','FY'].map(r => { const allowed = isPeriodAllowed(org?.plan||'starter', r); return (<button key={r} onClick={()=>allowed?setPeriod(r):null} title={!allowed?`Upgrade to ${periodRequiredPlan(r)} for ${r}`:''} className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${period===r?'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]':allowed?'text-t3 hover:text-t2':'text-t4/30 cursor-not-allowed line-through decoration-t4/20'}`}>{r}</button>)})}
               </div>
             </div>
           </div>

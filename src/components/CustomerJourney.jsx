@@ -357,12 +357,12 @@ export function useMilestones() {
     const acctCount = accounts.length
     const dayCount = dailyBalances.length
 
-    if (txCount >= 100 && !celebrated['tx-100']) hits.push({ id: 'tx-100', title: '100 transactions synced', desc: 'Your treasury data is building real intelligence.', icon: '📊' })
-    if (txCount >= 1000 && !celebrated['tx-1000']) hits.push({ id: 'tx-1000', title: '1,000 transactions', desc: 'Serious treasury data. Your forecasts are getting smarter.', icon: '🚀' })
-    if (acctCount >= 5 && !celebrated['acct-5']) hits.push({ id: 'acct-5', title: '5 accounts connected', desc: 'Multi-account visibility unlocked.', icon: '🏦' })
-    if (acctCount >= 10 && !celebrated['acct-10']) hits.push({ id: 'acct-10', title: '10 accounts connected', desc: 'Enterprise-grade treasury coverage.', icon: '⚡' })
-    if (dayCount >= 30 && !celebrated['30d-data']) hits.push({ id: '30d-data', title: '30 days of data', desc: 'Forecast accuracy is now meaningful.', icon: '📈' })
-    if (dayCount >= 90 && !celebrated['90d-data']) hits.push({ id: '90d-data', title: '90 days of data', desc: 'Seasonal patterns are now detectable.', icon: '🎯' })
+    if (txCount >= 100 && !celebrated['tx-100']) hits.push({ id: 'tx-100', title: '100 transactions synced', desc: 'Your treasury data is building real intelligence.', icon: null })
+    if (txCount >= 1000 && !celebrated['tx-1000']) hits.push({ id: 'tx-1000', title: '1,000 transactions', desc: 'Serious treasury data. Your forecasts are getting smarter.', icon: null })
+    if (acctCount >= 5 && !celebrated['acct-5']) hits.push({ id: 'acct-5', title: '5 accounts connected', desc: 'Multi-account visibility unlocked.', icon: null })
+    if (acctCount >= 10 && !celebrated['acct-10']) hits.push({ id: 'acct-10', title: '10 accounts connected', desc: 'Enterprise-grade treasury coverage.', icon: null })
+    if (dayCount >= 30 && !celebrated['30d-data']) hits.push({ id: '30d-data', title: '30 days of data', desc: 'Forecast accuracy is now meaningful.', icon: null })
+    if (dayCount >= 90 && !celebrated['90d-data']) hits.push({ id: '90d-data', title: '90 days of data', desc: 'Seasonal patterns are now detectable.', icon: null })
 
     return hits
   }, [transactions.length, accounts.length, dailyBalances.length, celebrated])

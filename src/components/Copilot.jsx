@@ -120,7 +120,7 @@ export default function Copilot({ open, onClose }) {
     if ((!text.trim() && !attachment) || streaming) return
     if (atLimit) return
 
-    const displayText = text.trim() + (attachment ? ` [📎 ${attachment.name}]` : '')
+    const displayText = text.trim() + (attachment ? ` [Attached: ${attachment.name}]` : '')
     const userMsg = { role: 'user', content: displayText, preview: attachment?.preview }
     setMessages((prev) => [...prev, userMsg])
     setInput('')

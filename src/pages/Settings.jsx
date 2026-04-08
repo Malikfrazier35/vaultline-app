@@ -760,7 +760,7 @@ export default function Settings() {
                       ? 'bg-green/[0.08] border border-green/20 text-green'
                       : 'bg-amber/[0.08] border border-amber/20 text-amber'
                   }`}
-                >{profile?.analytics_opt_out ? 'Opted Out ✓' : 'Tracking Active'}</button>
+                >{profile?.analytics_opt_out ? 'Opted out' : 'Tracking Active'}</button>
               </div>
               <p className="text-[11px] text-t3">Under CCPA Section 1798.120, you have the right to opt out of behavioral tracking. Opting out does not affect your access to any features.</p>
             </div>
