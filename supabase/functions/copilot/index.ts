@@ -54,6 +54,9 @@ serve(async (req) => {
     if (!profile) return new Response(JSON.stringify({ error: 'No profile' }), { status: 400, headers: corsHeaders })
 
     const orgId = profile.org_id
+    const orgPlan = profile.organizations?.plan || 'starter'
+    // Enterprise gets Opus 4.6 (highest accuracy), others get Sonnet 4.6 (fast + capable)
+    const copilotModel = orgPlan === 'enterprise' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'
     const { message, history = [], page_context = '', image = null, file = null } = await req.json()
 
     // Gather treasury context + customer memory
@@ -146,8 +149,8 @@ serve(async (req) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
+        model: copilotModel,
+        max_tokens: orgPlan === 'enterprise' ? 2048 : orgPlan === 'growth' ? 1536 : 1024,
         system: SYSTEM_PROMPT + '\n\n' + treasuryContext + memoryContext,
         messages,
         stream: true,
