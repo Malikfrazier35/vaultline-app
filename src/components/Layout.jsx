@@ -25,6 +25,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 const NAV = [
   { section: 'Treasury', items: [
     { to: '/home', icon: ZapIcon, label: 'Home' },
+    { to: '/copilot', icon: Brain, label: 'Treasury Ops' },
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/position', icon: DollarSign, label: 'Cash Position' },
     { to: '/forecast', icon: Activity, label: 'Forecasting' },

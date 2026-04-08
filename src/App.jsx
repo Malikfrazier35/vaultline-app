@@ -24,6 +24,7 @@ function lazyRetry(importFn, retries = 3) {
 import Landing from '@/pages/Landing'
 const LPDemo = lazyRetry(() => import('@/pages/LPDemo'))
 const LPTrial = lazyRetry(() => import('@/pages/LPTrial'))
+const CopilotCenter = lazyRetry(() => import('@/pages/CopilotCenter'))
 const Login = lazyRetry(() => import('@/pages/Login'))
 const Signup = lazyRetry(() => import('@/pages/Signup'))
 const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'))
@@ -197,6 +198,7 @@ export default function App() {
               <Route path="cash-visibility" element={<SafePage name="Cash Visibility"><CashVisibility /></SafePage>} />
               <Route path="ux" element={<SafePage name="UX"><UXCenter /></SafePage>} />
               <Route path="resources" element={<SafePage name="Resources"><ResourceHub /></SafePage>} />
+              <Route path="copilot" element={<SafePage name="Treasury Operations"><CopilotCenter /></SafePage>} />
               <Route path="payment-hub" element={<SafePage name="Payment Hub"><PaymentHub /></SafePage>} />
               <Route path="design-system" element={<SafePage name="Design System"><DesignSystem /></SafePage>} />
               <Route path="automation" element={<SafePage name="Automation"><AutomationCenter /></SafePage>} />
