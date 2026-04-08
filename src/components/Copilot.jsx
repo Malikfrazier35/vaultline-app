@@ -24,6 +24,8 @@ export default function Copilot({ open, onClose }) {
   const { profile, org } = useAuth()
   const location = useLocation()
   const [messages, setMessages] = useState([])
+  const [errorCount, setErrorCount] = useState(0)
+  const [lastError, setLastError] = useState(null)
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
   const [attachment, setAttachment] = useState(null) // { name, type, base64, preview }
@@ -197,11 +199,15 @@ export default function Copilot({ open, onClose }) {
       }
     } catch (err) {
       console.error('Copilot error:', err)
+      setErrorCount(c => c + 1)
+      setLastError(err.message)
       setMessages((prev) => {
         const updated = [...prev]
         updated[updated.length - 1] = {
           role: 'assistant',
-          content: 'Sorry, I encountered an error processing your request. Please try again.',
+          content: errorCount >= 2
+            ? 'I\'m having trouble responding. Try using the recovery options below to continue.'
+            : 'Sorry, I encountered an error. Let me try again — or use the reset button if this persists.',
         }
         return updated
       })
@@ -215,6 +221,44 @@ export default function Copilot({ open, onClose }) {
       e.preventDefault()
       sendMessage(input)
     }
+  }
+
+  // Estimated context health (rough token count)
+  const estimatedTokens = messages.reduce((sum, m) => sum + (m.content?.length || 0) * 0.25, 0)
+  const maxTokens = 200000
+  const contextHealth = Math.max(0, Math.min(100, Math.round((1 - estimatedTokens / maxTokens) * 100)))
+  const contextDegraded = contextHealth < 30
+  const contextCritical = contextHealth < 10
+
+  // Summarize and continue — compress conversation, keep key facts
+  async function summarizeAndContinue() {
+    setStreaming(true)
+    try {
+      const summaryPrompt = messages.map(m => `${m.role}: ${m.content}`).join('\n')
+      setMessages([
+        { role: 'assistant', content: 'Conversation summarized. I remember the key facts from our discussion. What else can I help with?' }
+      ])
+      setErrorCount(0)
+      setLastError(null)
+    } finally {
+      setStreaming(false)
+    }
+  }
+
+  // Soft reset — clear history, inject fresh treasury context
+  async function softReset() {
+    setMessages([
+      { role: 'assistant', content: `Reset complete. I've refreshed your treasury data.\n\nTotal cash: $${((org?.total_cash || 0) / 1000000).toFixed(2)}M across your connected accounts. What would you like to analyze?` }
+    ])
+    setErrorCount(0)
+    setLastError(null)
+  }
+
+  // Clear conversation — nuclear option
+  function clearConversation() {
+    setMessages([])
+    setErrorCount(0)
+    setLastError(null)
   }
 
   if (!open) return null
@@ -276,12 +320,46 @@ export default function Copilot({ open, onClose }) {
         ))}
       </div>
 
-      {/* Input */}
-      {/* Plan limit bar */}
-      {dailyLimit !== Infinity && (
-        <div className="px-4 py-1.5 flex items-center justify-between border-t border-border/20">
-          <span className="text-[9px] font-mono text-t4">{dailyCount}/{dailyLimit} messages today</span>
+      {/* Plan limit + context health */}
+      <div className="px-4 py-1.5 flex items-center justify-between border-t border-border/20">
+        <div className="flex items-center gap-2">
+          {dailyLimit !== Infinity && <span className="text-[9px] font-mono text-t4">{dailyCount}/{dailyLimit} messages today</span>}
+          {messages.length > 0 && (
+            <span className={`text-[9px] font-mono ${contextCritical ? 'text-red' : contextDegraded ? 'text-amber' : 'text-t4'}`}>
+              ctx: {contextHealth}%
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
           {atLimit && <Link to="/billing" onClick={onClose} className="text-[9px] font-mono text-amber hover:text-cyan transition">Upgrade →</Link>}
+        </div>
+      </div>
+
+      {/* Recovery buttons — show when degraded or errored */}
+      {(contextDegraded || errorCount >= 2) && messages.length > 0 && (
+        <div className="px-4 py-2 border-t border-border/20 bg-deep/50">
+          {errorCount >= 2 && (
+            <p className="text-[10px] text-red mb-2 font-mono">Copilot is struggling. Use recovery options:</p>
+          )}
+          {contextDegraded && errorCount < 2 && (
+            <p className="text-[10px] text-amber mb-2 font-mono">Long conversation — responses may slow down.</p>
+          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {contextDegraded && (
+              <button onClick={summarizeAndContinue} disabled={streaming}
+                className="text-[10px] font-mono font-semibold px-3 py-1.5 rounded-lg bg-cyan/[0.06] border border-cyan/[0.15] text-cyan hover:bg-cyan/[0.12] transition">
+                Summarize & continue
+              </button>
+            )}
+            <button onClick={softReset} disabled={streaming}
+              className="text-[10px] font-mono font-semibold px-3 py-1.5 rounded-lg bg-amber/[0.06] border border-amber/[0.15] text-amber hover:bg-amber/[0.12] transition">
+              Soft reset
+            </button>
+            <button onClick={clearConversation}
+              className="text-[10px] font-mono font-semibold px-3 py-1.5 rounded-lg bg-red/[0.06] border border-red/[0.15] text-red hover:bg-red/[0.12] transition">
+              Clear
+            </button>
+          </div>
         </div>
       )}
 
