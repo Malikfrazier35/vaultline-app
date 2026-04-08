@@ -4,7 +4,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/components/Toast'
-import { Check, Crown, Zap, Building2, Clock, CreditCard, Shield, ExternalLink, ArrowRight, Receipt, TrendingUp, Loader2, CheckCircle2 } from 'lucide-react'
+import { Check, Crown, Zap, Building2, Clock, CreditCard, Shield, ExternalLink, ArrowRight, Receipt, TrendingUp, Loader2, CheckCircle2, Lock } from 'lucide-react'
 
 const PLANS = [
   {
@@ -41,6 +41,7 @@ export default function Billing() {
   const [annual, setAnnual] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(null)
   const [checkoutError, setCheckoutError] = useState(null)
+  const [portalLoading, setPortalLoading] = useState(false)
   const [searchParams] = useSearchParams()
   const checkoutSuccess = searchParams.get('checkout') === 'success'
 
@@ -81,6 +82,21 @@ export default function Billing() {
       toast.error(err.message, 'Checkout failed')
     } finally {
       setCheckoutLoading(null)
+    }
+  }
+
+  async function openPortal() {
+    setPortalLoading(true)
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('stripe-portal')
+      if (fnErr) throw new Error(fnErr.message || 'Portal failed')
+      if (data?.error) throw new Error(data.error)
+      if (data?.url) window.location.href = data.url
+      else throw new Error('No portal URL returned')
+    } catch (err) {
+      toast.error(err.message, 'Unable to open billing portal')
+    } finally {
+      setPortalLoading(false)
     }
   }
 
@@ -137,6 +153,38 @@ export default function Billing() {
               {Array.from({ length: 14 }, (_, i) => (
                 <div key={i} className={`w-2 h-6 rounded-full transition-all ${i < (14 - daysLeft) ? 'bg-cyan' : 'bg-border/40'}`} />
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active subscriber — Manage Billing via Stripe Portal */}
+      {org?.plan_status === 'active' && org?.stripe_customer_id && (
+        <div className="glass-card rounded-2xl p-5 border-green/[0.15]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-green/[0.08] flex items-center justify-center"><CreditCard size={20} className="text-green" /></div>
+              <div>
+                <p className="text-[15px] font-bold text-t1">Billing managed by Stripe</p>
+                <p className="text-[13px] text-t3">View invoices, update payment method, or cancel subscription.</p>
+              </div>
+            </div>
+            <button
+              onClick={openPortal}
+              disabled={portalLoading}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-green/90 to-green/70 text-void text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all flex items-center gap-2"
+            >
+              {portalLoading ? <><Loader2 size={14} className="animate-spin" /> Opening...</> : <>Manage Billing <ExternalLink size={14} /></>}
+            </button>
+          </div>
+          <div className="mt-3 flex items-center gap-4 pt-3 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Shield size={12} className="text-green" />
+              <span className="text-[11px] text-t3 font-mono">PCI Level 1 certified</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Lock size={12} className="text-green" />
+              <span className="text-[11px] text-t3 font-mono">Card data never stored on our servers</span>
             </div>
           </div>
         </div>
