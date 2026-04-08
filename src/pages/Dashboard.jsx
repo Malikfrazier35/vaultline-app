@@ -317,10 +317,10 @@ export default function Dashboard() {
                   <CartesianGrid strokeDasharray="1 6" stroke={ct.grid} vertical={false} />
                   <XAxis dataKey="date" tick={{ fontSize: 10, fill: ct.tick, fontFamily: 'JetBrains Mono, monospace' }} tickLine={false} axisLine={false}
                     interval={Math.max(0, Math.floor(chartData.length / 6))}
-                    tickFormatter={(v) => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                    tickFormatter={(v) => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                   <YAxis tick={{ fontSize: 10, fill: ct.tick, fontFamily: 'JetBrains Mono, monospace' }} tickLine={false} axisLine={false} width={55}
                     tickFormatter={(v) => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${(v / 1000).toFixed(0)}K`} />
-                  <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={(v) => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} />}
+                  <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={(v) => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: '2-digit' })} />}
                     cursor={{ stroke: isDark ? 'rgba(34,211,238,0.12)' : 'rgba(8,145,178,0.08)', strokeWidth: 1 }} />
                   {/* Cumulative mode: area chart */}
                   {chartMode === 'cumulative' && !hiddenSeries.has('net') && (
@@ -465,7 +465,7 @@ export default function Dashboard() {
               const isCredit = tx.amount < 0
               return (
                 <tr key={tx.id} className="hover:bg-deep active:bg-deep transition border-b border-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] text-t2 tabular-nums">{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                  <td className="px-5 py-3 text-[13px] text-t2 tabular-nums">{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</td>
                   <td className="px-5 py-3 text-[14px] text-t1 font-medium max-w-[240px] truncate">{tx.description}</td>
                   <td className="px-5 py-3">
                     <span className={`inline-flex items-center gap-1 px-2 py-[3px] rounded-md text-[11px] font-semibold ${cat.bg} ${cat.text}`}>

@@ -254,7 +254,7 @@ export default function Ecosystem() {
                   <div key={r.id} className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
                     <div>
                       <p className="text-[12px] font-mono text-t2 truncate max-w-[180px]">{r.referred_email}</p>
-                      <p className="text-[10px] text-t3 font-mono">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                      <p className="text-[10px] text-t3 font-mono">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</p>
                     </div>
                     <span className={`text-[10px] font-mono font-bold uppercase ${sc[r.status] || 'text-t3'}`}>{r.status}</span>
                   </div>

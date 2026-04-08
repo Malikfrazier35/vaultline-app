@@ -193,7 +193,7 @@ export default function CashVisibility() {
               <AreaChart data={trend} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
                 <defs><linearGradient id="cvGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#22D3EE" stopOpacity={0.15} /><stop offset="100%" stopColor="#22D3EE" stopOpacity={0} /></linearGradient></defs>
                 <CartesianGrid strokeDasharray="2 4" stroke={ct.grid} vertical={false} />
-                <XAxis dataKey="snapshot_date" tick={{ fill: ct.tick, fontSize: 10 }} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                <XAxis dataKey="snapshot_date" tick={{ fill: ct.tick, fontSize: 10 }} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                 <YAxis tick={{ fill: ct.tick, fontSize: 10 }} tickFormatter={v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${(v/1e3).toFixed(0)}K`} width={65} />
                 <Tooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="total_cash" name="Total Cash" stroke="#22D3EE" strokeWidth={2.5} fill="url(#cvGrad)" dot={false} />

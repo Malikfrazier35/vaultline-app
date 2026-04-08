@@ -85,7 +85,7 @@ export default function Alerts() {
         list.push({ id: `large-${tx.id}`, type: tx.amount < 0 ? 'info' : 'warning', icon: tx.amount < 0 ? TrendingUp : ArrowDownRight,
           color: tx.amount < 0 ? 'green' : 'amber',
           title: `Large ${tx.amount < 0 ? 'inflow' : 'outflow'}: ${fmt(Math.abs(tx.amount))}`,
-          message: `${tx.description} on ${new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          message: `${tx.description} on ${new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}`,
           time: new Date(tx.date), category: 'transaction' })
       }
     })

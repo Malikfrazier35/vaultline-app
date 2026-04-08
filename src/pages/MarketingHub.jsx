@@ -179,7 +179,7 @@ export default function MarketingHub() {
                       <span className="text-[9px] font-mono text-t4 uppercase bg-deep px-1.5 py-0.5 rounded">{p.platform}</span>
                       <span className="text-[12px] text-t1">{p.marketing_content?.title || 'Untitled'}</span>
                     </div>
-                    <span className="text-[10px] font-mono text-t4">{new Date(p.scheduled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric' })}</span>
+                    <span className="text-[10px] font-mono text-t4">{new Date(p.scheduled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit', hour: 'numeric' })}</span>
                   </div>
                 ))}
               </div>
@@ -277,7 +277,7 @@ export default function MarketingHub() {
                   <span className="text-[12px] text-t1">{p.marketing_content?.title || 'Post'}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-[9px] font-mono text-t4 uppercase bg-deep px-1.5 py-0.5 rounded">{p.platform}</span>
-                    <span className="text-[10px] font-mono text-t4">{new Date(p.scheduled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                    <span className="text-[10px] font-mono text-t4">{new Date(p.scheduled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
                   </div>
                 </div>
               ))}

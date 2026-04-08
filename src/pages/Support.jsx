@@ -225,7 +225,7 @@ export default function Support() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] font-mono text-t4">{new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      <span className="text-[10px] font-mono text-t4">{new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
                       <ChevronRight size={14} className="text-t4 group-hover:text-cyan transition" />
                     </div>
                   </div>

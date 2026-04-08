@@ -145,7 +145,7 @@ export default function StatusPage() {
                       <span className="text-[13px] text-t1">{inc.title}</span>
                     </div>
                     <span className="text-[10px] font-mono text-t4">
-                      Resolved {new Date(inc.resolved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      Resolved {new Date(inc.resolved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
                     </span>
                   </div>
                 ))}

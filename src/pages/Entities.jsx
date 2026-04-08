@@ -374,7 +374,7 @@ export default function Entities() {
                     {m.lastTx && (
                       <div className="mt-3 flex items-center gap-2 text-[11px] font-mono text-t3">
                         <Activity size={10} />
-                        <span>Last transaction: {new Date(m.lastTx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} / {m.lastTx.description?.slice(0, 40)}</span>
+                        <span>Last transaction: {new Date(m.lastTx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} / {m.lastTx.description?.slice(0, 40)}</span>
                       </div>
                     )}
                   </div>

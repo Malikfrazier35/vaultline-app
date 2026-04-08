@@ -132,7 +132,7 @@ export default function PartnerAdmin() {
                       {r.commission_amount > 0 && !r.commission_paid && (
                         <button onClick={() => payCommission(r.id)} className="text-[10px] text-amber hover:text-green transition">Pay</button>
                       )}
-                      <span className="text-[9px] font-mono text-t4">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      <span className="text-[9px] font-mono text-t4">{new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
                     </div>
                   </div>
                 ))}

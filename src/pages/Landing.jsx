@@ -97,7 +97,7 @@ const DEMO_DAYS = (() => {
     const outflow = Math.round((base * 0.62 + Math.cos(i * 0.5) * 12 + 4) * 1000)
     const net = inflow - outflow
     cumulative += net
-    days.push({ date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), inflow, outflow, net, cumulative })
+    days.push({ date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }), inflow, outflow, net, cumulative })
   }
   return days
 })()

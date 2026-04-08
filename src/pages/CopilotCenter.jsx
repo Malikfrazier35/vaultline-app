@@ -12,7 +12,7 @@ function timeAgo(d) {
   if (diff < 60000) return 'just now'
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`
   if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
-  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
 }
 
 function fmtK(n) {

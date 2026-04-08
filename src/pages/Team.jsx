@@ -379,7 +379,7 @@ export default function Team() {
                       <div>
                         <p className="text-[13px] font-mono font-medium">{inv.email}</p>
                         <p className="text-[10px] text-t3 font-mono">
-                          {expired ? 'EXPIRED' : `Expires ${new Date(inv.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`} / {inv.role}
+                          {expired ? 'EXPIRED' : `Expires ${new Date(inv.expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}`} / {inv.role}
                         </p>
                       </div>
                     </div>

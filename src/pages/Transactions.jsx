@@ -138,10 +138,10 @@ export default function Transactions() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={dailyVolume} barGap={1}>
                     <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false}
-                      tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                      tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                     <YAxis tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} width={50}
                       tickFormatter={v => `$${(v/1e3).toFixed(0)}K`} />
-                    <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} />} />
+                    <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: '2-digit' })} />} />
                     <Bar dataKey="in" name="Inflows" fill={ct.bar.inflows} radius={[3, 3, 0, 0]} />
                     <Bar dataKey="out" name="Outflows" fill={ct.bar.outflows} radius={[3, 3, 0, 0]} />
                   </BarChart>
@@ -190,7 +190,7 @@ export default function Transactions() {
               const isCredit = tx.amount < 0
               return (
                 <tr key={tx.id} className="hover:bg-deep active:bg-deep transition border-b border-border last:border-0 group">
-                  <td className="px-6 py-3.5 text-[14px] text-t2">{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                  <td className="px-6 py-3.5 text-[14px] text-t2">{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</td>
                   <td className="px-6 py-3.5 text-[14px] text-t1 font-medium max-w-[280px] truncate">{tx.description}</td>
                   <td className="px-6 py-3.5">
                     <span className={`inline-flex items-center gap-1 px-2 py-[3px] rounded-md text-[12px] font-semibold ${cat.bg} ${cat.text}`}>

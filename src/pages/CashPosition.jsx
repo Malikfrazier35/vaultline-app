@@ -123,7 +123,7 @@ export default function CashPosition() {
       {/* Waterfall KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {[
-          { label: 'Opening', value: fmt(openBal), color: 'text-t1', sub: startOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) },
+          { label: 'Opening', value: fmt(openBal), color: 'text-t1', sub: startOfMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) },
           { label: 'Inflows', value: `+${fmt(monthInflows)}`, color: 'text-green', sub: 'MTD', icon: ArrowUpRight },
           { label: 'Outflows', value: `-${fmt(monthOutflows)}`, color: 'text-red', sub: 'MTD', icon: ArrowDownRight },
           { label: 'Net', value: `${netChange >= 0 ? '+' : ''}${fmt(netChange)}`, color: netChange >= 0 ? 'text-green' : 'text-red', sub: openBal > 0 ? `${netChange >= 0 ? '+' : ''}${((netChange / openBal) * 100).toFixed(1)}%` : '—' },
@@ -234,10 +234,10 @@ export default function CashPosition() {
                     <CartesianGrid strokeDasharray="1 6" stroke={ct.grid} vertical={false} />
                     <XAxis dataKey="date" tick={{ fontSize: 10, fill: ct.tick, fontFamily: 'JetBrains Mono, monospace' }} tickLine={false} axisLine={false}
                       interval={Math.max(0, Math.floor(positionData.length / 6))}
-                      tickFormatter={(v) => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                      tickFormatter={(v) => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                     <YAxis tick={{ fontSize: 10, fill: ct.tick, fontFamily: 'JetBrains Mono, monospace' }} tickLine={false} axisLine={false} width={60}
                       tickFormatter={(v) => v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${(v / 1e3).toFixed(0)}K`} />
-                    <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={(v) => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} />}
+                    <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={(v) => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: '2-digit' })} />}
                       cursor={{ stroke: isDark ? 'rgba(34,211,238,0.15)' : 'rgba(8,145,178,0.1)', strokeWidth: 1 }} />
                     {/* Average reference line */}
                     <ReferenceLine y={avg} stroke={isDark ? '#506680' : '#94A3B8'} strokeDasharray="6 4" strokeWidth={1}

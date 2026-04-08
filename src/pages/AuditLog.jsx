@@ -62,7 +62,7 @@ export default function AuditLog() {
     if (s < 3600) return `${Math.floor(s / 60)}m ago`
     if (s < 86400) return `${Math.floor(s / 3600)}h ago`
     if (s < 604800) return `${Math.floor(s / 86400)}d ago`
-    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
   }
 
   return (

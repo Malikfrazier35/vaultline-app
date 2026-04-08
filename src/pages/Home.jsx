@@ -168,7 +168,7 @@ export default function Home() {
                 <div key={tx.id} className="flex items-center justify-between py-2.5 border-b border-border last:border-none">
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-t1 truncate">{tx.description || tx.name || 'Transaction'}</p>
-                    <p className="text-[10px] font-mono text-t3 mt-0.5">{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                    <p className="text-[10px] font-mono text-t3 mt-0.5">{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</p>
                   </div>
                   <span className={`text-[13px] font-mono font-semibold terminal-data ${tx.amount >= 0 ? 'text-green' : 'text-t1'}`}>
                     {tx.amount >= 0 ? '+' : ''}{fmt(tx.amount)}

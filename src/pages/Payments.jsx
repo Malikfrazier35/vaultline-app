@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 function fmt(n) { const a = Math.abs(n||0); return a >= 1e6 ? '$'+(a/1e6).toFixed(2)+'M' : a >= 1e3 ? '$'+(a/1e3).toFixed(1)+'K' : '$'+a.toFixed(0) }
-function fmtDate(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }) }
 function daysUntil(d) { return Math.ceil((new Date(d) - new Date()) / 86400000) }
 
 // Demo data — replaced with Supabase queries in production

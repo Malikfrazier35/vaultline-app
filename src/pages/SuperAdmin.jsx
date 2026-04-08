@@ -350,7 +350,7 @@ function OverviewTab({ platform: p, orgs, isDark, ct }) {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(p.balance_history.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(p.balance_history.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                 <YAxis tick={{ fontSize: 10, fill: ct.tick }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${(v/1e3).toFixed(0)}K`} />
                 <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} />} />
                 <Area type="monotone" dataKey="balance" name="Total Cash" stroke="#22D3EE" fill="url(#cashGrad)" strokeWidth={2.5} />
@@ -365,9 +365,9 @@ function OverviewTab({ platform: p, orgs, isDark, ct }) {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={cashFlowTrend} barGap={2}>
                 <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(cashFlowTrend.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(cashFlowTrend.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                 <YAxis tick={{ fontSize: 10, fill: ct.tick }} tickLine={false} axisLine={false} width={55} tickFormatter={v => `$${(v/1e3).toFixed(0)}K`} />
-                <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} />} />
+                <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: '2-digit' })} />} />
                 <Bar dataKey="inflows" name="Inflows" fill={ct.bar.inflows} radius={[3, 3, 0, 0]} />
                 <Bar dataKey="outflows" name="Outflows" fill={ct.bar.outflows} radius={[3, 3, 0, 0]} />
                 <Line type="monotone" dataKey="net" name="Net Flow" stroke="#FBBF24" strokeWidth={2} dot={false} strokeDasharray="4 2" />
@@ -393,7 +393,7 @@ function OverviewTab({ platform: p, orgs, isDark, ct }) {
                       <stop offset="100%" stopColor="#34D399" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(cumulativeSignups.length / 4))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(cumulativeSignups.length / 4))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                   <YAxis tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} width={30} />
                   <Tooltip content={<ChartTooltip isDark={isDark} />} />
                   <Area type="monotone" dataKey="cumulative" name="Total Users" stroke="#34D399" fill="url(#signupGrad)" strokeWidth={2} />
@@ -640,18 +640,18 @@ function CustomerDetail({ org, onBack, onUpdate, onDelete, isDark, ct }) {
             <ChartCard title="Cash Position" sub="Daily balance history" data={balChart} isDark={isDark} ct={ct}>
               {balChart.length > 0 && <ResponsiveContainer width="100%" height="100%"><AreaChart data={balChart}>
                 <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(balChart.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(balChart.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                 <YAxis tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} width={55} tickFormatter={v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${(v/1e3).toFixed(0)}K`} />
-                <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />} />
+                <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />} />
                 <Area type="monotone" dataKey="balance" name="Balance" stroke={ct.line.primary} fill={ct.area.primary} strokeWidth={2} />
               </AreaChart></ResponsiveContainer>}
             </ChartCard>
             <ChartCard title="Cash Flow" sub="Inflows vs outflows" data={txChart} isDark={isDark} ct={ct}>
               {txChart.length > 0 && <ResponsiveContainer width="100%" height="100%"><ComposedChart data={txChart} barGap={2}>
                 <CartesianGrid strokeDasharray="3 3" stroke={ct.grid} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(txChart.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                <XAxis dataKey="date" tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} interval={Math.max(0, Math.floor(txChart.length / 6))} tickFormatter={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />
                 <YAxis tick={{ fontSize: 9, fill: ct.tick }} tickLine={false} axisLine={false} width={55} tickFormatter={v => `$${(v/1e3).toFixed(0)}K`} />
-                <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />} />
+                <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v => new Date(v).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })} />} />
                 <Bar dataKey="inflows" name="Inflows" fill={ct.bar.inflows} radius={[3, 3, 0, 0]} />
                 <Bar dataKey="outflows" name="Outflows" fill={ct.bar.outflows} radius={[3, 3, 0, 0]} />
               </ComposedChart></ResponsiveContainer>}
@@ -675,7 +675,7 @@ function CustomerDetail({ org, onBack, onUpdate, onDelete, isDark, ct }) {
           title={`${org.transactions_count} Transactions`}
           headers={['Date', 'Description', 'Category', 'Amount', 'Status']}
           rows={(org.transactions || []).map(tx => [
-            new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }),
             <span className="max-w-[300px] truncate block">{tx.description}</span>,
             <Badge text={tx.category || 'other'} />,
             <span className={`font-mono font-medium ${tx.amount < 0 ? 'text-green' : 'text-t1'}`}>{tx.amount < 0 ? '+' : '-'}${Math.abs(tx.amount).toLocaleString()}</span>,

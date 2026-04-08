@@ -156,7 +156,7 @@ export default function TimeManager() {
                     <div className="flex items-center gap-3 text-[10px] font-mono text-t4">
                       <span>{t.task_type.replace('_', ' ')}</span>
                       <span>{t.recurrence}</span>
-                      {t.next_due_at && <span className={isOverdue ? 'text-red' : ''}>{isOverdue ? 'Overdue' : 'Due'}: {new Date(t.next_due_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>}
+                      {t.next_due_at && <span className={isOverdue ? 'text-red' : ''}>{isOverdue ? 'Overdue' : 'Due'}: {new Date(t.next_due_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit', hour: 'numeric', minute: '2-digit' })}</span>}
                       <span>{t.completion_count}x completed</span>
                     </div>
                   </div>

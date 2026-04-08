@@ -131,6 +131,8 @@ export default function Forecasting() {
         data.push({ date:d.toISOString().split('T')[0], actual:null, forecast:Math.max(0,Math.round(projected)), upper:Math.max(0,Math.round(projected+spread)), lower:Math.max(0,Math.round(projected-spread)), ...mc, sma7:null, ema14:null, _isTerminal:i===projDays })
       }
     }
+    // Sort all data chronologically (actuals + forecast combined)
+    data.sort((a, b) => a.date.localeCompare(b.date))
     return data
   }, [dailyBalances, forecastData, monthlyBurn, totalCash, period])
 
@@ -330,7 +332,7 @@ export default function Forecasting() {
                         {cls.label}
                       </span>
                       <span className="text-[10px] font-mono text-t4">
-                        {new Date(a.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {new Date(a.date+'T00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
                       </span>
                       {a.zScore !== 0 && <span className="text-[9px] font-mono text-t4 bg-deep px-1.5 py-0.5 rounded">z={Math.abs(a.zScore).toFixed(1)}</span>}
                       <span className="text-[9px] font-mono text-t4 bg-deep px-1.5 py-0.5 rounded">{cls.confidence}% conf</span>
@@ -538,7 +540,7 @@ export default function Forecasting() {
                     <linearGradient id="fvaBandGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={forecastColor} stopOpacity={isDark?0.08:0.12} /><stop offset="100%" stopColor={forecastColor} stopOpacity={isDark?0.02:0.04} /></linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="1 6" stroke={ct.grid} vertical={false} />
-                  <XAxis dataKey="date" tick={{fontSize:10,fill:ct.tick,fontFamily:'JetBrains Mono,monospace'}} tickLine={false} axisLine={false} interval={Math.max(0,Math.floor(chartDataWithAnomalies.length/8))} tickFormatter={v=>new Date(v).toLocaleDateString('en-US',{month:'short',day:'numeric'})} />
+                  <XAxis dataKey="date" tick={{fontSize:10,fill:ct.tick,fontFamily:'JetBrains Mono,monospace'}} tickLine={false} axisLine={false} interval={Math.max(0,Math.floor(chartDataWithAnomalies.length/8))} tickFormatter={v=>new Date(v+'T00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'})} />
                   <YAxis tick={{fontSize:10,fill:ct.tick,fontFamily:'JetBrains Mono,monospace'}} tickLine={false} axisLine={false} width={65} tickFormatter={v=>v>=1e6?`$${(v/1e6).toFixed(1)}M`:`$${(v/1e3).toFixed(0)}K`} />
                   <Tooltip content={<ChartTooltip isDark={isDark} formatLabel={v=>new Date(v).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})} />} cursor={{stroke:isDark?'rgba(34,211,238,0.12)':'rgba(8,145,178,0.08)',strokeWidth:1}} />
                   <ReferenceLine x={todayStr} stroke={isDark?'#22D3EE':'#0891B2'} strokeDasharray="4 4" strokeWidth={1} label={{value:'TODAY',position:'top',fontSize:9,fontWeight:700,fill:isDark?'#22D3EE':'#0891B2',fontFamily:'JetBrains Mono,monospace'}} />

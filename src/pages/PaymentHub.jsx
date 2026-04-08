@@ -170,7 +170,7 @@ export default function PaymentHub() {
               </div>
               <div className="text-right">
                 <p className="font-mono text-[14px] font-bold text-red terminal-data">-{fmt(tx.amount)}</p>
-                <p className="text-[9px] font-mono text-t4">{new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                <p className="text-[9px] font-mono text-t4">{new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</p>
               </div>
             </div>
           ))}

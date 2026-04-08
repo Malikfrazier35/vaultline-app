@@ -173,7 +173,7 @@ export default function PrivacyCenter() {
                       </div>
                       <p className="text-[13px] text-t1">{d.requester_email}</p>
                       <div className="flex items-center gap-4 mt-1 text-[10px] font-mono text-t4">
-                        <span>Due: {new Date(d.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        <span>Due: {new Date(d.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
                         <span>{daysLeft > 0 ? `${daysLeft}d remaining` : `${Math.abs(daysLeft)}d overdue`}</span>
                         <span>Submitted: {new Date(d.created_at).toLocaleDateString()}</span>
                       </div>

@@ -169,7 +169,7 @@ export default function DataIntelligence() {
                         <span className={`font-bold ${st.text}`}>{st.label}</span>
                         <span>{src.source_type.replace('_', ' ')}</span>
                         <span>{src.records_synced.toLocaleString()} records</span>
-                        {src.last_sync_at && <span>Last sync: {new Date(src.last_sync_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>}
+                        {src.last_sync_at && <span>Last sync: {new Date(src.last_sync_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit', hour: 'numeric', minute: '2-digit' })}</span>}
                       </div>
                     </div>
                   </div>
@@ -217,7 +217,7 @@ export default function DataIntelligence() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${style.bg} ${style.text}`}>{insight.severity}</span>
                       <span className="text-[9px] font-mono text-t4">{insight.insight_type?.replace('_', ' ')}</span>
-                      <span className="text-[9px] font-mono text-t4">{new Date(insight.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      <span className="text-[9px] font-mono text-t4">{new Date(insight.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
                       {insight.confidence_score > 0 && <span className="text-[9px] font-mono text-t4">{insight.confidence_score}% confidence</span>}
                     </div>
                     <h3 className="text-[13px] font-bold text-t1">{insight.title}</h3>
