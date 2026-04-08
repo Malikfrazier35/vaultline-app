@@ -18,128 +18,145 @@ serve(async (req) => {
     const { data: { user } } = await anonClient.auth.getUser()
     if (!user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: cors })
 
-    const { action, domain, org_id } = await req.json()
+    const body = await req.json()
+    const { action, domain, org_id } = body
+
     if (!domain) return new Response(JSON.stringify({ error: 'Domain required' }), { status: 400, headers: cors })
+    if (!org_id) return new Response(JSON.stringify({ error: 'org_id required' }), { status: 400, headers: cors })
 
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '').trim().toLowerCase()
 
-    switch (action) {
-      case 'enrich': {
-        // Fetch company info from multiple free sources
-        let logoUrl = null
-        let brandColor = null
-        let companyName = null
+    if (action === 'enrich') {
+      let logoUrl = `https://logo.clearbit.com/${cleanDomain}`
+      let brandColor = '#22D3EE'
+      let companyName = cleanDomain.split('.')[0]
+      companyName = companyName.charAt(0).toUpperCase() + companyName.slice(1)
 
-        // 1. Try logo.clearbit.com (free, no API key needed)
-        logoUrl = `https://logo.clearbit.com/${cleanDomain}`
-        // Verify the logo exists
-        try {
-          const logoCheck = await fetch(logoUrl, { method: 'HEAD' })
-          if (!logoCheck.ok) logoUrl = null
-        } catch { logoUrl = null }
-
-        // 2. Fallback: Google favicon
-        if (!logoUrl) {
+      // Check if Clearbit has the logo (with timeout)
+      try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 5000)
+        const logoCheck = await fetch(logoUrl, { method: 'HEAD', signal: controller.signal })
+        clearTimeout(timeout)
+        if (!logoCheck.ok) {
           logoUrl = `https://www.google.com/s2/favicons?domain=${cleanDomain}&sz=128`
         }
+      } catch {
+        logoUrl = `https://www.google.com/s2/favicons?domain=${cleanDomain}&sz=128`
+      }
 
-        // 3. Try to extract brand color from the website
-        try {
-          const siteRes = await fetch(`https://${cleanDomain}`, {
-            headers: { 'User-Agent': 'Vaultline Brand Enrichment Bot' },
-            redirect: 'follow',
-          })
-          if (siteRes.ok) {
-            const html = await siteRes.text()
-
-            // Extract title for company name
-            const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
-            if (titleMatch) {
-              companyName = titleMatch[1].split(/[|\-–—]/)[0].trim()
+      // Try to extract brand color from website (with 5s timeout, non-blocking)
+      try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 5000)
+        const siteRes = await fetch(`https://${cleanDomain}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; VaultlineBot/1.0)' },
+          redirect: 'follow',
+          signal: controller.signal,
+        })
+        clearTimeout(timeout)
+        if (siteRes.ok) {
+          // Only read first 50KB to avoid massive pages
+          const reader = siteRes.body?.getReader()
+          let html = ''
+          if (reader) {
+            let bytesRead = 0
+            while (bytesRead < 50000) {
+              const { done, value } = await reader.read()
+              if (done) break
+              html += new TextDecoder().decode(value)
+              bytesRead += value.length
             }
+            reader.cancel()
+          }
 
-            // Extract theme-color meta tag
-            const themeMatch = html.match(/<meta[^>]*name=["']theme-color["'][^>]*content=["']([^"']+)["']/i)
-            if (themeMatch) {
-              brandColor = themeMatch[1]
-            }
+          // Extract title
+          const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
+          if (titleMatch) {
+            const rawTitle = titleMatch[1].split(/[|\-–—]/)[0].trim()
+            if (rawTitle.length > 1 && rawTitle.length < 60) companyName = rawTitle
+          }
 
-            // Fallback: extract most common hex color from inline styles
-            if (!brandColor) {
-              const hexColors = html.match(/#[0-9a-fA-F]{6}/g) || []
-              // Filter out common neutral colors
-              const meaningfulColors = hexColors.filter(c =>
-                !['#000000', '#ffffff', '#FFFFFF', '#333333', '#666666', '#999999', '#f5f5f5', '#F5F5F5', '#eeeeee', '#e0e0e0'].includes(c)
-              )
-              if (meaningfulColors.length) {
-                // Count frequency
-                const freq: Record<string, number> = {}
-                for (const c of meaningfulColors) { freq[c.toLowerCase()] = (freq[c.toLowerCase()] || 0) + 1 }
-                const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1])
-                if (sorted.length) brandColor = sorted[0][0]
-              }
+          // Extract theme-color
+          const themeMatch = html.match(/<meta[^>]*name=["']theme-color["'][^>]*content=["']([^"']+)["']/i)
+          if (themeMatch && /^#[0-9a-fA-F]{3,6}$/.test(themeMatch[1])) {
+            brandColor = themeMatch[1]
+          }
+
+          // Fallback: most frequent hex color (skip neutrals)
+          if (brandColor === '#22D3EE') {
+            const hexes = html.match(/#[0-9a-fA-F]{6}/g) || []
+            const skip = new Set(['#000000','#ffffff','#333333','#666666','#999999','#f5f5f5','#eeeeee','#e0e0e0','#cccccc','#fafafa','#f0f0f0'])
+            const meaningful = hexes.filter(c => !skip.has(c.toLowerCase()))
+            if (meaningful.length) {
+              const freq: Record<string, number> = {}
+              for (const c of meaningful) freq[c.toLowerCase()] = (freq[c.toLowerCase()] || 0) + 1
+              const top = Object.entries(freq).sort((a, b) => b[1] - a[1])
+              if (top.length) brandColor = top[0][0]
             }
           }
-        } catch (e) {
-          console.error('Failed to fetch site:', e.message)
         }
-
-        // Default brand color if none found
-        if (!brandColor) brandColor = '#22D3EE'
-
-        // Update organization
-        await supabase.from('organizations').update({
-          domain: cleanDomain,
-          brand_logo_url: logoUrl,
-          brand_color: brandColor,
-          brand_enriched_at: new Date().toISOString(),
-        }).eq('id', org_id)
-
-        // Log
-        await supabase.from('audit_log').insert({
-          org_id, user_id: user.id,
-          action: 'brand_enriched',
-          resource_type: 'organization',
-          details: { domain: cleanDomain, logo: !!logoUrl, color: brandColor },
-        }).catch(() => {})
-
-        return new Response(JSON.stringify({
-          success: true,
-          domain: cleanDomain,
-          logo_url: logoUrl,
-          brand_color: brandColor,
-          company_name: companyName,
-        }), { headers: cors })
+      } catch (e) {
+        console.log(`Site scrape skipped for ${cleanDomain}: ${e.message}`)
+        // Non-blocking — we still save the domain and logo
       }
 
-      case 'verify_domain': {
-        // Simple domain verification — check if a TXT record or meta tag exists
-        // For now, just mark as "verification pending"
-        try {
-          const siteRes = await fetch(`https://${cleanDomain}`, {
-            headers: { 'User-Agent': 'Vaultline Domain Verification' },
-            redirect: 'follow',
-          })
-          if (siteRes.ok) {
-            const html = await siteRes.text()
-            const hasVerificationTag = html.includes(`vaultline-verify=${org_id}`)
-            if (hasVerificationTag) {
-              await supabase.from('organizations').update({ domain_verified: true }).eq('id', org_id)
-              return new Response(JSON.stringify({ verified: true }), { headers: cors })
-            }
-          }
-        } catch {}
-        return new Response(JSON.stringify({
-          verified: false,
-          instruction: `Add this meta tag to your website's <head>: <meta name="vaultline-verify" content="${org_id}" />`,
-        }), { headers: cors })
+      // Save to database — this is the critical part, must not fail
+      const { error: updateErr } = await supabase.from('organizations').update({
+        domain: cleanDomain,
+        brand_logo_url: logoUrl,
+        brand_color: brandColor,
+        brand_enriched_at: new Date().toISOString(),
+      }).eq('id', org_id)
+
+      if (updateErr) {
+        console.error('DB update error:', updateErr)
+        return new Response(JSON.stringify({ error: `Database update failed: ${updateErr.message}` }), { status: 500, headers: cors })
       }
 
-      default:
-        return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), { status: 400, headers: cors })
+      // Audit log (non-blocking)
+      supabase.from('audit_log').insert({
+        org_id, user_id: user.id,
+        action: 'brand_enriched',
+        resource_type: 'organization',
+        details: { domain: cleanDomain, logo: logoUrl, color: brandColor, company: companyName },
+      }).catch(() => {})
+
+      return new Response(JSON.stringify({
+        success: true,
+        domain: cleanDomain,
+        logo_url: logoUrl,
+        brand_color: brandColor,
+        company_name: companyName,
+      }), { headers: cors })
     }
+
+    if (action === 'verify_domain') {
+      try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 5000)
+        const siteRes = await fetch(`https://${cleanDomain}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; VaultlineBot/1.0)' },
+          signal: controller.signal,
+        })
+        clearTimeout(timeout)
+        if (siteRes.ok) {
+          const html = await siteRes.text()
+          if (html.includes(`vaultline-verify=${org_id}`)) {
+            await supabase.from('organizations').update({ domain_verified: true }).eq('id', org_id)
+            return new Response(JSON.stringify({ verified: true }), { headers: cors })
+          }
+        }
+      } catch {}
+      return new Response(JSON.stringify({
+        verified: false,
+        instruction: `Add <meta name="vaultline-verify" content="${org_id}" /> to your site's <head>`,
+      }), { headers: cors })
+    }
+
+    return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), { status: 400, headers: cors })
   } catch (err) {
     console.error('Brand enrich error:', err)
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: cors })
+    return new Response(JSON.stringify({ error: err.message || 'Unknown error' }), { status: 500, headers: cors })
   }
 })
