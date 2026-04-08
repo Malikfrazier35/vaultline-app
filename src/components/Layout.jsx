@@ -54,18 +54,22 @@ const NAV = [
   ]},
 ]
 
-// Extended nav — accessible via sidebar "More" toggle + Cmd+K
+// Extended nav — only shows items relevant to the user's plan
 const NAV_MORE = [
-  { to: '/cash-visibility', icon: Eye, label: 'Cash Visibility' },
   { to: '/entities', icon: Building2, label: 'Entities', minPlan: 'growth' },
-  { to: '/payment-hub', icon: SendIcon, label: 'Payment Hub' },
   { to: '/import', icon: Upload, label: 'Import Data', minPlan: 'growth' },
-  { to: '/time', icon: Clock, label: 'Time Manager' },
   { to: '/integrations', icon: Plug, label: 'Integrations' },
   { to: '/api', icon: Code, label: 'API Access', minPlan: 'growth' },
   { to: '/sso', icon: Lock, label: 'SSO & Security', minPlan: 'enterprise' },
   { to: '/privacy-center', icon: Eye, label: 'Privacy Center' },
   { to: '/resources', icon: BookOpen, label: 'Resources' },
+]
+
+// Admin-only pages — hidden from customers, visible to super admin
+const NAV_ADMIN = [
+  { to: '/cash-visibility', icon: Eye, label: 'Cash Visibility' },
+  { to: '/payment-hub', icon: SendIcon, label: 'Payment Hub' },
+  { to: '/time', icon: Clock, label: 'Time Manager' },
   { to: '/industry', icon: Building2, label: 'Industry Hub' },
   { to: '/data-intelligence', icon: Brain, label: 'Data Intelligence' },
   { to: '/opportunities', icon: Sparkles, label: 'Opportunities' },
@@ -331,6 +335,21 @@ export default function Layout() {
                   )}
                 </NavLink>
               ))}
+              {/* Admin tools — only visible to super admin */}
+              {showMore && profile?.email === 'malik@vaultline.app' && (
+                <>
+                  <p className="text-[9px] font-mono text-red/40 uppercase tracking-wider px-3 mt-3 mb-1">Admin only</p>
+                  {NAV_ADMIN.map((item) => (
+                    <NavLink key={item.to} to={item.to} title={item.label}
+                      className={({ isActive }) => clsx(
+                        'relative flex items-center gap-3 rounded-xl text-[12px] mb-0.5 transition-all duration-200 px-3 py-[6px]',
+                        isActive ? 'bg-red/[0.06] text-red/80 font-semibold' : 'text-t3/50 hover:bg-deep hover:text-t3'
+                      )}>
+                      {({ isActive }) => (<><item.icon size={13} strokeWidth={isActive ? 2 : 1.5} className="opacity-40" />{item.label}</>)}
+                    </NavLink>
+                  ))}
+                </>
+              )}
             </div>
           )}
           {collapsed && NAV_MORE.some(item => location.pathname === item.to) && NAV_MORE.filter(item => location.pathname === item.to).map(item => (

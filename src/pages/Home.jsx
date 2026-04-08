@@ -34,9 +34,11 @@ const QUICK_ACTIONS = [
   { to: '/transactions', icon: ArrowRightLeft, label: 'Transactions', desc: 'Recent activity', color: 'amber' },
   { to: '/banks', icon: Landmark, label: 'Bank connections', desc: 'Manage accounts', color: 'cyan' },
   { to: '/reports', icon: FileText, label: 'Reports', desc: 'Generate & export', color: 'green' },
-  { to: '/security-center', icon: Shield, label: 'Security center', desc: 'Controls & events', color: 'red' },
+  { to: '/security-center', icon: Shield, label: 'Security center', desc: 'Controls & events', color: 'red', minPlan: 'enterprise' },
   { to: '/settings', icon: Settings, label: 'Settings', desc: 'Profile & org', color: 'purple' },
 ]
+
+const QA_PLAN_RANK = { starter: 0, growth: 1, enterprise: 2 }
 
 export default function Home() {
   const { accounts, transactions, cashPosition, forecast, bankConnections, loading } = useTreasury()
@@ -129,7 +131,7 @@ export default function Home() {
       <div>
         <h2 className="text-[13px] font-mono font-bold uppercase tracking-[0.1em] text-t3 mb-3">Quick actions</h2>
         <div className="grid grid-cols-4 gap-3">
-          {QUICK_ACTIONS.map(a => (
+          {QUICK_ACTIONS.filter(a => !a.minPlan || (QA_PLAN_RANK[org?.plan || 'starter'] || 0) >= (QA_PLAN_RANK[a.minPlan] || 0)).map(a => (
             <Link key={a.to} to={a.to}
               className="glass-card rounded-xl p-4 hover:border-border-hover hover:-translate-y-0.5 transition-all group">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 bg-${a.color}/[0.06] border border-${a.color}/[0.1]`}>

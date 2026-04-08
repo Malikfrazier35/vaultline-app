@@ -30,15 +30,19 @@ export default function BankConnections() {
   useEffect(() => { loadQB(); loadAcctConnections() }, [])
 
   async function loadQB() {
-    const { data } = await supabase.from('qb_connections').select('*').order('created_at', { ascending: false }).limit(1).single()
-    if (data) setQbConnection(data)
+    try {
+      const { data } = await supabase.from('qb_connections').select('*').order('created_at', { ascending: false }).limit(1).single()
+      if (data) setQbConnection(data)
+    } catch {}
   }
 
   async function loadAcctConnections() {
-    const { data } = await supabase.from('accounting_connections').select('*').order('created_at', { ascending: false })
-    const map = {}
-    for (const c of data || []) { map[c.provider] = c }
-    setAcctConnections(map)
+    try {
+      const { data } = await supabase.from('accounting_connections').select('*').order('created_at', { ascending: false })
+      const map = {}
+      for (const c of data || []) { map[c.provider] = c }
+      setAcctConnections(map)
+    } catch {}
   }
 
   async function connectQuickBooks() {
