@@ -103,7 +103,7 @@ export default function Forecasting() {
     const sma7 = calcSMA(data,'actual',7); const ema14 = calcEMA(data,'actual',14)
     data.forEach((d,i) => { d.sma7 = sma7[i]; d.ema14 = ema14[i] })
 
-    const projDays = period==='7D'?7:period==='MTD'?15:30
+    const projDays = period==='7D'?3:period==='30D'?7:period==='MTD'?7:period==='QTD'?14:30
     const dailyBurn = monthlyBurn>0?monthlyBurn/30:0
     const actArr = data.filter(d=>d.actual!=null).map(d=>d.actual)
     const dRet = actArr.slice(1).map((v,i)=>v-actArr[i])
