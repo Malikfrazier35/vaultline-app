@@ -55,8 +55,8 @@ serve(async (req) => {
 
     const orgId = profile.org_id
     const orgPlan = profile.organizations?.plan || 'starter'
-    // Enterprise gets Opus 4.6 (highest accuracy), others get Sonnet 4.6 (fast + capable)
-    const copilotModel = orgPlan === 'enterprise' ? 'claude-opus-4-6' : 'claude-sonnet-4-6'
+    // Starter gets Sonnet (fast + capable), Growth and Enterprise get Opus (highest accuracy)
+    const copilotModel = orgPlan === 'starter' ? 'claude-sonnet-4-6' : 'claude-opus-4-6'
     const { message, history = [], page_context = '', image = null, file = null } = await req.json()
 
     // Gather treasury context + customer memory
