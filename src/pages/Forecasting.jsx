@@ -84,16 +84,18 @@ export default function Forecasting() {
     const byDate = {}
     dailyBalances.forEach(b => { byDate[b.date] = (byDate[b.date]||0) + (b.balance||0) })
     const now2 = new Date()
-    // Calendar-date cutoff — exact day counts
+    const today = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate())
+    // Exact period definitions
     let cutoff
-    if (period==='7D') cutoff = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate() - 7)
-    else if (period==='30D') cutoff = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate() - 30)
-    else if (period==='MTD') cutoff = new Date(now2.getFullYear(), now2.getMonth(), 1)
-    else if (period==='QTD') { const q = Math.floor(now2.getMonth() / 3) * 3; cutoff = new Date(now2.getFullYear(), q, 1) }
-    else cutoff = new Date(now2.getFullYear(), 0, 1) // FY
-    const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`
-    const sorted = Object.entries(byDate).filter(([date]) => date >= cutoffStr).sort(([a],[b])=>a.localeCompare(b))
-    const todayStr2 = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}-${String(now2.getDate()).padStart(2,'0')}`
+    if (period==='7D') { cutoff = new Date(today); cutoff.setDate(today.getDate() - 6) } // 7 days including today
+    else if (period==='30D') { cutoff = new Date(today); cutoff.setDate(today.getDate() - 29) } // 30 days including today
+    else if (period==='MTD') cutoff = new Date(today.getFullYear(), today.getMonth(), 1)
+    else if (period==='QTD') { cutoff = new Date(today); cutoff.setDate(today.getDate() - 89) } // 90 days including today
+    else cutoff = new Date(today.getFullYear(), 0, 1) // FY = Jan 1
+    const pad = n => String(n).padStart(2,'0')
+    const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth()+1)}-${pad(cutoff.getDate())}`
+    const todayStr2 = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`
+    const sorted = Object.entries(byDate).filter(([date]) => date >= cutoffStr && date <= todayStr2).sort(([a],[b])=>a.localeCompare(b))
     const data = sorted.map(([date,total],idx)=>({ date, actual:Math.round(total), forecast:null, upper:null, lower:null, emaForecast:null, monteP50:null, monteP10:null, monteP90:null, _isToday:date===todayStr2, _isLastActual:idx===sorted.length-1 }))
     if (!data.length) return []
     const lastA = data[data.length-1].actual

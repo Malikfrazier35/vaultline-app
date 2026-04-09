@@ -57,12 +57,13 @@ export default function CashPosition() {
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     let cutoff
-    if (period === '7D') { cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 7) }
-    else if (period === '30D') { cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 30) }
+    if (period === '7D') { cutoff = new Date(today); cutoff.setDate(today.getDate() - 6) }
+    else if (period === '30D') { cutoff = new Date(today); cutoff.setDate(today.getDate() - 29) }
     else if (period === 'MTD') cutoff = new Date(today.getFullYear(), today.getMonth(), 1)
-    else if (period === 'QTD') { const q = Math.floor(today.getMonth() / 3) * 3; cutoff = new Date(today.getFullYear(), q, 1) }
+    else if (period === 'QTD') { cutoff = new Date(today); cutoff.setDate(today.getDate() - 89) }
     else cutoff = new Date(today.getFullYear(), 0, 1) // YTD
-    const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`
+    const pad = n => String(n).padStart(2,'0')
+    const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth()+1)}-${pad(cutoff.getDate())}`
 
     const byDate = {}
     dailyBalances.forEach((b) => {

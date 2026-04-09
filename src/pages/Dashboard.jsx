@@ -67,9 +67,10 @@ export default function Dashboard() {
     if (!transactions.length) return []
     const now = new Date()
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const days = chartPeriod === '7D' ? 7 : chartPeriod === '90D' ? 90 : 30
-    const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - days)
-    const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`
+    const days = chartPeriod === '7D' ? 6 : chartPeriod === '90D' ? 89 : 29
+    const cutoff = new Date(today); cutoff.setDate(today.getDate() - days)
+    const pad = n => String(n).padStart(2,'0')
+    const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth()+1)}-${pad(cutoff.getDate())}`
     const byDate = {}
     transactions.forEach((tx) => {
       const d = tx.date
