@@ -64,21 +64,29 @@ export default function Dashboard() {
   const toggleSeries = (key) => setHiddenSeries(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n })
 
   const chartData = useMemo(() => {
-    if (!transactions.length) return []
-    // Calendar-date cutoff (not slice-based) — matches CashPosition approach
     const now = new Date()
-    const cutoff = new Date(now.getTime() - (chartPeriod === '7D' ? 7 : chartPeriod === '90D' ? 90 : 30) * 86400000)
-    const cutoffStr = cutoff.toISOString().split('T')[0]
+    const days = chartPeriod === '7D' ? 7 : chartPeriod === '90D' ? 90 : 30
+    const cutoff = new Date(now.getTime() - days * 86400000)
+    
+    // Build a complete date range with all days
     const byDate = {}
+    for (let i = 0; i < days; i++) {
+      const d = new Date(cutoff.getTime() + (i + 1) * 86400000)
+      const dateStr = d.toISOString().split('T')[0]
+      byDate[dateStr] = { date: dateStr, inflows: 0, outflows: 0 }
+    }
+    
+    // Fill in actual transaction data
     transactions.forEach((tx) => {
       const d = tx.date
-      if (!d || d < cutoffStr) return
-      if (!byDate[d]) byDate[d] = { date: d, inflows: 0, outflows: 0 }
+      if (!d || !byDate[d]) return
       const amt = Number(tx.amount) || 0
       if (amt < 0) byDate[d].inflows += Math.abs(amt)
       else byDate[d].outflows += amt
     })
+    
     const sorted = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date)).map((d) => ({ ...d, net: d.inflows - d.outflows }))
+    if (!sorted.length) return []
     // 7-day moving average on net
     sorted.forEach((d, i) => {
       if (i < 6) { d.ma7 = null; return }
