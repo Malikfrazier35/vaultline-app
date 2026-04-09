@@ -66,7 +66,7 @@ export default function Forecasting() {
     setGenerating(false)
   }
 
-  useEffect(() => { document.title = 'Forecasting \u2014 Vaultline' }, [])
+  useEffect(() => { document.title = 'Forecasting — Vaultline' }, [])
   const fetchForecastData = useCallback(() => {
     if(!org?.id) return
     supabase.from('forecasts').select('data,confidence,monthly_burn,runway_months,generated_at').eq('org_id',org.id).order('generated_at',{ascending:false}).limit(1).then(({data})=>{if(data?.[0]?.data) setForecastData(data[0].data)})
@@ -283,10 +283,10 @@ export default function Forecasting() {
   const forecastColor = model==='monte'?(isDark?'#34D399':'#059669'):ct.line.secondary
 
   const kpis = [
-    { icon:Flame, label:'BURN RATE', value:monthlyBurn>0?`${fmt(monthlyBurn)}/mo`:'\u2014', color:'red', sub:burnAccuracy?`${burnAccuracy.toFixed(0)}% accuracy`:'No data' },
-    { icon:Clock, label:'RUNWAY', value:runway>0?`${runway.toFixed(1)} mo`:'\u2014', color:runway>12?'green':runway>6?'amber':'red', sub:cashZeroDate?`Zero: ${cashZeroDate.toLocaleDateString('en-US',{month:'short',year:'numeric'})}`:'Stable' },
-    { icon:Target, label:'CONFIDENCE', value:confidence>0?`${(confidence*100).toFixed(0)}%`:'\u2014', color:confidence>0.85?'green':'amber', sub:confidence>0?`Band: \u00B1${fmt(bandW/2)}`:'No model' },
-    { icon:Activity, label:'TREND', value:actTrendPct?`${actTrendPct>0?'+':''}${actTrendPct}%`:'\u2014', color:actTrend>=0?'green':'red', sub:`${period} actual` },
+    { icon:Flame, label:'BURN RATE', value:monthlyBurn>0?`${fmt(monthlyBurn)}/mo`:'—', color:'red', sub:burnAccuracy?`${burnAccuracy.toFixed(0)}% accuracy`:'No data' },
+    { icon:Clock, label:'RUNWAY', value:runway>0?`${runway.toFixed(1)} mo`:'—', color:runway>12?'green':runway>6?'amber':'red', sub:cashZeroDate?`Zero: ${cashZeroDate.toLocaleDateString('en-US',{month:'short',year:'numeric'})}`:'Stable' },
+    { icon:Target, label:'CONFIDENCE', value:confidence>0?`${(confidence*100).toFixed(0)}%`:'—', color:confidence>0.85?'green':'amber', sub:confidence>0?`Band: ±${fmt(bandW/2)}`:'No model' },
+    { icon:Activity, label:'TREND', value:actTrendPct?`${actTrendPct>0?'+':''}${actTrendPct}%`:'—', color:actTrend>=0?'green':'red', sub:`${period} actual` },
   ]
 
   return (
@@ -562,8 +562,8 @@ export default function Forecasting() {
           </div>
           {chartDataWithAnomalies.length>0 && (
             <div className="terminal-status flex items-center justify-between px-6 py-1.5">
-              <div className="flex items-center gap-5 text-t3"><span className="terminal-live">LIVE</span><span>PTS: <span className="text-t2">{chartDataWithAnomalies.length}</span></span><span>VIEW: <span className="text-cyan">{chartView==='burn'?'BURN':'FORECAST'}</span></span><span>MODEL: <span className="text-cyan">{MODELS.find(m=>m.id===model)?.label}</span></span>{accuracy.ready&&accuracy.models[model]?.metrics&&<span>MAPE: <span className={accuracy.models[model].metrics.mape<5?'text-green':accuracy.models[model].metrics.mape<15?'text-amber':'text-red'}>{accuracy.models[model].metrics.mape.toFixed(1)}%</span></span>}{classifiedAnomalies.length>0&&<span>ALERTS: <span className="text-amber">{classifiedAnomalies.length}</span></span>}<span>CONF: <span className="text-green terminal-data">{accuracy.adaptiveConfidence?.calibratedConfidence!=null?`${accuracy.adaptiveConfidence.calibratedConfidence}%`:confidence>0?`${(confidence*100).toFixed(0)}%`:'\u2014'}</span></span></div>
-              <div className="flex items-center gap-4 text-t3">{showSMA&&!hiddenSeries.has('sma7')&&<span className="text-green">SMA7</span>}{showEMA&&!hiddenSeries.has('ema14')&&<span className="text-amber">EMA14</span>}<span>BAND: <span className="text-t2 terminal-data">\u00B1{fmt(bandW/2)}</span></span><span>PERIOD: <span className="text-cyan">{period}</span></span></div>
+              <div className="flex items-center gap-5 text-t3"><span className="terminal-live">LIVE</span><span>PTS: <span className="text-t2">{chartDataWithAnomalies.length}</span></span><span>VIEW: <span className="text-cyan">{chartView==='burn'?'BURN':'FORECAST'}</span></span><span>MODEL: <span className="text-cyan">{MODELS.find(m=>m.id===model)?.label}</span></span>{accuracy.ready&&accuracy.models[model]?.metrics&&<span>MAPE: <span className={accuracy.models[model].metrics.mape<5?'text-green':accuracy.models[model].metrics.mape<15?'text-amber':'text-red'}>{accuracy.models[model].metrics.mape.toFixed(1)}%</span></span>}{classifiedAnomalies.length>0&&<span>ALERTS: <span className="text-amber">{classifiedAnomalies.length}</span></span>}<span>CONF: <span className="text-green terminal-data">{accuracy.adaptiveConfidence?.calibratedConfidence!=null?`${accuracy.adaptiveConfidence.calibratedConfidence}%`:confidence>0?`${(confidence*100).toFixed(0)}%`:'—'}</span></span></div>
+              <div className="flex items-center gap-4 text-t3">{showSMA&&!hiddenSeries.has('sma7')&&<span className="text-green">SMA7</span>}{showEMA&&!hiddenSeries.has('ema14')&&<span className="text-amber">EMA14</span>}<span>BAND: <span className="text-t2 terminal-data">±{fmt(bandW/2)}</span></span><span>PERIOD: <span className="text-cyan">{period}</span></span></div>
             </div>
           )}
         </div>
