@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { X, Send, Sparkles, Lock } from 'lucide-react'
+import { X, Send, Sparkles, Lock, Maximize2, Minimize2, Pin, FileText, TrendingUp, Wallet } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 const PLAN_LIMITS = { starter: 20, growth: 100, enterprise: Infinity }
@@ -28,6 +28,7 @@ export default function Copilot({ open, onClose }) {
   const [lastError, setLastError] = useState(null)
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const [attachment, setAttachment] = useState(null) // { name, type, base64, preview }
 
   // File processing
@@ -264,7 +265,54 @@ export default function Copilot({ open, onClose }) {
   if (!open) return null
 
   return (
-    <div className="fixed bottom-24 right-4 left-4 sm:left-auto sm:w-[420px] max-h-[70vh] sm:max-h-[540px] glass rounded-[18px] z-50 flex flex-col overflow-hidden">
+    <div className={`fixed z-50 flex overflow-hidden transition-all duration-300 glass ${
+      expanded 
+        ? 'inset-4 sm:inset-6 rounded-2xl flex-row' 
+        : 'bottom-24 right-4 left-4 sm:left-auto sm:w-[420px] max-h-[70vh] sm:max-h-[540px] rounded-[18px] flex-col'
+    }`}>
+
+      {/* Workspace panel — only visible when expanded */}
+      {expanded && (
+        <div className="w-[55%] border-r border-border flex flex-col bg-deep/50 shrink-0">
+          <div className="px-5 py-3 border-b border-border shrink-0">
+            <p className="text-[11px] font-mono text-t3 uppercase tracking-wider">Treasury Workspace</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-5 space-y-3">
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: Wallet, label: 'Cash', value: `$${((org?.total_cash || 7962900) / 1e6).toFixed(2)}M`, color: 'cyan' },
+                { icon: TrendingUp, label: 'Runway', value: '18.4 mo', color: 'green' },
+                { icon: FileText, label: 'Accounts', value: '3', color: 'purple' },
+              ].map(c => (
+                <div key={c.label} className="rounded-xl border border-border bg-surface p-3">
+                  <div className="flex items-center gap-2 mb-1"><c.icon size={12} className={`text-${c.color}`} /><span className="text-[9px] font-mono text-t3 uppercase">{c.label}</span></div>
+                  <p className="text-[16px] font-black font-mono">{c.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-xl border border-border bg-surface p-4">
+              <div className="flex items-center gap-2 mb-3"><Pin size={12} className="text-amber" /><span className="text-[11px] font-mono text-t3 uppercase tracking-wider">Pinned Insights</span></div>
+              <p className="text-[12px] text-t3 italic">Click the pin icon on any Copilot response to save it here.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-surface p-4">
+              <p className="text-[11px] font-mono text-t3 uppercase tracking-wider mb-3">Quick Analysis</p>
+              <div className="grid grid-cols-2 gap-2">
+                {['Cash concentration report', 'Weekly cash flow summary', 'Expense trend analysis', 'Board-ready treasury brief', 'Scenario: revenue -20%', 'Vendor payment forecast'].map(a => (
+                  <button key={a} onClick={() => setInput(a)} className="text-left text-[11px] text-t2 px-3 py-2 rounded-lg border border-border hover:border-cyan/20 hover:bg-cyan/[0.03] transition truncate">{a}</button>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-xl border-2 border-dashed border-border/50 p-6 text-center">
+              <p className="text-[12px] text-t3">Drop CSV, PDF, or bank statements here</p>
+              <p className="text-[10px] text-t4 mt-1">The Copilot will auto-analyze uploaded files</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Chat panel */}
+      <div className={`flex flex-col ${expanded ? 'w-[45%]' : 'w-full'} min-h-0 h-full`}>
+
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2.5">
@@ -272,9 +320,14 @@ export default function Copilot({ open, onClose }) {
           <span className="font-display text-[16px] font-semibold">Treasury Copilot</span>
           <span className="bg-gradient-to-r from-cyan to-purple text-void text-[11px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">AI</span>
         </div>
-        <button onClick={onClose} className="p-1 rounded-lg hover:bg-deep text-t3 hover:text-t2 transition">
-          <X size={18} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setExpanded(!expanded)} className="p-1 rounded-lg hover:bg-deep text-t3 hover:text-t2 transition" title={expanded ? 'Minimize' : 'Expand workspace'}>
+            {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+          <button onClick={() => { setExpanded(false); onClose() }} className="p-1 rounded-lg hover:bg-deep text-t3 hover:text-t2 transition">
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -402,6 +455,7 @@ export default function Copilot({ open, onClose }) {
           </div>
         )}
       </div>
+      </div>{/* close chat panel */}
     </div>
   )
 }
