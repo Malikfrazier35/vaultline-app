@@ -7,17 +7,17 @@ import { ArrowRight, Check, Shield, Loader2 } from 'lucide-react'
 const PLANS = [
   {
     name: 'Starter', price: '$499', period: '/mo',
-    features: ['3 bank connections', 'Cash position dashboard', '30-day forecasting', 'Email alerts'],
+    features: ['3 bank connections', 'Cash position dashboard', '30-day forecasting', 'AI Treasury Copilot', 'Email alerts'],
     priceId: 'price_1TAdoLFV8yRihVmreiDmJaka',
   },
   {
     name: 'Growth', price: '$1,499', period: '/mo', popular: true,
-    features: ['10 bank connections', 'AI Copilot', '90-day forecasting', 'Custom reports', 'API access'],
+    features: ['10 bank connections', 'Advanced AI Treasury Copilot', '90-day forecasting', 'Custom reports', 'API access'],
     priceId: 'price_1TAdoVFV8yRihVmr3OFQDI5C',
   },
   {
     name: 'Enterprise', price: '$2,499', period: '/mo',
-    features: ['Unlimited connections', 'Priority support', 'Accounting sync', 'Security center', 'Compliance reports'],
+    features: ['Unlimited connections', 'Advanced AI Treasury Copilot — Unlimited', 'Accounting sync', 'Security center', 'Compliance reports', 'Priority support'],
     priceId: 'price_1TAdogFV8yRihVmrKdDLEbP7',
   },
 ]

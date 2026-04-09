@@ -18,12 +18,12 @@ const FEATURES = [
   { icon: Plug, title: 'Bank & ERP Connections', desc: 'Connect your banks, credit unions, and accounting platforms in under 60 seconds.', metric: 'Thousands of banks', gradient: 'from-green to-emerald-400' },
   { icon: Shield, title: 'Enterprise Security', desc: 'SOC 2 ready architecture, AES-256 encryption, row-level isolation. Your data never touches another org.', metric: 'SOC 2 Ready', gradient: 'from-amber to-orange-400' },
   { icon: BarChart3, title: 'Board-Ready Reports', desc: 'One-click treasury summaries, cash flow waterfalls, and variance analysis.', metric: '1-click export', gradient: 'from-rose-400 to-pink-500' },
-  { icon: Zap, title: 'Treasury Copilot', desc: 'Ask questions in plain English. Get answers grounded in your actual financial data.', metric: 'Claude AI', gradient: 'from-cyan to-purple' },
+  { icon: Zap, title: 'Treasury Copilot', desc: 'Ask questions in plain English. Get answers grounded in your actual financial data.', metric: 'AI-powered', gradient: 'from-cyan to-purple' },
 ]
 
 const PLANS = [
   { name: 'Starter', price: '$499', annual: '$399', desc: 'For growing companies getting treasury under control', features: ['3 bank connections', 'Cash position dashboard', '30-day forecasting', 'Email alerts', 'Basic reports'] },
-  { name: 'Growth', price: '$1,499', annual: '$1,199', desc: 'For mid-market teams managing real complexity', features: ['10 bank connections', 'AI Copilot', '90-day forecasting', 'Custom reports', 'Slack integration', 'API access'], popular: true },
+  { name: 'Growth', price: '$1,499', annual: '$1,199', desc: 'For mid-market teams managing real complexity', features: ['10 bank connections', 'Advanced AI Treasury Copilot', '90-day forecasting', 'Custom reports', 'Slack integration', 'API access'], popular: true },
   { name: 'Enterprise', price: '$2,499', annual: '$1,999', desc: 'For treasury teams that need everything', features: ['Unlimited connections', 'Priority support', 'Custom integrations', 'SSO / SAML', 'Audit log & compliance', 'Uptime SLA', 'Advanced security controls'] },
   { name: 'Custom', price: 'Custom', annual: 'Custom', desc: 'Tailored treasury for large organizations', features: ['Everything in Enterprise', 'Multi-region deployment', 'Custom SLA & uptime', 'Dedicated infrastructure', 'On-premise option', 'White-glove onboarding', 'Executive QBRs'], talkToSales: true },
 ]

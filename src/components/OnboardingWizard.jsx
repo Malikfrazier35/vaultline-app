@@ -8,14 +8,14 @@ const PLANS = [
   {
     id: 'starter', label: 'Starter', price: 499, annual: 399,
     icon: Zap, color: 'cyan',
-    features: ['3 bank connections', 'Real-time cash position', '30-day forecast', 'Smart transaction tagging', 'Basic reports'],
+    features: ['3 bank connections', 'Real-time cash position', '30-day forecast', 'AI Treasury Copilot', 'Smart transaction tagging', 'Basic reports'],
     moPriceId: 'price_1TAdoLFV8yRihVmreiDmJaka',
     yrPriceId: 'price_1TAdoRFV8yRihVmrMjdX3zCp',
   },
   {
     id: 'growth', label: 'Growth', price: 1499, annual: 1199,
     icon: Crown, color: 'purple', featured: true,
-    features: ['10 bank connections', 'AI 90-day forecast', 'Multi-entity support', 'Treasury Copilot (AI)', 'Slack & email alerts', 'API access'],
+    features: ['10 bank connections', 'Advanced AI Treasury Copilot', 'AI-powered 90-day forecast', 'Multi-entity support', 'Slack & email alerts', 'API access'],
     moPriceId: 'price_1TAdoVFV8yRihVmr3OFQDI5C',
     yrPriceId: 'price_1TAdoaFV8yRihVmrRb8ogqIR',
   },
