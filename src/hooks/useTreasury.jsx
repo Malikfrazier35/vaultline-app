@@ -55,7 +55,7 @@ export function TreasuryProvider({ children }) {
         bankQuery.order('created_at', { ascending: true }),
         supabase.from('forecasts').select('*').eq('org_id', orgId)
           .order('generated_at', { ascending: false }).limit(1).maybeSingle(),
-        balQuery.order('date').limit(180),
+        balQuery.order('date').limit(400),
       ])
 
       if (!mountedRef.current) return
