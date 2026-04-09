@@ -28,7 +28,7 @@ export default function CashPosition() {
   const ct = useChartTheme()
   const { isDark } = useTheme()
   const [dailyBalances, setDailyBalances] = useState([])
-  const [period, setPeriod] = useState('30D') // Default to 30D (available on all plans)
+  const [period, setPeriod] = useState('MTD') // Default to MTD
   const [hiddenAccounts, setHiddenAccounts] = useState(new Set())
   const [chartMode, setChartMode] = useState('position') // position (stacked) | trend (overlay)
   const [acctFilter, setAcctFilter] = useState('all') // all | checking | savings | credit

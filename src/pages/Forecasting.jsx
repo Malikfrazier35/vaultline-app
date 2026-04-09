@@ -44,7 +44,7 @@ export default function Forecasting() {
   const ct = useChartTheme()
   const { isDark } = useTheme()
   const [forecastData, setForecastData] = useState([])
-  const [period, setPeriod] = useState('30D')
+  const [period, setPeriod] = useState('QTD')
   const [showBand, setShowBand] = useState(true)
   const [model, setModel] = useState('linear')
   const [showSMA, setShowSMA] = useState(false)
