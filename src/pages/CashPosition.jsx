@@ -55,13 +55,14 @@ export default function CashPosition() {
     if (!dailyBalances.length) return []
     // Accounting period calculations
     const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     let cutoff
-    if (period === '7D') cutoff = new Date(now.getTime() - 7 * 86400000)
-    else if (period === '30D') cutoff = new Date(now.getTime() - 30 * 86400000)
-    else if (period === 'MTD') cutoff = new Date(now.getFullYear(), now.getMonth(), 1)
-    else if (period === 'QTD') { const q = Math.floor(now.getMonth() / 3) * 3; cutoff = new Date(now.getFullYear(), q, 1) }
-    else cutoff = new Date(now.getFullYear(), 0, 1) // YTD
-    const cutoffStr = cutoff.toISOString().split('T')[0]
+    if (period === '7D') { cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 7) }
+    else if (period === '30D') { cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 30) }
+    else if (period === 'MTD') cutoff = new Date(today.getFullYear(), today.getMonth(), 1)
+    else if (period === 'QTD') { const q = Math.floor(today.getMonth() / 3) * 3; cutoff = new Date(today.getFullYear(), q, 1) }
+    else cutoff = new Date(today.getFullYear(), 0, 1) // YTD
+    const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`
 
     const byDate = {}
     dailyBalances.forEach((b) => {

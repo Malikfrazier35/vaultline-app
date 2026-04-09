@@ -84,16 +84,16 @@ export default function Forecasting() {
     const byDate = {}
     dailyBalances.forEach(b => { byDate[b.date] = (byDate[b.date]||0) + (b.balance||0) })
     const now2 = new Date()
-    // Calendar-date cutoff — proper period filtering
+    // Calendar-date cutoff — exact day counts
     let cutoff
-    if (period==='7D') cutoff = new Date(now2.getTime() - 7 * 86400000)
-    else if (period==='30D') cutoff = new Date(now2.getTime() - 30 * 86400000)
+    if (period==='7D') cutoff = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate() - 7)
+    else if (period==='30D') cutoff = new Date(now2.getFullYear(), now2.getMonth(), now2.getDate() - 30)
     else if (period==='MTD') cutoff = new Date(now2.getFullYear(), now2.getMonth(), 1)
     else if (period==='QTD') { const q = Math.floor(now2.getMonth() / 3) * 3; cutoff = new Date(now2.getFullYear(), q, 1) }
     else cutoff = new Date(now2.getFullYear(), 0, 1) // FY
-    const cutoffStr = cutoff.toISOString().split('T')[0]
+    const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`
     const sorted = Object.entries(byDate).filter(([date]) => date >= cutoffStr).sort(([a],[b])=>a.localeCompare(b))
-    const todayStr2 = new Date().toISOString().split('T')[0]
+    const todayStr2 = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}-${String(now2.getDate()).padStart(2,'0')}`
     const data = sorted.map(([date,total],idx)=>({ date, actual:Math.round(total), forecast:null, upper:null, lower:null, emaForecast:null, monteP50:null, monteP10:null, monteP90:null, _isToday:date===todayStr2, _isLastActual:idx===sorted.length-1 }))
     if (!data.length) return []
     const lastA = data[data.length-1].actual
@@ -135,7 +135,9 @@ export default function Forecasting() {
     }
     // Sort all data chronologically (actuals + forecast combined)
     data.sort((a, b) => a.date.localeCompare(b.date))
-    return data
+    // Cap total points to match the period label
+    const maxPts = period==='7D'?7:period==='30D'?30:period==='MTD'?31:period==='QTD'?90:365
+    return data.slice(0, maxPts)
   }, [dailyBalances, forecastData, monthlyBurn, totalCash, period])
 
   const recentTx = transactions.filter(t=>new Date(t.date)>=new Date(Date.now()-30*86400000))

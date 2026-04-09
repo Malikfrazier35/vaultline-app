@@ -66,9 +66,10 @@ export default function Dashboard() {
   const chartData = useMemo(() => {
     if (!transactions.length) return []
     const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const days = chartPeriod === '7D' ? 7 : chartPeriod === '90D' ? 90 : 30
-    const cutoff = new Date(now.getTime() - days * 86400000)
-    const cutoffStr = cutoff.toISOString().split('T')[0]
+    const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - days)
+    const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`
     const byDate = {}
     transactions.forEach((tx) => {
       const d = tx.date
