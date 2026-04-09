@@ -195,7 +195,7 @@ export default function CashPosition() {
                     return (
                       <button key={r} onClick={() => allowed ? setPeriod(r) : null} title={!allowed ? `Upgrade to ${periodRequiredPlan(r)} for ${r} view` : ''}
                         className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition-all ${
-                          period === r ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : allowed ? 'text-t3 hover:text-t2' : 'text-t4/30 cursor-not-allowed line-through decoration-t4/20'
+                          period === r ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : allowed ? 'text-t3 hover:text-t2' : 'text-t4 opacity-40 cursor-not-allowed line-through decoration-current'
                         }`}>{r}</button>
                     )
                   })}

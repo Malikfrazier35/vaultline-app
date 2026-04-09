@@ -298,11 +298,11 @@ export default function Copilot({ open, onClose }) {
               <p className="text-[11px] font-mono text-t3 uppercase tracking-wider mb-3">Quick Analysis</p>
               <div className="grid grid-cols-2 gap-2">
                 {['Cash concentration report', 'Weekly cash flow summary', 'Expense trend analysis', 'Board-ready treasury brief', 'Scenario: revenue -20%', 'Vendor payment forecast'].map(a => (
-                  <button key={a} onClick={() => setInput(a)} className="text-left text-[11px] text-t2 px-3 py-2 rounded-lg border border-border hover:border-cyan/20 hover:bg-cyan/[0.03] transition truncate">{a}</button>
+                  <button key={a} onClick={() => setInput(a)} className="text-left text-[11px] text-t2 px-3 py-2 rounded-lg border border-border hover:border-cyan/20 hover:bg-cyan/[0.06] transition truncate">{a}</button>
                 ))}
               </div>
             </div>
-            <div className="rounded-xl border-2 border-dashed border-border/50 p-6 text-center">
+            <div className="rounded-xl border-2 border-dashed border-border p-6 text-center">
               <p className="text-[12px] text-t3">Drop CSV, PDF, or bank statements here</p>
               <p className="text-[10px] text-t4 mt-1">The Copilot will auto-analyze uploaded files</p>
             </div>
