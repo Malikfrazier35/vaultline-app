@@ -253,7 +253,7 @@ export default function Landing() {
             </Link>
             <Link to="/roi" className="px-8 py-3.5 rounded-[12px] border border-border text-[16px] font-semibold text-t2 hover:border-cyan/30 hover:text-t1 transition-all backdrop-blur-sm">Calculate Your ROI</Link>
           </div>
-          <p className="text-[12px] text-t3 mt-5 animate-slideUp stagger-4">14-day free trial · No credit card required · Cancel anytime</p>
+          <p className="text-[12px] text-t3 mt-5 animate-slideUp stagger-4">14-day free trial · Cancel anytime · No charge until day 15</p>
           <div className="flex items-center justify-center gap-6 mt-3 animate-slideUp stagger-4">
             <Link to="/assess" className="text-[12px] text-t3 hover:text-purple transition flex items-center gap-1">Take Treasury Readiness Assessment <ChevronRight size={12} /></Link>
           </div>
@@ -552,7 +552,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <h3 className="font-display text-[36px] font-extrabold text-center mb-3 tracking-tight">Simple, transparent pricing</h3>
-            <p className="text-t3 text-center mb-2 text-[16px]">Start free. No credit card required. Upgrade when you're ready.</p>
+            <p className="text-t3 text-center mb-2 text-[16px]">14-day free trial on every plan. Cancel anytime before day 15.</p>
             <p className="text-[13px] text-center text-cyan font-mono mb-8">No long-term contracts or penalties</p>
             <div className="flex items-center justify-center gap-3.5 mb-14">
               <span className={`text-sm font-medium ${!annualPricing ? 'text-t1' : 'text-t3'}`}>Monthly</span>
@@ -617,7 +617,7 @@ export default function Landing() {
                 <Link to="/signup" className="group inline-flex items-center gap-2.5 px-10 py-4 rounded-[14px] bg-gradient-to-r from-cyan to-sky-400 text-white text-[16px] font-bold glow-md hover:-translate-y-1 active:scale-[0.98] hover:glow-lg transition-all">
                   Start Free Trial <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <p className="text-[13px] text-t2 mt-5">14-day free trial · No credit card required · Cancel anytime</p>
+                <p className="text-[13px] text-t2 mt-5">14-day free trial · Cancel anytime · No charge until day 15</p>
               </div>
             </div>
           </div>

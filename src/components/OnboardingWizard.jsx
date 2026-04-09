@@ -147,7 +147,7 @@ export default function OnboardingWizard({ onComplete }) {
               <CreditCard size={24} className="text-purple" />
             </div>
             <h2 className="text-2xl font-black tracking-tight mb-1">Choose your plan</h2>
-            <p className="text-t3 text-[13px] mb-5">All plans include a 14-day free trial. No credit card required to start.</p>
+            <p className="text-t3 text-[13px] mb-5">14-day free trial on all plans. Cancel anytime.</p>
 
             <div className="flex items-center justify-center gap-3 mb-5">
               <span className={`text-[12px] font-mono ${billingCycle === 'monthly' ? 'text-t1 font-semibold' : 'text-t3'}`}>Monthly</span>
@@ -226,7 +226,7 @@ export default function OnboardingWizard({ onComplete }) {
                 <div className="w-8 h-8 rounded-lg bg-purple/[0.08] flex items-center justify-center"><Crown size={14} className="text-purple" /></div>
                 <div>
                   <p className="text-[13px] font-semibold text-t1">{selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} plan · 14-day free trial</p>
-                  <p className="text-[11px] text-t3 font-mono">No credit card charged until you upgrade</p>
+                  <p className="text-[11px] text-t3 font-mono">14-day free trial · Cancel anytime</p>
                 </div>
               </div>
             </div>
@@ -254,13 +254,9 @@ export default function OnboardingWizard({ onComplete }) {
 
             {currentStep === 'plan' && (
               <div className="flex items-center gap-2">
-                <button onClick={() => selectPlanAndContinue(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
-                  Start Free Trial <ArrowRight size={14} />
-                </button>
                 <button onClick={() => selectPlanAndContinue(false)} disabled={checkoutLoading}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-purple/20 bg-purple/[0.04] text-purple text-[13px] font-semibold hover:bg-purple/[0.08] transition-all">
-                  {checkoutLoading ? <><Loader2 size={14} className="animate-spin" /> Processing...</> : <>Pay Now</>}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
+                  {checkoutLoading ? <><Loader2 size={14} className="animate-spin" /> Setting up...</> : <>Start Free Trial <ArrowRight size={14} /></>}
                 </button>
               </div>
             )}

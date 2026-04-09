@@ -127,6 +127,7 @@ serve(async (req) => {
       success_url: `${req.headers.get('origin') || 'https://www.vaultline.app'}/billing?checkout=success`,
       cancel_url: `${req.headers.get('origin') || 'https://www.vaultline.app'}/billing`,
       subscription_data: {
+        trial_period_days: 14,
         metadata: { ...(orgId ? { org_id: orgId } : {}), supabase_uid: user.id },
       },
       allow_promotion_codes: true,
