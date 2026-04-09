@@ -60,7 +60,7 @@ serve(async (req) => {
     const { message, history = [], page_context = '', image = null, file = null } = await req.json()
 
     // Gather treasury context + customer memory
-    const [accountsRes, txRes, positionRes, forecastRes, banksRes, balancesRes, profileRes] = await Promise.all([
+    const [accountsRes, txRes, positionRes, forecastRes, banksRes, balancesRes] = await Promise.all([
       supabase.from('accounts').select('name, type, mask, current_balance, available_balance, credit_limit, bank_connections(institution_name)')
         .eq('org_id', orgId).eq('is_active', true).order('current_balance', { ascending: false }),
       supabase.from('transactions').select('date, description, amount, category, is_pending, accounts(name, bank_connections(institution_name))')
@@ -72,8 +72,8 @@ serve(async (req) => {
     ])
 
     // Non-critical: load customer profile (table may not exist yet)
-    let profileRes = { data: null }
-    try { profileRes = await supabase.from('copilot_profile').select('*').eq('org_id', orgId).single() } catch {}
+    let copilotProfileRes = { data: null }
+    try { copilotProfileRes = await supabase.from('copilot_profile').select('*').eq('org_id', orgId).single() } catch {}
 
     const accounts = accountsRes.data || []
     const transactions = txRes.data || []
@@ -81,7 +81,7 @@ serve(async (req) => {
     const forecast = forecastRes.data
     const banks = banksRes.data || []
     const dailyBalances = (balancesRes.data || []).reverse()
-    const customerProfile = profileRes.data
+    const customerProfile = copilotProfileRes.data
 
     // Build customer memory context
     let memoryContext = ''
