@@ -128,6 +128,25 @@ serve(async (req) => {
     // Transition from sample data to real data
     await supabase.from('organizations').update({ has_real_data: true }).eq('id', orgId)
 
+    // Auto-purge sample data on first real connection
+    try {
+      const { data: org } = await supabase.from('organizations').select('sample_data_purged').eq('id', orgId).single()
+      if (!org?.sample_data_purged) {
+        const purgeUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/purge-sample-data`
+        await fetch(purgeUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': req.headers.get('Authorization')!,
+            'apikey': Deno.env.get('SUPABASE_ANON_KEY')!,
+          },
+          body: JSON.stringify({ action: 'auto_purge', org_id: orgId }),
+        })
+      }
+    } catch (purgeErr) {
+      console.error('Sample data purge failed (non-blocking):', purgeErr)
+    }
+
     return new Response(
       JSON.stringify({ success: true, connection_id: bankConn.id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

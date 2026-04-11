@@ -61,8 +61,45 @@ serve(async (req) => {
 
       case 'resend_invite': {
         const { invite_id } = body
-        await supabase.from('invites').update({ expires_at: new Date(Date.now() + 7 * 86400000).toISOString() }).eq('id', invite_id).eq('org_id', orgId)
+        const { data: invite } = await supabase.from('invites').select('*').eq('id', invite_id).eq('org_id', orgId).single()
+        if (!invite) return json({ error: 'Invite not found' })
+        await supabase.from('invites').update({ expires_at: new Date(Date.now() + 7 * 86400000).toISOString() }).eq('id', invite_id)
+        // Re-send email
+        const { data: orgData } = await supabase.from('organizations').select('name').eq('id', orgId).single()
+        await supabase.functions.invoke('notify', {
+          body: { action: 'invite_email', email: invite.email, org_name: orgData?.name, inviter_name: profile.full_name || 'A teammate', role: invite.role, token: invite.token },
+        })
         return json({ success: true })
+      }
+
+      case 'accept_invite': {
+        const { token } = body
+        if (!token) return json({ error: 'Invite token required' })
+        // Look up invite by token
+        const { data: invite, error: invErr } = await supabase.from('invites').select('*').eq('token', token).eq('status', 'pending').single()
+        if (invErr || !invite) return json({ error: 'Invalid or expired invitation' })
+        // Check expiry
+        if (new Date(invite.expires_at) < new Date()) {
+          await supabase.from('invites').update({ status: 'expired' }).eq('id', invite.id)
+          return json({ error: 'This invitation has expired' })
+        }
+        // Move user to the invited org with the invited role
+        await supabase.from('profiles').update({
+          org_id: invite.org_id,
+          role: invite.role,
+        }).eq('id', user.id)
+        // Mark invite accepted
+        await supabase.from('invites').update({
+          status: 'accepted',
+          accepted_at: new Date().toISOString(),
+        }).eq('id', invite.id)
+        // Audit
+        await supabase.from('audit_log').insert({
+          org_id: invite.org_id, user_id: user.id,
+          action: 'invite_accepted',
+          details: { email: invite.email, role: invite.role, invited_by: invite.invited_by },
+        })
+        return json({ success: true, org_id: invite.org_id, role: invite.role })
       }
 
       case 'update_role': {

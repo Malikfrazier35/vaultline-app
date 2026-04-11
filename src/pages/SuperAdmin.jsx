@@ -62,7 +62,7 @@ export default function SuperAdmin() {
   if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-void"><div className="w-8 h-8 border-2 border-cyan border-t-transparent rounded-full animate-spin" /></div>
   if (!user || !SUPER_ADMINS.includes(user.email)) return <Navigate to="/dashboard" replace />
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { let stale = false; if (!stale) fetchData(); return () => { stale = true } }, [])
 
   async function fetchData() {
     setLoading(true); setError(null)

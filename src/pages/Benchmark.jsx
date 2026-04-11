@@ -44,11 +44,12 @@ export default function Benchmark() {
       if (email) {
         const params = new URLSearchParams(window.location.search)
         await safeInvoke('lead-capture', {
-          body: { action: 'capture', email, company_name: company, source: 'benchmark', roi_inputs: inputs, utm_source: params.get('utm_source'), utm_medium: params.get('utm_medium'), page_url: window.location.href },
+          action: 'capture', email, company_name: company, source: 'benchmark', roi_inputs: inputs, utm_source: params.get('utm_source'), utm_medium: params.get('utm_medium'), page_url: window.location.href,
         })
       }
       setResults(data)
       setStep('results')
+      if (window.gtag) window.gtag('event', 'generate_lead', { event_category: 'lead', event_label: 'benchmark' })
     } catch (err) { console.error(err) }
     setSubmitting(false)
   }

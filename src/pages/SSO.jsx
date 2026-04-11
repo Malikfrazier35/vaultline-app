@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { useToast } from '@/components/Toast'
 import {
   Shield, Key, Building2, Check, AlertTriangle, ExternalLink, Copy, RefreshCw,
   Lock, Users, Globe, ChevronRight, Fingerprint, Settings, Zap, Monitor, Smartphone,
@@ -39,7 +40,7 @@ export default function SSO() {
   const [mfaCode, setMfaCode] = useState('')
   const [mfaError, setMfaError] = useState(null)
   const [mfaLoading, setMfaLoading] = useState(false)
-  const [toast, setToast] = useState(null)
+  const toast = useToast()
 
   useEffect(() => { document.title = 'SSO & Security \u2014 Vaultline' }, [])
 
@@ -70,21 +71,19 @@ export default function SSO() {
     setMfaEnrolling(false); setMfaQR(null); setMfaSecret(null); setMfaCode('')
     setMfaLoading(false)
     await loadMFAFactors()
-    setToast('MFA enrolled successfully'); setTimeout(() => setToast(null), 3000)
+    toast.success('MFA enrolled successfully')
   }
 
   async function handleUnenrollMFA(factorId) {
     const { error } = await unenrollMFA(factorId)
-    if (error) { setToast('Failed to unenroll: ' + error.message) }
-    else { setToast('MFA factor removed'); await loadMFAFactors() }
-    setTimeout(() => setToast(null), 3000)
+    if (error) { toast.error('Failed to unenroll: ' + error.message) }
+    else { toast.success('MFA factor removed'); await loadMFAFactors() }
   }
 
   async function handleTestSSO() {
     const domain = org?.slug || org?.name?.toLowerCase().replace(/\s+/g, '-')
-    if (!domain) { setToast('Organization domain required'); setTimeout(() => setToast(null), 3000); return }
     const { data, error } = await signInWithSSO(domain)
-    if (error) { setToast('SSO test failed: ' + error.message); setTimeout(() => setToast(null), 4000) }
+    if (error) { toast.error('SSO test failed: ' + error.message) }
     else if (data?.url) { window.location.href = data.url }
   }
 
@@ -448,13 +447,6 @@ export default function SSO() {
         </div>
         </div>
       </div>
-
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-cyan/[0.15] animate-[slideUp_0.3s_ease-out]">
-          <p className="text-[13px] text-cyan font-mono">{toast}</p>
-        </div>
-      )}
     </div>
   )
 }

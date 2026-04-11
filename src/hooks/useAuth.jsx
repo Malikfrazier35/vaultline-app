@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 
 const AuthContext = createContext({})
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000 // 30 minutes
+const MAX_SESSION_MS = 8 * 60 * 60 * 1000 // 8 hours absolute max
+const SESSION_START_KEY = 'vaultline-session-start'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -47,6 +49,40 @@ export function AuthProvider({ children }) {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
     }
   }, [user, resetIdleTimer])
+
+  // ── Absolute session lifetime (server-side hardening) ──
+  useEffect(() => {
+    if (!user) return
+    // Record session start on first auth
+    if (!sessionStorage.getItem(SESSION_START_KEY)) {
+      sessionStorage.setItem(SESSION_START_KEY, Date.now().toString())
+    }
+    const check = setInterval(async () => {
+      const start = parseInt(sessionStorage.getItem(SESSION_START_KEY) || '0')
+      if (start && Date.now() - start > MAX_SESSION_MS) {
+        try {
+          if (profileRef.current?.org_id) {
+            await supabase.from('audit_log').insert({
+              org_id: profileRef.current.org_id, user_id: user.id,
+              action: 'session_max_lifetime', resource_type: 'auth',
+              details: { reason: 'max_8h', session_duration_ms: Date.now() - start },
+            })
+          }
+        } catch {}
+        sessionStorage.removeItem(SESSION_START_KEY)
+        await supabase.auth.signOut()
+        window.location.href = '/login?reason=session_expired'
+      }
+      // Also validate token server-side
+      const { error } = await supabase.auth.getUser()
+      if (error) {
+        sessionStorage.removeItem(SESSION_START_KEY)
+        await supabase.auth.signOut()
+        window.location.href = '/login?reason=invalid_session'
+      }
+    }, 5 * 60 * 1000) // Check every 5 minutes
+    return () => clearInterval(check)
+  }, [user])
 
   // ── Audit logger ──
   async function logAuditEvent(action, resourceType, resourceId, details) {
@@ -142,6 +178,26 @@ export function AuthProvider({ children }) {
               user_id: userId,
             }).then(() => {}).catch(() => {})
           }
+
+          // ── Accept pending invite (if user signed up via invite link) ──
+          try {
+            const inviteToken = localStorage.getItem('vaultline-invite-token')
+            if (inviteToken) {
+              const { data: acceptResult } = await supabase.functions.invoke('team-manage', {
+                body: { action: 'accept_invite', token: inviteToken },
+              })
+              if (acceptResult?.success) {
+                localStorage.removeItem('vaultline-invite-token')
+                const { data: updatedProf } = await supabase.from('profiles').select('*, organizations(*)').eq('id', userId).single()
+                if (updatedProf) {
+                  setProfile(updatedProf); setOrg(updatedProf.organizations)
+                  profileRef.current = updatedProf
+                }
+              } else {
+                localStorage.removeItem('vaultline-invite-token')
+              }
+            }
+          } catch { /* invite acceptance is non-blocking */ }
         }
 
         // Check MFA requirement — completely non-throwing
@@ -160,10 +216,10 @@ export function AuthProvider({ children }) {
     finally { if (mounted) setLoading(false) }
   }
 
-  async function signUp({ email, password, fullName, companyName, referralCode }) {
+  async function signUp({ email, password, fullName, companyName, referralCode, inviteToken }) {
     const { data, error } = await supabase.auth.signUp({
       email, password,
-      options: { data: { full_name: fullName, company_name: companyName, referral_code: referralCode || null } },
+      options: { data: { full_name: fullName, company_name: companyName, referral_code: referralCode || null, invite_token: inviteToken || null } },
     })
     return { data, error }
   }

@@ -180,6 +180,7 @@ export default function Assessment() {
       })
       setResult({ ...data, segment: data?.segment || segment })
       setStep('results')
+      if (window.gtag) window.gtag('event', 'generate_lead', { event_category: 'lead', event_label: 'assessment', value: totalScore })
     } catch (err) { console.error(err) }
     finally { setSubmitting(false) }
   }

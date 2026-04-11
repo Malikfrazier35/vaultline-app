@@ -311,7 +311,21 @@ export default function Copilot({ open, onClose }) {
       )}
 
       {/* Chat panel */}
-      <div className={`flex flex-col ${expanded ? 'w-[45%]' : 'w-full'} min-h-0 h-full`}>
+      <div className={`flex flex-col relative ${expanded ? 'w-[45%]' : 'w-full'} min-h-0 h-full`}
+        onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragging(true) }}
+        onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragging(false) }}
+        onDrop={handleDrop}
+      >
+      {/* Drop overlay */}
+      {dragging && (
+        <div className="absolute inset-0 z-50 bg-cyan/[0.06] border-2 border-dashed border-cyan rounded-[18px] flex items-center justify-center pointer-events-none">
+          <div className="text-center">
+            <Send size={32} className="text-cyan mx-auto mb-2 opacity-60" />
+            <p className="text-[14px] font-semibold text-cyan">Drop file to analyze</p>
+            <p className="text-[11px] text-t3 mt-1">CSV, PDF, images, or bank statements</p>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
@@ -430,11 +444,7 @@ export default function Copilot({ open, onClose }) {
             <span className="text-[12px] text-amber">Daily limit reached. <Link to="/billing" onClick={onClose} className="underline hover:text-cyan transition">Upgrade</Link> for more.</span>
           </div>
         ) : (
-          <div className="flex gap-2"
-            onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={handleDrop}
-          >
+          <div className="flex gap-2">
             <input
               ref={inputRef}
               value={input}

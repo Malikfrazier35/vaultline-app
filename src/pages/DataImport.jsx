@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useTreasury } from '@/hooks/useTreasury'
 import { supabase } from '@/lib/supabase'
+import { SkeletonPage } from '@/components/Skeleton'
 import {
   Upload, Plus, FileSpreadsheet, Check, AlertCircle,
   ArrowRight, Clock, Database, Link2
@@ -35,6 +36,7 @@ export default function DataImport() {
   const [importResult, setImportResult] = useState(null)
   const [dragOver, setDragOver] = useState(false)
   const [imports, setImports] = useState([])
+  const [pageLoading, setPageLoading] = useState(true)
   const fileRef = useRef(null)
 
   // Manual entry state
@@ -60,7 +62,7 @@ export default function DataImport() {
   const [acctResult, setAcctResult] = useState(null)
 
   useEffect(() => { document.title = 'Data Import — Vaultline' }, [])
-  useEffect(() => { loadImports(); loadQBConnection(); loadAcctConnections(); checkQBRedirect(); checkAcctRedirect() }, [])
+  useEffect(() => { let stale = false; if (!stale) { Promise.all([loadImports(), loadQBConnection(), loadAcctConnections()]).finally(() => setPageLoading(false)); checkQBRedirect(); checkAcctRedirect() } return () => { stale = true } }, [])
 
   async function loadQBConnection() {
     const { data } = await supabase.from('qb_connections').select('*').order('created_at', { ascending: false }).limit(1).single()
@@ -311,6 +313,8 @@ export default function DataImport() {
     { id: 'account', label: 'Add Account', icon: Database },
     { id: 'connectors', label: 'Connectors', icon: Link2 },
   ]
+
+  if (pageLoading) return <SkeletonPage />
 
   return (
     <div className="space-y-6">

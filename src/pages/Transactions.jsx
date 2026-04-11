@@ -1,4 +1,5 @@
 import { useTreasury } from '@/hooks/useTreasury'
+import { useToast } from '@/components/Toast'
 import { SkeletonPage } from '@/components/Skeleton'
 import BankLogo from '@/components/BankLogo'
 import { useState, useMemo, useEffect } from 'react'
@@ -36,7 +37,7 @@ export default function Transactions() {
   const [page, setPage] = useState(0)
   const ct = useChartTheme()
   const { isDark } = useTheme()
-  const [toastMsg, setToastMsg] = useState(null)
+  const toast = useToast()
 
   useEffect(() => { document.title = 'Transactions — Vaultline' }, [])
   useEffect(() => { setPage(0) }, [search, catFilter])
@@ -81,7 +82,7 @@ export default function Transactions() {
   }, [transactions])
 
   function exportCSV() {
-    setToastMsg('Exporting CSV...'); setTimeout(() => setToastMsg(null), 2000)
+    toast.success('Exporting CSV...')
     const headers = ['Date', 'Description', 'Amount', 'Category', 'Account', 'Status']
     const rows = filtered.map(tx => [tx.date, `"${(tx.description || '').replace(/"/g, '""')}"`, tx.amount, tx.category || '', tx.accounts?.bank_connections?.institution_name || '', tx.is_pending ? 'Pending' : 'Cleared'])
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
@@ -267,11 +268,6 @@ export default function Transactions() {
           </div>
         </div>
       </div>
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-cyan/[0.15] animate-[slideUp_0.3s_ease-out]">
-          <p className="text-[13px] text-cyan font-mono">{toastMsg}</p>
-        </div>
-      )}
     </div>
   )
 }
@@ -292,11 +288,6 @@ function PremiumStat({ icon: Icon, color, label, value, sub, arrow }) {
       </div>
       <p className="font-mono text-[26px] font-black text-t1 tracking-tight leading-none">{value}</p>
       <p className="text-[13px] text-t2 mt-2">{label} <span className="text-border mx-1">·</span> {sub}</p>
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-cyan/[0.15] animate-[slideUp_0.3s_ease-out]">
-          <p className="text-[13px] text-cyan font-mono">{toastMsg}</p>
-        </div>
-      )}
     </div>
   )
 }

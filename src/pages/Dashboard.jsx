@@ -12,6 +12,7 @@ import GrowthNudge from '@/components/GrowthNudge'
 import { MaskedBalance } from '@/components/MaskedValue'
 import BankLogo from '@/components/BankLogo'
 import OnboardingChecklist from '@/components/Onboarding'
+import SampleDataBanner from '@/components/SampleDataBanner'
 import { ValueReinforcement, NPSSurvey, MilestoneBanner } from '@/components/CustomerJourney'
 import { SectionBoundary } from '@/components/ErrorBoundary'
 
@@ -166,6 +167,7 @@ export default function Dashboard() {
       </div>
 
       {/* Onboarding checklist — first-run setup */}
+      <SampleDataBanner />
       <SectionBoundary name="Onboarding" height="h-auto"><OnboardingChecklist /></SectionBoundary>
 
       {/* Lifecycle engagement — value recap, milestones, NPS */}

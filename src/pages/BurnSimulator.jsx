@@ -42,6 +42,7 @@ export default function BurnSimulator() {
     }
     setResults(data)
     setStep('results')
+    if (window.gtag) window.gtag('event', 'generate_lead', { event_category: 'lead', event_label: 'burn_simulator' })
     setLoading(false)
   }
 

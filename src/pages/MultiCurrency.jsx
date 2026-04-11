@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { ChartTooltip } from '@/components/ChartTooltip'
 import { useChartTheme } from '@/hooks/useChartTheme'
+import { useToast } from '@/components/Toast'
 import { useTheme } from '@/hooks/useTheme'
 import { Globe, ArrowUpRight, ArrowDownRight, Bell, Clock, RefreshCw, Wifi, WifiOff, Plus, X, Calculator, Activity, Loader2, TrendingUp } from 'lucide-react'
 
@@ -38,7 +39,7 @@ export default function MultiCurrency() {
   const [lastFetch, setLastFetch] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [convertAmount, setConvertAmount] = useState(10000)
-  const [toast, setToast] = useState(null)
+  const toast = useToast()
 
   useEffect(() => { document.title = 'Multi-Currency \u2014 Vaultline' }, [])
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t) }, [])
@@ -73,7 +74,7 @@ export default function MultiCurrency() {
     if (org?.id) {
       await supabase.from('fx_watchlist').upsert({ org_id: org.id, currency_code: code, is_active: true }, { onConflict: 'org_id,currency_code' })
     }
-    setToast(`${code} added to watchlist`); setTimeout(() => setToast(null), 2000)
+    toast.success(`${code} added to watchlist`)
     setShowAddModal(false)
   }
 
@@ -84,7 +85,7 @@ export default function MultiCurrency() {
     if (org?.id) {
       await supabase.from('fx_watchlist').update({ is_active: false }).eq('org_id', org.id).eq('currency_code', code)
     }
-    setToast(`${code} removed`); setTimeout(() => setToast(null), 2000)
+    toast.info(`${code} removed`)
   }
 
   const totalUSD = cashPosition?.total_balance || 0
@@ -336,11 +337,6 @@ export default function MultiCurrency() {
       )}
 
       {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-cyan/[0.15] animate-[slideUp_0.3s_ease-out]">
-          <p className="text-[13px] text-cyan font-mono">{toast}</p>
-        </div>
-      )}
     </div>
   )
 }

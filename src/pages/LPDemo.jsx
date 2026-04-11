@@ -41,9 +41,9 @@ export default function LPDemo() {
         }
       })
 
-      // Fire Google Ads conversion
+      // Track demo request in GA4
       if (window.gtag) {
-        window.gtag('event', 'conversion', { send_to: 'AW-18032992189/demo_request' })
+        window.gtag('event', 'demo_request', { event_category: 'lead', event_label: 'lp_demo' })
       }
 
       setSubmitted(true)

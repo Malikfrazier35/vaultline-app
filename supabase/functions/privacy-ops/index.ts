@@ -179,6 +179,16 @@ serve(async (req) => {
             if (p.action === 'delete') {
               const { count } = await supabase.from(p.table_name).delete({ count: 'exact' }).lt(p.filter_column, cutoff)
               processed = count || 0
+            } else if (p.action === 'archive') {
+              // Archive = delete old records after logging the purge event
+              const { count } = await supabase.from(p.table_name).delete({ count: 'exact' }).lt(p.filter_column, cutoff)
+              processed = count || 0
+              if (processed > 0) {
+                await supabase.from('audit_log').insert({
+                  action: 'retention_archive',
+                  details: { table: p.table_name, records_purged: processed, cutoff, retention_days: p.retention_days, policy_id: p.id },
+                })
+              }
             } else if (p.action === 'anonymize') {
               // Anonymize by nullifying PII columns — table-specific logic would go here
               processed = 0

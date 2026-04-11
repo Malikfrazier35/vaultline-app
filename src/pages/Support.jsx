@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/components/Toast'
 import { supabase } from '@/lib/supabase'
+import { safeInvoke } from '@/lib/safeInvoke'
 import { SkeletonPage } from '@/components/Skeleton'
 import {
   MessageSquare, Plus, ArrowLeft, Send, Clock, AlertTriangle,
@@ -106,15 +107,11 @@ export default function Support() {
     if (!subject.trim() || !body.trim() || !org?.id) return
     setSubmitting(true)
     try {
-      const { data: ticket, error } = await supabase.from('support_tickets').insert({
-        org_id: org.id, created_by: profile?.id, subject: subject.trim(), body: body.trim(),
-        category, priority, page_url: window.location.href, user_agent: navigator.userAgent?.slice(0, 200),
-      }).select().single()
-      if (error) throw new Error(error.message)
-      await supabase.from('ticket_messages').insert({
-        ticket_id: ticket.id, sender_type: 'customer', sender_id: profile?.id,
-        sender_name: profile?.full_name || 'You', body: body.trim(),
+      const res = await safeInvoke('support', {
+        action: 'create_ticket', subject: subject.trim(), body: body.trim(),
+        category, priority, page_url: window.location.href,
       })
+      if (res?.error) throw new Error(res.error)
       toast.success('Ticket created — we\'ll respond shortly')
       clearDraft(); setView('list'); fetchTickets()
     } catch (err) { toast.error(err.message || 'Failed to create ticket') }
@@ -125,14 +122,9 @@ export default function Support() {
     if (!reply.trim() || !selectedTicket) return
     setSending(true)
     try {
-      await supabase.from('ticket_messages').insert({
-        ticket_id: selectedTicket.id, sender_type: 'customer', sender_id: profile?.id,
-        sender_name: profile?.full_name || 'You', body: reply.trim(),
-      })
-      if (selectedTicket.status === 'waiting_customer') {
-        await supabase.from('support_tickets').update({ status: 'waiting_internal', updated_at: new Date().toISOString() }).eq('id', selectedTicket.id)
-        setSelectedTicket(prev => ({ ...prev, status: 'waiting_internal' }))
-      }
+      const res = await safeInvoke('support', { action: 'reply_ticket', ticket_id: selectedTicket.id, body: reply.trim() })
+      if (res?.error) throw new Error(res.error)
+      if (selectedTicket.status === 'waiting_customer') setSelectedTicket(prev => ({ ...prev, status: 'waiting_internal' }))
       setReply('')
       const { data } = await supabase.from('ticket_messages').select('*').eq('ticket_id', selectedTicket.id).order('created_at', { ascending: true })
       setMessages(data || [])
@@ -142,13 +134,13 @@ export default function Support() {
   }
 
   async function handleClose() {
-    await supabase.from('support_tickets').update({ status: 'resolved', resolved_at: new Date().toISOString() }).eq('id', selectedTicket.id)
+    await safeInvoke('support', { action: 'close_ticket', ticket_id: selectedTicket.id })
     toast.success('Ticket resolved'); setView('list'); fetchTickets()
   }
 
   async function handleRate(score) {
     setCsatScore(score)
-    await supabase.from('support_tickets').update({ csat_score: score }).eq('id', selectedTicket.id)
+    await safeInvoke('support', { action: 'rate_ticket', ticket_id: selectedTicket.id, csat_score: score })
     toast.success('Thanks for your feedback!')
   }
 

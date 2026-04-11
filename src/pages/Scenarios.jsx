@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { SkeletonPage } from '@/components/Skeleton'
 import { useTreasury } from '@/hooks/useTreasury'
 import { useAuth } from '@/hooks/useAuth'
+import { useToast } from '@/components/Toast'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, ComposedChart, Legend } from 'recharts'
 import { ChartTooltip } from '@/components/ChartTooltip'
 import { useChartTheme } from '@/hooks/useChartTheme'
@@ -26,7 +27,7 @@ export default function Scenarios() {
   const { org } = useAuth()
   const ct = useChartTheme()
   const { isDark } = useTheme()
-  const [toast, setToast] = useState(null)
+  const toast = useToast()
   const [scenarios, setScenarios] = useState(() => {
     try {
       const saved = localStorage.getItem(`vaultline-scenarios-${org?.id}`)
@@ -91,14 +92,14 @@ export default function Scenarios() {
   }
 
   function addScenario() {
-    setToast('Scenario added'); setTimeout(() => setToast(null), 2000)
+    toast.success('Scenario added')
     const colors = ['#A78BFA', '#FBBF24', '#F472B6', '#38BDF8', '#4ADE80']
     const id = `custom_${Date.now()}`
     setScenarios([...scenarios, { id, name: `Scenario ${scenarios.length + 1}`, color: colors[scenarios.length % colors.length], revenueGrowth: 0, burnChange: 0, oneTimeInflow: 0, oneTimeOutflow: 0, description: '' }])
   }
 
   function removeScenario(id) {
-    setToast('Scenario removed'); setTimeout(() => setToast(null), 2000)
+    toast.info('Scenario removed')
     if (scenarios.length <= 1) return
     setScenarios(scenarios.filter(s => s.id !== id))
   }
@@ -232,11 +233,6 @@ export default function Scenarios() {
           </div>
         </div>
       </div>
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-cyan/[0.15]">
-          <p className="text-[13px] text-cyan font-mono">{toast}</p>
-        </div>
-      )}
     </div>
   )
 }

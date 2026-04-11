@@ -46,6 +46,7 @@ function AnimatedNumber({ target, suffix = '', prefix = '' }) {
   const [value, setValue] = useState(0)
   const ref = useRef(null)
   useEffect(() => {
+    if (target === null || target === undefined) return
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         let start = 0
@@ -61,6 +62,7 @@ function AnimatedNumber({ target, suffix = '', prefix = '' }) {
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [target])
+  if (target === null || target === undefined) return <span>{prefix}{suffix}</span>
   return <span ref={ref}>{prefix}{value.toLocaleString()}{suffix}</span>
 }
 
@@ -340,7 +342,7 @@ export default function Landing() {
             { value: 12, suffix: 'K+', prefix: '', label: 'Banks Supported', icon: DollarSign },
             { value: 3, suffix: ' Models', prefix: '', label: 'Forecast Engine', icon: TrendingUp },
             { value: 28, suffix: '', prefix: '', label: 'Currencies Live', icon: Clock },
-            { value: 30, suffix: '-Day', prefix: '', label: 'M-B Guarantee', icon: Building2 },
+            { value: null, suffix: '', prefix: 'No Lock-in', label: 'Cancel Anytime', icon: Building2 },
           ].map((s, i) => (
             <FadeIn key={s.label} delay={i * 100}>
               <div className="text-center group">

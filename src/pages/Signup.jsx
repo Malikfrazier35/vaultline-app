@@ -12,6 +12,7 @@ export default function Signup() {
   const { user, loading, signUp } = useAuth()
   const [searchParams] = useSearchParams()
   const refCode = searchParams.get('ref')
+  const inviteToken = searchParams.get('invite')
   const [form, setForm] = useState({ fullName: '', companyName: '', email: '', password: '' })
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
@@ -33,7 +34,7 @@ export default function Signup() {
     const name = form.fullName.trim()
     if (name.length < 2) { setError('Please enter your full name'); return }
     if (!/^[a-zA-Z\s\-'.]+$/.test(name)) { setError('Name can only contain letters, spaces, hyphens, and apostrophes'); return }
-    if (!form.companyName.trim() || form.companyName.trim().length < 2) { setError('Please enter your company name'); return }
+    if (!inviteToken && (!form.companyName.trim() || form.companyName.trim().length < 2)) { setError('Please enter your company name'); return }
 
     // CC6.2 — Password complexity enforcement
     const p = form.password
@@ -43,9 +44,22 @@ export default function Signup() {
     if (!/[0-9]/.test(p)) { setError('Password must include a number'); return }
     if (!/[^A-Za-z0-9]/.test(p)) { setError('Password must include a special character (!@#$%)'); return }
     setSubmitting(true)
-    const { error } = await signUp({ ...form, referralCode: refCode })
+    const { error } = await signUp({ ...form, referralCode: refCode, inviteToken })
     if (error) setError(error.message)
-    else setSuccess(true)
+    else {
+      // Store invite token for post-verification acceptance
+      if (inviteToken) localStorage.setItem('vaultline-invite-token', inviteToken)
+      // Fire Google Ads enhanced conversion with first-party data
+      if (window.gtag) {
+        window.gtag('set', 'user_data', {
+          email: form.email,
+          first_name: form.fullName.split(' ')[0],
+          last_name: form.fullName.split(' ').slice(1).join(' ') || undefined,
+        })
+        window.gtag('event', 'conversion', { send_to: 'AW-18032992189/iJ9pCK2_h5AcEL2_5pZD' })
+      }
+      setSuccess(true)
+    }
     setSubmitting(false)
   }
 
@@ -137,13 +151,21 @@ export default function Signup() {
                       className="w-full px-3.5 py-2.5 rounded-xl bg-deep border border-border text-t1 text-[14px] outline-none focus:border-cyan/40 focus:ring-1 focus:ring-cyan/20 transition placeholder:text-t3"
                       placeholder="Jane Smith" />
                   </div>
+                  {!inviteToken && (
                   <div>
                     <label className="block text-[11px] font-mono font-semibold text-t3 uppercase tracking-[0.08em] mb-1.5">Company</label>
                     <input type="text" value={form.companyName} onChange={update('companyName')} required
                       className="w-full px-3.5 py-2.5 rounded-xl bg-deep border border-border text-t1 text-[14px] outline-none focus:border-cyan/40 focus:ring-1 focus:ring-cyan/20 transition placeholder:text-t3"
                       placeholder="Acme Corp" />
                   </div>
+                  )}
                 </div>
+                {inviteToken && (
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-cyan/[0.15] bg-cyan/[0.04]">
+                    <span className="text-[13px] text-cyan font-semibold">You've been invited to join a team.</span>
+                    <span className="text-[12px] text-t3">Sign up to accept.</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-[11px] font-mono font-semibold text-t3 uppercase tracking-[0.08em] mb-1.5">Work Email</label>
                   <input type="email" value={form.email} onChange={update('email')} required

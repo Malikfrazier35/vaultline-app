@@ -13,10 +13,10 @@ export default function LPTrial() {
   }
   const signupUrl = `/signup${utmParams.toString() ? '?' + utmParams.toString() : ''}`
 
-  // Fire Google Ads conversion on CTA click
+  // Track trial interest in GA4
   function handleClick() {
     if (window.gtag) {
-      window.gtag('event', 'conversion', { send_to: 'AW-18032992189/trial_start' })
+      window.gtag('event', 'trial_start_click', { event_category: 'lead', event_label: 'lp_trial' })
     }
   }
 

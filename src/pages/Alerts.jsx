@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useToast } from '@/components/Toast'
 import { SkeletonPage } from '@/components/Skeleton'
 import { useTreasury } from '@/hooks/useTreasury'
 import { useAuth } from '@/hooks/useAuth'
@@ -31,7 +32,7 @@ export default function Alerts() {
       return saved ? JSON.parse(saved) : []
     } catch { return [] }
   })
-  const [toast, setToast] = useState(null)
+  const toast = useToast()
 
   // Persist dismiss state
   useEffect(() => {
@@ -215,7 +216,7 @@ export default function Alerts() {
             <button onClick={() => {
               const rule = { id: Date.now(), name: 'Low cash alert', metric: 'total_cash', threshold: 50000, severity: 'critical', message: 'Total cash dropped below $50K' }
               setCustomRules([...customRules, rule])
-              setToast('Rule created — edit threshold below'); setTimeout(() => setToast(null), 2500)
+              toast.success('Rule created — edit threshold below')
             }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono font-bold bg-cyan/[0.06] text-cyan border border-cyan/[0.1] hover:bg-cyan/[0.1] transition">
               <Bell size={12} /> Add Rule
             </button>
@@ -243,7 +244,7 @@ export default function Alerts() {
                   </select>
                 </div>
               </div>
-              <button onClick={() => { setCustomRules(customRules.filter((_, j) => j !== i)); setToast('Rule deleted'); setTimeout(() => setToast(null), 2000) }}
+              <button onClick={() => { setCustomRules(customRules.filter((_, j) => j !== i)); toast.info('Rule deleted') }}
                 className="p-2 rounded-lg hover:bg-red/[0.08] text-t3 hover:text-red transition"><Trash2 size={14} /></button>
             </div>
           ))}
@@ -268,7 +269,7 @@ export default function Alerts() {
                 </div>
                 <p className="text-[13px] text-t2 leading-relaxed">{alert.message}</p>
               </div>
-              <button onClick={() => { setDismissed(new Set([...dismissed, alert.id])); setToast('Alert dismissed'); setTimeout(() => setToast(null), 2000) }}
+              <button onClick={() => { setDismissed(new Set([...dismissed, alert.id])); toast.info('Alert dismissed') }}
                 className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-deep text-t3 hover:text-t2 transition shrink-0">
                 <Check size={14} />
               </button>
@@ -316,11 +317,6 @@ export default function Alerts() {
           ))}
         </div>
       </div>
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-green/[0.15] animate-[slideUp_0.3s_ease-out]">
-          <p className="text-[13px] text-green font-mono">{toast}</p>
-        </div>
-      )}
     </div>
   )
 }

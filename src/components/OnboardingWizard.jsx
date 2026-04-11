@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePlaid } from '@/hooks/usePlaid'
 import { supabase } from '@/lib/supabase'
-import { ArrowRight, ArrowLeft, Shield, CreditCard, BarChart3, CheckCircle2, X, Sparkles, Check, Zap, Building2, Crown, Loader2 } from 'lucide-react'
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { ArrowRight, ArrowLeft, Shield, CreditCard, CheckCircle2, X, Sparkles, Check, Zap, Building2, Crown, Loader2, Lock } from 'lucide-react'
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
 
 const PLANS = [
   {
@@ -28,6 +32,65 @@ const PLANS = [
   },
 ]
 
+// ── Embedded card form (rendered inside <Elements>) ──
+function CardForm({ onSuccess, onError, loading, setLoading }) {
+  const stripe = useStripe()
+  const elements = useElements()
+
+  async function handleSubmit() {
+    if (!stripe || !elements) return
+    setLoading(true)
+    onError(null)
+
+    const { error } = await stripe.confirmSetup({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/home?checkout=success`,
+      },
+      redirect: 'if_required',
+    })
+
+    if (error) {
+      onError(error.message)
+      setLoading(false)
+    } else {
+      onSuccess()
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <PaymentElement
+        options={{
+          layout: 'tabs',
+          defaultValues: { billingDetails: { address: { country: 'US' } } },
+        }}
+      />
+      <button
+        onClick={handleSubmit}
+        disabled={!stripe || loading}
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all disabled:opacity-50"
+      >
+        {loading ? (
+          <><Loader2 size={14} className="animate-spin" /> Confirming...</>
+        ) : (
+          <>Start 14-Day Free Trial <ArrowRight size={14} /></>
+        )}
+      </button>
+      <div className="flex items-center justify-center gap-4 pt-1">
+        <div className="flex items-center gap-1.5">
+          <Lock size={10} className="text-t3" />
+          <span className="text-[10px] text-t3 font-mono">Card stored by Stripe</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Shield size={10} className="text-t3" />
+          <span className="text-[10px] text-t3 font-mono">You won't be charged today</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function OnboardingWizard({ onComplete }) {
   const { profile, org } = useAuth()
   const { openPlaidLink, linking } = usePlaid()
@@ -36,7 +99,10 @@ export default function OnboardingWizard({ onComplete }) {
   const [dismissed, setDismissed] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState('starter')
   const [billingCycle, setBillingCycle] = useState('monthly')
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [setupLoading, setSetupLoading] = useState(false)
+  const [setupError, setSetupError] = useState(null)
+  const [clientSecret, setClientSecret] = useState(null)
+  const [cardLoading, setCardLoading] = useState(false)
 
   useEffect(() => {
     if (org?.onboarding_completed) setDismissed(true)
@@ -45,7 +111,7 @@ export default function OnboardingWizard({ onComplete }) {
   if (dismissed) return null
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
-  const STEPS = ['welcome', 'plan', 'connect', 'security', 'ready']
+  const STEPS = ['welcome', 'plan', 'payment', 'connect', 'security', 'ready']
   const currentStep = STEPS[step]
   const isLast = step === STEPS.length - 1
 
@@ -55,30 +121,35 @@ export default function OnboardingWizard({ onComplete }) {
     setTimeout(() => setStep(s => Math.min(s + 1, STEPS.length - 1)), 500)
   }
 
-  async function selectPlanAndContinue(startTrial = true) {
-    if (org?.id) {
-      await supabase.from('organizations').update({
-        plan: selectedPlan,
-        plan_status: 'trialing',
-        trial_ends_at: new Date(Date.now() + 14 * 86400000).toISOString(),
-      }).eq('id', org.id)
-    }
+  async function createSubscription() {
+    setSetupLoading(true)
+    setSetupError(null)
+    try {
+      if (org?.id) {
+        await supabase.from('organizations').update({ plan: selectedPlan }).eq('id', org.id)
+      }
+      const plan = PLANS.find(p => p.id === selectedPlan)
+      const priceId = billingCycle === 'annual' ? plan?.yrPriceId : plan?.moPriceId
+      if (!priceId) throw new Error('No price found for selected plan')
 
-    if (!startTrial) {
-      setCheckoutLoading(true)
-      try {
-        const plan = PLANS.find(p => p.id === selectedPlan)
-        const priceId = billingCycle === 'annual' ? plan?.yrPriceId : plan?.moPriceId
-        if (priceId) {
-          const { data } = await supabase.functions.invoke('stripe-checkout', {
-            body: { price_id: priceId },
-          })
-          if (data?.url) { window.location.href = data.url; return }
-        }
-      } catch {}
-      setCheckoutLoading(false)
-    }
+      const { data, error: fnErr } = await supabase.functions.invoke('stripe-create-subscription', {
+        body: { price_id: priceId },
+      })
+      if (fnErr) throw new Error(fnErr.message || 'Subscription setup failed')
+      if (data?.error) throw new Error(data.error)
+      if (!data?.clientSecret) throw new Error('No client secret returned')
 
+      setClientSecret(data.clientSecret)
+      setStep(s => s + 1)
+    } catch (err) {
+      setSetupError(err.message)
+    } finally {
+      setSetupLoading(false)
+    }
+  }
+
+  function onCardSuccess() {
+    setCardLoading(false)
     setStep(s => s + 1)
   }
 
@@ -95,50 +166,65 @@ export default function OnboardingWizard({ onComplete }) {
     setStep(s => s + 1)
   }
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-void/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div className={`w-full bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${currentStep === 'plan' ? 'max-w-2xl' : 'max-w-lg'}`}>
+  const selectedPlanObj = PLANS.find(p => p.id === selectedPlan)
+  const selectedPrice = billingCycle === 'annual' ? selectedPlanObj?.annual : selectedPlanObj?.price
 
-        {/* Progress dots */}
-        <div className="flex items-center justify-between px-6 pt-5">
-          <div className="flex gap-2">
+  const elementsOptions = clientSecret ? {
+    clientSecret,
+    appearance: {
+      theme: 'night',
+      variables: {
+        colorPrimary: '#22d3ee',
+        colorBackground: '#0c0e14',
+        colorText: '#e2e8f0',
+        colorDanger: '#ef4444',
+        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, monospace',
+        borderRadius: '12px',
+        spacingUnit: '4px',
+      },
+      rules: {
+        '.Input': {
+          border: '1px solid rgba(255,255,255,0.08)',
+          backgroundColor: 'rgba(255,255,255,0.03)',
+          padding: '12px 14px',
+        },
+        '.Input:focus': {
+          border: '1px solid rgba(34,211,238,0.4)',
+          boxShadow: '0 0 0 2px rgba(34,211,238,0.1)',
+        },
+        '.Label': {
+          fontSize: '12px',
+          fontWeight: '600',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          color: '#94a3b8',
+        },
+      },
+    },
+  } : null
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-void/90 backdrop-blur-md flex items-center justify-center p-4">
+      <div className={`w-full bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 ${currentStep === 'plan' ? 'max-w-2xl' : 'max-w-lg'}`}>
+        {/* Progress */}
+        <div className="px-8 pt-6 pb-4 flex items-center gap-4">
+          <div className="flex-1 flex items-center gap-1">
             {STEPS.map((_, i) => (
-              <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === step ? 'w-8 bg-cyan' : i < step ? 'w-4 bg-cyan/40' : 'w-4 bg-border'
-              }`} />
+              <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= step ? 'bg-cyan' : 'bg-border/40'}`} />
             ))}
           </div>
-          <button onClick={finish} className="text-t3 hover:text-t1 transition p-1" title="Skip setup">
-            <X size={16} />
-          </button>
+          <span className="text-[10px] font-mono text-t3">{step + 1}/{STEPS.length}</span>
         </div>
 
-        <div className="px-8 py-6">
-
+        <div className="px-8 pb-4">
           {/* ═══ WELCOME ═══ */}
           {currentStep === 'welcome' && (<>
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan/[0.12] to-purple/[0.08] flex items-center justify-center mb-6">
               <Sparkles size={24} className="text-cyan" />
             </div>
-            <p className="text-[13px] text-cyan font-mono font-semibold tracking-wider mb-2">Hi {firstName}</p>
-            <h2 className="text-2xl font-black tracking-tight mb-2">Welcome to Vaultline</h2>
-            <p className="text-t2 text-[14px] mb-4">Your treasury command center is ready.</p>
-            <p className="text-t3 text-[13px] leading-relaxed mb-6">See every bank account, forecast your cash flow, and catch anomalies before they become problems — all in one place.</p>
-            <div className="rounded-xl border border-border bg-deep p-4">
-              <div className="flex gap-3 mb-3">
-                {[{ l: 'Total cash', v: '$2.26M', s: '+3.2%', c: 'text-cyan' }, { l: 'Net flow', v: '+$47K', s: '30 days', c: 'text-green' }, { l: 'Runway', v: '14.2 mo', s: 'Stable', c: 'text-t1' }].map(d => (
-                  <div key={d.l} className="flex-1 rounded-lg bg-surface border border-border p-3">
-                    <p className="text-[9px] font-mono text-t3 uppercase tracking-wider">{d.l}</p>
-                    <p className={`text-[18px] font-black font-mono ${d.c}`}>{d.v}</p>
-                    <p className="text-[10px] text-t3 font-mono">{d.s}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="h-12 rounded-lg bg-gradient-to-r from-cyan/[0.06] to-purple/[0.04] border border-border flex items-center justify-center">
-                <BarChart3 size={16} className="text-cyan/40" />
-                <span className="text-[10px] text-t3 ml-2 font-mono">90-day balance chart</span>
-              </div>
-            </div>
+            <h2 className="text-2xl font-black tracking-tight mb-2">Welcome, {firstName}</h2>
+            <p className="text-t2 text-[14px] mb-2">Let's get your treasury command center running.</p>
+            <p className="text-t3 text-[13px] leading-relaxed">Vaultline gives you real-time cash visibility, intelligent forecasting, and AI-powered insights — all in one platform.</p>
           </>)}
 
           {/* ═══ PLAN SELECTION ═══ */}
@@ -187,6 +273,48 @@ export default function OnboardingWizard({ onComplete }) {
             </div>
           </>)}
 
+          {/* ═══ PAYMENT (Embedded Stripe Elements) ═══ */}
+          {currentStep === 'payment' && (<>
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan/[0.12] to-green/[0.08] flex items-center justify-center mb-5">
+              <Lock size={24} className="text-cyan" />
+            </div>
+            <h2 className="text-2xl font-black tracking-tight mb-1">Add payment method</h2>
+            <p className="text-t3 text-[13px] mb-2">Your 14-day trial starts now. You won't be charged until it ends.</p>
+
+            <div className="rounded-xl border border-border bg-deep p-3 mb-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {selectedPlanObj && <selectedPlanObj.icon size={16} className={{ cyan: 'text-cyan', purple: 'text-purple', amber: 'text-amber' }[selectedPlanObj.color]} />}
+                <div>
+                  <p className="text-[13px] font-semibold text-t1">{selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} Plan</p>
+                  <p className="text-[11px] text-t3 font-mono">{billingCycle === 'annual' ? 'Annual billing' : 'Monthly billing'}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-[16px] font-black font-mono text-t1">${selectedPrice}/mo</p>
+                <p className="text-[10px] text-green font-mono">$0 due today</p>
+              </div>
+            </div>
+
+            {clientSecret && elementsOptions ? (
+              <Elements stripe={stripePromise} options={elementsOptions}>
+                <CardForm
+                  onSuccess={onCardSuccess}
+                  onError={setSetupError}
+                  loading={cardLoading}
+                  setLoading={setCardLoading}
+                />
+              </Elements>
+            ) : (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={20} className="animate-spin text-t3" />
+              </div>
+            )}
+
+            {setupError && (
+              <p className="text-[12px] text-red font-mono mt-3 text-center">{setupError}</p>
+            )}
+          </>)}
+
           {/* ═══ CONNECT BANK ═══ */}
           {currentStep === 'connect' && (<>
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan/[0.12] to-purple/[0.08] flex items-center justify-center mb-6">
@@ -226,7 +354,7 @@ export default function OnboardingWizard({ onComplete }) {
                 <div className="w-8 h-8 rounded-lg bg-purple/[0.08] flex items-center justify-center"><Crown size={14} className="text-purple" /></div>
                 <div>
                   <p className="text-[13px] font-semibold text-t1">{selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} plan · 14-day free trial</p>
-                  <p className="text-[11px] text-t3 font-mono">14-day free trial · Cancel anytime</p>
+                  <p className="text-[11px] text-t3 font-mono">Card saved · Cancel anytime</p>
                 </div>
               </div>
             </div>
@@ -235,14 +363,14 @@ export default function OnboardingWizard({ onComplete }) {
 
         {/* Actions */}
         <div className="px-8 pb-6 flex items-center justify-between gap-3">
-          {step > 0 ? (
+          {step > 0 && currentStep !== 'payment' ? (
             <button onClick={() => setStep(s => s - 1)} className="flex items-center gap-1 text-[13px] text-t3 hover:text-t1 transition">
               <ArrowLeft size={14} /> Back
             </button>
           ) : <div />}
 
           <div className="flex items-center gap-3">
-            {!isLast && currentStep !== 'plan' && (
+            {(currentStep === 'connect' || currentStep === 'security') && (
               <button onClick={skip} className="text-[13px] text-t3 hover:text-t1 transition">Skip</button>
             )}
 
@@ -253,10 +381,11 @@ export default function OnboardingWizard({ onComplete }) {
             )}
 
             {currentStep === 'plan' && (
-              <div className="flex items-center gap-2">
-                <button onClick={() => selectPlanAndContinue(false)} disabled={checkoutLoading}
+              <div className="flex flex-col items-end gap-2">
+                {setupError && <p className="text-[12px] text-red font-mono">{setupError}</p>}
+                <button onClick={createSubscription} disabled={setupLoading}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
-                  {checkoutLoading ? <><Loader2 size={14} className="animate-spin" /> Setting up...</> : <>Start Free Trial <ArrowRight size={14} /></>}
+                  {setupLoading ? <><Loader2 size={14} className="animate-spin" /> Setting up...</> : <>Continue <ArrowRight size={14} /></>}
                 </button>
               </div>
             )}
@@ -269,16 +398,15 @@ export default function OnboardingWizard({ onComplete }) {
             )}
 
             {currentStep === 'security' && (
-              <button onClick={() => setStep(s => s + 1)}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
+              <button onClick={() => setStep(s => s + 1)} className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
                 Next <ArrowRight size={14} />
               </button>
             )}
 
-            {currentStep === 'ready' && (
+            {isLast && (
               <button onClick={finish}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan to-purple text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
-                Go to Dashboard <ArrowRight size={14} />
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-green to-cyan text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
+                Launch Dashboard <ArrowRight size={14} />
               </button>
             )}
           </div>

@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import { ChartTooltip, fmtCurrency } from '@/components/ChartTooltip'
 import { useChartTheme } from '@/hooks/useChartTheme'
 import { useTheme } from '@/hooks/useTheme'
+import { useToast } from '@/components/Toast'
 import { Building2, Plus, ChevronRight, ArrowUpRight, ArrowDownRight, Layers, TrendingUp, Shield, AlertTriangle, Activity, Wallet } from 'lucide-react'
 
 const COLORS = ['#22D3EE', '#818CF8', '#34D399', '#FB7185', '#FBBF24', '#A78BFA']
@@ -82,7 +83,7 @@ export default function Entities() {
   const { isDark } = useTheme()
   const [view, setView] = useState('consolidated')
   const [expandedEntity, setExpandedEntity] = useState(null)
-  const [toast, setToast] = useState(null)
+  const toast = useToast()
 
   const colors = isDark ? COLORS : COLORS_LIGHT
 
@@ -177,7 +178,7 @@ export default function Entities() {
               </button>
             ))}
           </div>
-          <button onClick={() => { setToast('Entity creation requires bank connection. Connect a new bank to add entities.'); setTimeout(() => setToast(null), 4000) }}
+          <button onClick={() => { toast.info('Entity creation requires bank connection. Connect a new bank to add entities.') }}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px active:scale-[0.98] transition-all">
             <Plus size={14} /> Add Entity
           </button>
@@ -385,11 +386,6 @@ export default function Entities() {
         })}
       </div>
       {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 glass-card rounded-xl px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-cyan/[0.15] animate-[slideUp_0.3s_ease-out] max-w-sm">
-          <p className="text-[13px] text-t2">{toast}</p>
-        </div>
-      )}
     </div>
   )
 }

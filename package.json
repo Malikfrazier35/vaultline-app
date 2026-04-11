@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^6.1.0",
+    "@stripe/stripe-js": "^9.1.0",
     "@supabase/supabase-js": "^2.49.0",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",

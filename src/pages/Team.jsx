@@ -56,7 +56,7 @@ export default function Team() {
   const [filter, setFilter] = useState('all')
 
   useEffect(() => { document.title = 'Team \u2014 Vaultline' }, [])
-  useEffect(() => { load() }, [])
+  useEffect(() => { let stale = false; if (!stale) load(); return () => { stale = true } }, [])
 
   function showToast(msg, type = 'info') { type === 'success' ? toast.success(msg) : type === 'error' ? toast.error(msg) : toast.info(msg) }
 
@@ -65,7 +65,7 @@ export default function Team() {
     try {
       const [mRes, iRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('org_id', org?.id).order('created_at'),
-        supabase.from('invites').select('*').eq('org_id', org?.id).eq('status', 'pending').order('created_at', { ascending: false }).catch(() => ({ data: [] })),
+        supabase.from('invites').select('*').eq('org_id', org?.id).eq('status', 'pending').gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).catch(() => ({ data: [] })),
       ])
       setMembers(mRes.data || [])
       setInvites(iRes?.data || [])

@@ -27,7 +27,7 @@ export default function BankConnections() {
   const maxConns = org?.max_bank_connections || 25
 
   useEffect(() => { document.title = 'Bank Connections — Vaultline' }, [])
-  useEffect(() => { loadQB(); loadAcctConnections() }, [])
+  useEffect(() => { let stale = false; if (!stale) { loadQB(); loadAcctConnections() } return () => { stale = true } }, [])
 
   async function loadQB() {
     try {
@@ -195,16 +195,29 @@ export default function BankConnections() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {plaidConns.map((bank) => {
               const bankAccounts = accounts.filter((a) => a.bank_connection_id === bank.id)
+              const isError = bank.status === 'error' || bank.status === 'disconnected'
+              const syncAge = bank.last_synced_at ? (Date.now() - new Date(bank.last_synced_at).getTime()) / 3600000 : Infinity
+              const isStale = syncAge > 24
+              const statusColor = isError ? 'red' : isStale ? 'amber' : 'green'
+              const statusLabel = isError ? 'Error' : isStale ? 'Stale' : 'Healthy'
               return (
-                <div key={bank.id} className="glass-card rounded-[14px] p-4 flex items-center gap-3 hover:border-border-cyan transition group">
-                  <BankLogo
-                    name={bank.institution_name}
-                    color={bank.institution_color}
-                    size={40}
-                    className="shrink-0"
-                  />
+                <div key={bank.id} className={`glass-card rounded-[14px] p-4 flex items-center gap-3 transition group ${isError ? 'border-red/20 hover:border-red/40' : 'hover:border-border-cyan'}`}>
+                  <div className="relative shrink-0">
+                    <BankLogo
+                      name={bank.institution_name}
+                      color={bank.institution_color}
+                      size={40}
+                    />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card"
+                      style={{ background: isError ? '#EF4444' : isStale ? '#F59E0B' : '#22C55E' }}
+                      title={statusLabel} />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-t1 truncate">{bank.institution_name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[14px] font-semibold text-t1 truncate">{bank.institution_name}</p>
+                      {isError && <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-red/[0.08] text-red">Error</span>}
+                      {!isError && isStale && <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-amber/[0.08] text-amber">Stale</span>}
+                    </div>
                     <p className="text-[13px] text-t3 font-mono">{bankAccounts.length} acct{bankAccounts.length !== 1 ? 's' : ''} {bank.last_synced_at && `· ${timeSince(bank.last_synced_at)}`}</p>
                   </div>
                   <button onClick={() => removeConnection(bank.id, 'plaid')} disabled={removing === bank.id}

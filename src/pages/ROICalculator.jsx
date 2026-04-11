@@ -97,6 +97,7 @@ export default function ROICalculator() {
       })
       setLeadResult(data)
       setStep('results')
+      if (window.gtag) window.gtag('event', 'generate_lead', { event_category: 'lead', event_label: 'roi_calculator', value: roi.totalAnnualSavings })
     } catch (err) { console.error(err) }
     finally { setSubmitting(false) }
   }
