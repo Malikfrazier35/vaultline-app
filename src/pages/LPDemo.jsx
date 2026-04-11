@@ -165,7 +165,7 @@ export default function LPDemo() {
               </button>
             </form>
 
-            <p className="text-t4 text-[10px] text-center mt-4">No credit card required. We'll never share your information.</p>
+            <p className="text-t4 text-[10px] text-center mt-4">No commitment. Cancel anytime. We'll never share your information.</p>
           </div>
         </div>
       </div>

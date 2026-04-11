@@ -33,7 +33,7 @@ export default function LPTrial() {
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-12 pb-20 text-center">
 
-        <p className="text-cyan text-[11px] font-mono uppercase tracking-widest mb-5">14-day free trial — no credit card</p>
+        <p className="text-cyan text-[11px] font-mono uppercase tracking-widest mb-5">14-day free trial — cancel anytime</p>
 
         <h1 className="font-display text-4xl sm:text-5xl font-black leading-[1.1] mb-6">
           Stop logging into<br />5 bank portals<br />every morning
@@ -49,7 +49,7 @@ export default function LPTrial() {
           Start free trial <ArrowRight size={20} />
         </Link>
 
-        <p className="text-t4 text-[12px] mt-4">No credit card required. Cancel anytime.</p>
+        <p className="text-t4 text-[12px] mt-4">Start free for 14 days. Cancel anytime.</p>
 
         {/* Trust strip */}
         <div className="flex items-center justify-center gap-8 mt-14 flex-wrap">

@@ -10,22 +10,22 @@ const PLANS = [
   {
     name: 'Starter', icon: Zap, desc: 'Growing teams getting organized', color: 'cyan',
     moPrice: 499, yrPrice: 399, annual: '$4,788/yr',
-    moPriceId: 'price_1TAdoLFV8yRihVmreiDmJaka',
-    yrPriceId: 'price_1TAdoRFV8yRihVmrMjdX3zCp',
+    moPriceId: 'price_1THX62FNFhtB2ZujfPfhaKXc',
+    yrPriceId: 'price_1TL54bFNFhtB2Zuj9BKFWUwN',
     features: ['Up to 3 bank connections', 'Real-time cash position', '30-day cash forecast', 'AI Treasury Copilot (20/day)', 'Smart transaction tagging', 'Basic reports & exports', 'Email support'],
   },
   {
     name: 'Growth', icon: Crown, desc: 'Full treasury visibility', featured: true, color: 'purple',
     moPrice: 1499, yrPrice: 1199, annual: '$14,388/yr',
-    moPriceId: 'price_1TAdoVFV8yRihVmr3OFQDI5C',
-    yrPriceId: 'price_1TAdoaFV8yRihVmrRb8ogqIR',
+    moPriceId: 'price_1THX63FNFhtB2ZujQmJpAnaU',
+    yrPriceId: 'price_1TL54fFNFhtB2ZujU9ZE1z58',
     features: ['Up to 10 bank connections', 'Advanced AI Treasury Copilot', 'AI-powered 90-day forecast', 'Multi-entity support', 'Auto categorization', 'Board reporting templates', 'Slack & email alerts', 'API access', 'Priority support'],
   },
   {
     name: 'Enterprise', icon: Building2, desc: 'Complex treasury at scale', color: 'green',
     moPrice: 2499, yrPrice: 1999, annual: '$23,988/yr',
-    moPriceId: 'price_1TAdogFV8yRihVmrKdDLEbP7',
-    yrPriceId: 'price_1TAdokFV8yRihVmrvGYisOLP',
+    moPriceId: 'price_1THX64FNFhtB2Zujajul8HIw',
+    yrPriceId: 'price_1TL54kFNFhtB2ZujZaPvAY9T',
     features: ['Unlimited bank connections', 'Advanced AI Treasury Copilot — Unlimited', 'Scenario modeling', 'Multi-currency & FX alerts', 'Accounting software sync', 'Security center & audit logs', 'Compliance report generator', 'SSO / SAML integration', 'Priority email support'],
   },
   {
@@ -146,7 +146,7 @@ export default function Billing() {
               <div className="w-11 h-11 rounded-xl bg-cyan/[0.08] flex items-center justify-center"><Clock size={20} className="text-cyan" /></div>
               <div>
                 <p className="text-[15px] font-bold">Plan Active</p>
-                <p className="text-[13px] text-t3 font-mono">{daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining / No card required</p>
+                <p className="text-[13px] text-t3 font-mono">{daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining / Card on file</p>
               </div>
             </div>
             <div className="flex items-center gap-1.5">
@@ -285,7 +285,7 @@ export default function Billing() {
       {/* Guarantees */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {[
-          { icon: Shield, label: 'Free Trial', sub: '14 days free, no credit card required' },
+          { icon: Shield, label: 'Free Trial', sub: '14 days free, cancel anytime' },
           { icon: CreditCard, label: 'Cancel Anytime', sub: 'No long-term contracts or penalties' },
           { icon: Clock, label: 'Instant Access', sub: 'Set up in under 60 seconds' },
         ].map(g => (

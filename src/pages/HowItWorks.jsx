@@ -270,7 +270,7 @@ export default function HowItWorks() {
         {/* CTA */}
         <div className="text-center mt-14 mb-4">
           <h3 className="font-display text-xl font-bold mb-3">Ready to see your cash position clearly?</h3>
-          <p className="text-t3 text-[14px] mb-6 max-w-lg mx-auto">Connect your first bank account in under 60 seconds. No credit card required for the 14-day trial.</p>
+          <p className="text-t3 text-[14px] mb-6 max-w-lg mx-auto">Connect your first bank account in under 60 seconds. Start your 14-day free trial today.</p>
           <div className="flex items-center justify-center gap-3">
             <Link to="/signup" className="px-6 py-3 rounded-xl bg-cyan text-void text-[14px] font-bold hover:bg-cyan-bright hover:-translate-y-px active:scale-[0.97] transition-all">
               Start free trial

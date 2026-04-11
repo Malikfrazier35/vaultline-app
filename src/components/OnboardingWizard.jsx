@@ -13,22 +13,22 @@ const PLANS = [
     id: 'starter', label: 'Starter', price: 499, annual: 399,
     icon: Zap, color: 'cyan',
     features: ['3 bank connections', 'Real-time cash position', '30-day forecast', 'AI Treasury Copilot', 'Smart transaction tagging', 'Basic reports'],
-    moPriceId: 'price_1TAdoLFV8yRihVmreiDmJaka',
-    yrPriceId: 'price_1TAdoRFV8yRihVmrMjdX3zCp',
+    moPriceId: 'price_1THX62FNFhtB2ZujfPfhaKXc',
+    yrPriceId: 'price_1TL54bFNFhtB2Zuj9BKFWUwN',
   },
   {
     id: 'growth', label: 'Growth', price: 1499, annual: 1199,
     icon: Crown, color: 'purple', featured: true,
     features: ['10 bank connections', 'Advanced AI Treasury Copilot', 'AI-powered 90-day forecast', 'Multi-entity support', 'Slack & email alerts', 'API access'],
-    moPriceId: 'price_1TAdoVFV8yRihVmr3OFQDI5C',
-    yrPriceId: 'price_1TAdoaFV8yRihVmrRb8ogqIR',
+    moPriceId: 'price_1THX63FNFhtB2ZujQmJpAnaU',
+    yrPriceId: 'price_1TL54fFNFhtB2ZujU9ZE1z58',
   },
   {
     id: 'enterprise', label: 'Enterprise', price: 2499, annual: 1999,
     icon: Building2, color: 'amber',
     features: ['Unlimited connections', 'Scenario modeling', 'Security & audit center', 'Compliance reports', 'SSO / SAML', 'Priority support'],
-    moPriceId: 'price_1TAdogFV8yRihVmrKdDLEbP7',
-    yrPriceId: 'price_1TAdokFV8yRihVmrvGYisOLP',
+    moPriceId: 'price_1THX64FNFhtB2Zujajul8HIw',
+    yrPriceId: 'price_1TL54kFNFhtB2ZujZaPvAY9T',
   },
 ]
 

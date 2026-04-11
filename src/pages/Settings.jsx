@@ -794,7 +794,7 @@ export default function Settings() {
               <a href="/billing" className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all flex items-center gap-2">
                 <CreditCard size={14} /> Manage Billing
               </a>
-              <span className="text-[12px] text-t3">14-day free trial · No credit card required</span>
+              <span className="text-[12px] text-t3">14-day free trial · Cancel anytime</span>
             </div>
           </SectionCard>
 

@@ -78,7 +78,7 @@ export default function Paywall() {
           ) : (
             <>
               <h2 className="font-display text-3xl font-black mb-3">Choose your plan to get started</h2>
-              <p className="text-t3 max-w-md mx-auto">14-day free trial · No credit card required · Cancel anytime</p>
+              <p className="text-t3 max-w-md mx-auto">14-day free trial · Cancel anytime</p>
             </>
           )}
           {error && <p className="text-red text-[13px] mt-4 bg-red/[0.06] inline-block px-4 py-2 rounded-lg">{error}</p>}

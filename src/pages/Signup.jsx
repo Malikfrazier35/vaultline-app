@@ -18,7 +18,7 @@ export default function Signup() {
   const [success, setSuccess] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [socialLoading, setSocialLoading] = useState(null)
-  useSEO({ title: 'Create Account', description: 'Start your free trial. No credit card required. Real-time treasury management for mid-market finance teams.', canonical: '/signup' })
+  useSEO({ title: 'Create Account', description: 'Start your free 14-day trial. Real-time treasury management for mid-market finance teams.', canonical: '/signup' })
 
   if (loading) return null
   if (user) return <Navigate to="/dashboard" replace />
@@ -58,6 +58,18 @@ export default function Signup() {
         })
         window.gtag('event', 'conversion', { send_to: 'AW-18032992189/iJ9pCK2_h5AcEL2_5pZD' })
       }
+      // Notify founder of new signup (Slack + email, non-blocking)
+      const params = new URLSearchParams(window.location.search)
+      supabase.functions.invoke('notify', { body: {
+        action: 'signup_alert',
+        email: form.email,
+        full_name: form.fullName,
+        company_name: form.companyName,
+        source: inviteToken ? 'invite' : refCode ? 'referral' : 'organic',
+        utm_source: params.get('utm_source'),
+        utm_medium: params.get('utm_medium'),
+        utm_campaign: params.get('utm_campaign'),
+      }}).catch(() => {})
       setSuccess(true)
     }
     setSubmitting(false)
@@ -91,7 +103,7 @@ export default function Signup() {
           <h1 className="font-display text-3xl font-black tracking-tight">
             Vault<span className="bg-gradient-to-r from-cyan to-purple bg-clip-text text-transparent">line</span>
           </h1>
-          <p className="text-[13px] text-t3 mt-2">14-day free trial · No credit card required</p>
+          <p className="text-[13px] text-t3 mt-2">14-day free trial · Cancel anytime</p>
           <div className="flex items-center justify-center gap-4 mt-4">
             {['SOC 2 Ready', 'AES-256', 'Bank-Grade Security'].map(b => (
               <span key={b} className="text-[9px] font-mono text-t4 border border-border/40 rounded px-2 py-0.5">{b}</span>
