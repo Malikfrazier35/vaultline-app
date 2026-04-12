@@ -159,7 +159,7 @@ export default function Billing() {
       )}
 
       {/* Active subscriber — Manage Billing via Stripe Portal */}
-      {org?.plan_status === 'active' && org?.stripe_customer_id && (
+      {(org?.plan_status === 'active' || org?.plan_status === 'trialing') && org?.stripe_customer_id && (
         <div className="glass-card rounded-2xl p-5 border-green/[0.15]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
