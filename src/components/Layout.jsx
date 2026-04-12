@@ -3,6 +3,7 @@ import PageGuide, { PAGE_GUIDES } from '@/components/PageGuide'
 import { NavLink, Outlet, useLocation, Link } from 'react-router-dom'
 import ErrorBoundary, { SectionBoundary } from '@/components/ErrorBoundary'
 import MobileNav from '@/components/MobileNav'
+import SupportChat from '@/components/SupportChat'
 import { useAuth } from '@/hooks/useAuth'
 import { usePlaid } from '@/hooks/usePlaid'
 import {
@@ -506,6 +507,7 @@ export default function Layout() {
       <SectionBoundary name="Command Palette" height="h-0">
         <CommandPalette />
       </SectionBoundary>
+      <SupportChat />
     </div>
     </>
   )
