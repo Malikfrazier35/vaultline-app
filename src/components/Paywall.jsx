@@ -65,10 +65,13 @@ export default function Paywall() {
             <Shield size={18} className="text-cyan" />
             <span className="text-[14px] text-t2">Welcome, {profile?.full_name || 'there'}.</span>
           </div>
-          {org?.plan_status === 'canceled' ? (
+          {org?.plan_status === 'canceled' || org?.plan_status === 'pending_deletion' ? (
             <>
-              <h2 className="font-display text-3xl font-black mb-3">Reactivate Your Account</h2>
-              <p className="text-t3 max-w-md mx-auto">Your subscription has been canceled. Choose a plan to restore access to your treasury dashboard.</p>
+              <h2 className="font-display text-3xl font-black mb-3">{org?.closed_at ? 'Welcome Back' : 'Reactivate Your Account'}</h2>
+              <p className="text-t3 max-w-md mx-auto">{org?.closed_at
+                ? 'Your account was closed but your data is still here. Pick a plan to restore full access to your treasury dashboard.'
+                : 'Your subscription has been canceled. Choose a plan to restore access to your treasury dashboard.'
+              }</p>
             </>
           ) : org?.plan_status === 'trialing' && org?.trial_ends_at && new Date(org.trial_ends_at) < new Date() ? (
             <>

@@ -30,6 +30,7 @@ const CopilotCenter = lazyRetry(() => import('@/pages/CopilotCenter'))
 const Login = lazyRetry(() => import('@/pages/Login'))
 const Signup = lazyRetry(() => import('@/pages/Signup'))
 const AcceptInvite = lazyRetry(() => import('@/pages/AcceptInvite'))
+const Reactivate = lazyRetry(() => import('@/pages/Reactivate'))
 const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'))
 const ResetPassword = lazyRetry(() => import('@/pages/ResetPassword'))
 const ROICalculator = lazyRetry(() => import('@/pages/ROICalculator'))
@@ -114,9 +115,11 @@ function Spinner() {
 }
 
 function ProtectedRoute({ children }) {
-  const { user, org, loading } = useAuth()
+  const { user, org, loading, needsReactivation } = useAuth()
   if (loading) return <Spinner />
   if (!user) return <Navigate to="/login" replace />
+  // Closed/deactivated account → reactivation page
+  if (needsReactivation) return <Navigate to="/reactivate" replace />
   // No org or no plan_status → paywall
   if (!org?.plan_status) return <Paywall />
   // Expired trial → paywall
@@ -162,6 +165,7 @@ export default function App() {
             <Route path="/legal" element={<LegalCenter />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/accept-invite" element={<AcceptInvite />} />
+            <Route path="/reactivate" element={<Reactivate />} />
             <Route path="/lp/demo" element={<LPDemo />} />
             <Route path="/lp/trial" element={<LPTrial />} />
             <Route path="/privacy" element={<Privacy />} />

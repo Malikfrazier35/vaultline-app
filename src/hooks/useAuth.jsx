@@ -302,6 +302,11 @@ export function AuthProvider({ children }) {
       enrollMFA, verifyMFA, unenrollMFA, listMFAFactors, signInWithSSO,
       isOwner: profile?.role === 'owner',
       isAdmin: ['owner', 'admin'].includes(profile?.role),
+      needsReactivation: !!(profile && org && (
+        profile.status === 'deactivated' ||
+        org.plan_status === 'pending_deletion' ||
+        (org.closed_at && org.plan_status !== 'active' && org.plan_status !== 'trialing')
+      )),
     }}>
       {children}
     </AuthContext.Provider>
