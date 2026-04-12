@@ -6,6 +6,15 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
+// Dispatch events to customer-registered API webhooks
+async function dispatchWebhook(orgId: string, eventType: string, data: any) {
+  try {
+    await supabase.functions.invoke('webhook-deliver', {
+      body: { action: 'dispatch', org_id: orgId, event_type: eventType, data },
+    })
+  } catch {}
+}
+
 serve(async (req) => {
   const sig = req.headers.get('stripe-signature')
   if (!sig) return new Response('Missing signature', { status: 400 })
@@ -80,6 +89,7 @@ serve(async (req) => {
           }).eq('id', orgId)
           await supabase.from('growth_events').insert({ org_id: orgId, event: 'conversion', metadata: { plan, price_id: sub.items.data[0]?.price?.id } })
           await supabase.from('audit_log').insert({ org_id: orgId, action: 'subscription_created', details: { plan, subscription_id: session.subscription } })
+          await dispatchWebhook(orgId, 'subscription.created', { plan, status: 'active' })
         }
         break
       }
@@ -99,6 +109,7 @@ serve(async (req) => {
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
 
           await supabase.from('organizations').update({ plan_status: status, plan, stripe_subscription_id: sub.id, ...limits }).eq('id', orgId)
+          await dispatchWebhook(orgId, 'subscription.updated', { plan, status })
         }
         break
       }
@@ -110,6 +121,7 @@ serve(async (req) => {
           await supabase.from('organizations').update({ plan_status: 'canceled', stripe_subscription_id: null }).eq('id', orgId)
           await supabase.from('growth_events').insert({ org_id: orgId, event: 'churn', metadata: { reason: 'subscription_deleted' } })
           await supabase.from('audit_log').insert({ org_id: orgId, action: 'subscription_canceled', details: { subscription_id: sub.id } })
+          await dispatchWebhook(orgId, 'subscription.canceled', { reason: 'subscription_deleted' })
         }
         break
       }
@@ -120,12 +132,12 @@ serve(async (req) => {
         if (orgId) {
           await supabase.from('organizations').update({ plan_status: 'past_due' }).eq('id', orgId)
           await supabase.from('audit_log').insert({ org_id: orgId, action: 'payment_failed', details: { invoice_id: invoice.id, amount: invoice.amount_due } })
-          // Trigger notification
           await supabase.from('notifications').insert({
             org_id: orgId, type: 'payment_failed', severity: 'critical',
             title: 'Payment failed', body: `Your subscription payment of $${((invoice.amount_due || 0) / 100).toLocaleString()} was declined. Update your payment method to avoid service interruption.`,
             metadata: { invoice_id: invoice.id, amount: invoice.amount_due }, action_url: '/billing', channels_sent: ['in_app'],
           })
+          await dispatchWebhook(orgId, 'payment.failed', { invoice_id: invoice.id, amount: invoice.amount_due })
         }
         break
       }
@@ -140,6 +152,7 @@ serve(async (req) => {
             title: 'Payment successful', body: `Subscription payment of $${((invoice.amount_due || 0) / 100).toLocaleString()} processed successfully.`,
             metadata: { invoice_id: invoice.id }, action_url: '/billing', channels_sent: ['in_app'],
           })
+          await dispatchWebhook(orgId, 'payment.succeeded', { invoice_id: invoice.id, amount: invoice.amount_due })
         }
         break
       }

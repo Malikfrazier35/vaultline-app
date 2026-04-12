@@ -81,7 +81,7 @@ export default function ApiDocs() {
           </div>
           <div className="mt-6 p-3 rounded-xl border border-border bg-deep">
             <p className="text-[10px] font-mono text-t3 uppercase tracking-wider mb-1">BASE URL</p>
-            <code className="text-[11px] font-mono text-cyan terminal-data">api.vaultline.app</code>
+            <code className="text-[11px] font-mono text-cyan terminal-data break-all">{import.meta.env.VITE_SUPABASE_URL}/functions/v1/api</code>
           </div>
         </div>
 
@@ -201,7 +201,7 @@ export default function ApiDocs() {
           {/* Webhooks */}
           <section id="webhooks" className="glass-card rounded-2xl p-6">
             <h2 className="flex items-center gap-2 text-[16px] font-display font-bold mb-4"><Webhook size={16} className="text-green" /> Webhooks</h2>
-            <p className="text-[13px] text-t2 mb-4">Receive real-time notifications via HTTPS POST to your registered endpoint. All payloads include an <code className="text-cyan">X-Vaultline-Signature</code> header for verification.</p>
+            <p className="text-[13px] text-t2 mb-4">Receive real-time notifications via HTTPS POST to your registered endpoint. All payloads are signed with HMAC-SHA256 using your webhook secret.</p>
             <div className="rounded-xl border border-border overflow-hidden">
               <table className="w-full text-[12px]">
                 <thead><tr className="terminal-inset"><th className="text-left px-4 py-2.5 font-mono text-t3">EVENT</th><th className="text-left px-4 py-2.5 font-mono text-t3">DESCRIPTION</th></tr></thead>
@@ -213,8 +213,11 @@ export default function ApiDocs() {
                 ))}</tbody>
               </table>
             </div>
-            <div className="mt-4"><p className="text-[10px] font-mono text-t3 uppercase mb-2">WEBHOOK PAYLOAD</p>
-              <div className="terminal-inset p-4 rounded-xl"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'{\n  "id": "evt_...",\n  "type": "transaction.created",\n  "created": "2026-03-16T14:30:00Z",\n  "data": { ... }\n}'}</pre></div>
+            <div className="mt-4"><p className="text-[10px] font-mono text-t3 uppercase mb-2">WEBHOOK HEADERS</p>
+              <div className="terminal-inset p-4 rounded-xl mb-3"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'X-Vaultline-Event: transaction.created\nX-Vaultline-Signature: v1=a1b2c3...\nX-Vaultline-Timestamp: 1713024600\nX-Vaultline-Delivery: evt_abc123...'}</pre></div>
+              <p className="text-[10px] font-mono text-t3 uppercase mb-2">WEBHOOK PAYLOAD</p>
+              <div className="terminal-inset p-4 rounded-xl"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'{\n  "id": "evt_abc123def456...",\n  "type": "transaction.created",\n  "created": 1713024600,\n  "data": { ... },\n  "api_version": "v1"\n}'}</pre></div>
+              <p className="text-[12px] text-t3 mt-3">Verify signatures with HMAC-SHA256: <code className="text-cyan">hmac(secret, timestamp + "." + payload)</code>. Retries on failure: 3 attempts at 1min, 5min, 15min. Endpoints paused after 10 consecutive failures.</p>
             </div>
           </section>
 
