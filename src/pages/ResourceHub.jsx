@@ -24,7 +24,8 @@ export default function ResourceHub() {
   const [filterCat, setFilterCat] = useState('')
   const [resources, setResources] = useState([])
   const [templates, setTemplates] = useState([])
-
+  const [generating, setGenerating] = useState(null)
+  const [reportData, setReportData] = useState(null)
   const load = useCallback(async () => {
     setLoading(true)
     const { data: d } = await safeInvoke('resources', { action: 'hub' })
@@ -56,6 +57,40 @@ export default function ResourceHub() {
   async function removeQuickLink(linkId) {
     await safeInvoke('resources', { action: 'remove_quick_link', link_id: linkId })
     load()
+  }
+
+  async function generateReport(slug) {
+    setGenerating(slug)
+    try {
+      const { data, error } = await supabase.functions.invoke('report-generate', {
+        body: { template_slug: slug, format: 'json', days: 30 },
+      })
+      if (error) throw new Error(error.message)
+      if (data?.error) throw new Error(data.error)
+      setReportData(data)
+    } catch (err) {
+      toast.error(err.message || 'Report generation failed')
+    }
+    setGenerating(null)
+  }
+
+  async function downloadCsv(slug) {
+    try {
+      const { data, error } = await supabase.functions.invoke('report-generate', {
+        body: { template_slug: slug, format: 'csv', days: 30 },
+      })
+      if (error) throw new Error(error.message)
+      const blob = new Blob([data], { type: 'text/csv' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${slug}-${new Date().toISOString().split('T')[0]}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Report downloaded')
+    } catch (err) {
+      toast.error(err.message || 'Download failed')
+    }
   }
 
   if (loading) return <SkeletonPage />
@@ -203,28 +238,84 @@ export default function ResourceHub() {
 
       {/* TEMPLATES */}
       {tab === 'templates' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {templates.map(t => (
-            <div key={t.id} className="glass-card rounded-xl p-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <FileText size={14} className="text-purple" />
-                    <span className="text-[9px] font-mono text-t4 bg-deep px-1.5 py-0.5 rounded uppercase">{t.template_type?.replace('_', ' ')}</span>
-                    {t.is_system && <span className="text-[8px] font-mono text-cyan bg-cyan/[0.06] px-1 py-0.5 rounded">BUILT-IN</span>}
-                  </div>
-                  <h3 className="text-[14px] font-bold text-t1">{t.name}</h3>
-                  <p className="text-[11px] text-t3 mt-1">{t.description}</p>
-                  <div className="flex items-center gap-3 mt-2 text-[10px] font-mono text-t4">
-                    <span>{t.default_format?.toUpperCase()}</span>
-                    <span>{t.default_period}</span>
-                    <span>{t.usage_count} uses</span>
-                    <span className={t.plan_required === 'enterprise' ? 'text-amber' : t.plan_required === 'growth' ? 'text-purple' : 'text-cyan'}>{t.plan_required}</span>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {templates.map(t => (
+              <div key={t.id} className="glass-card rounded-xl p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <FileText size={14} className="text-purple" />
+                      <span className="text-[9px] font-mono text-t4 bg-deep px-1.5 py-0.5 rounded uppercase">{t.template_type?.replace('_', ' ')}</span>
+                      {t.is_system && <span className="text-[8px] font-mono text-cyan bg-cyan/[0.06] px-1 py-0.5 rounded">BUILT-IN</span>}
+                    </div>
+                    <h3 className="text-[14px] font-bold text-t1">{t.name}</h3>
+                    <p className="text-[11px] text-t3 mt-1">{t.description}</p>
+                    <div className="flex items-center gap-3 mt-2 text-[10px] font-mono text-t4">
+                      <span>{t.default_format?.toUpperCase()}</span>
+                      <span>{t.default_period}</span>
+                      <span>{t.usage_count} uses</span>
+                      <span className={t.plan_required === 'enterprise' ? 'text-amber' : t.plan_required === 'growth' ? 'text-purple' : 'text-cyan'}>{t.plan_required}</span>
+                    </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/20">
+                  <button onClick={() => generateReport(t.slug)} disabled={generating === t.slug}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold text-cyan border border-cyan/[0.15] hover:bg-cyan/[0.04] active:scale-[0.98] transition-all disabled:opacity-50">
+                    {generating === t.slug ? <><Loader2 size={11} className="animate-spin" /> Generating...</> : <><BarChart3 size={11} /> Preview</>}
+                  </button>
+                  <button onClick={() => downloadCsv(t.slug)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold text-t3 border border-border hover:border-green/[0.15] hover:text-green active:scale-[0.98] transition-all">
+                    <Download size={11} /> CSV
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Report preview modal */}
+          {reportData && (
+            <div className="glass-card rounded-2xl p-6 border-cyan/[0.15]">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-[16px] font-bold text-t1">{reportData.report?.title}</h3>
+                  <p className="text-[11px] font-mono text-t3 mt-0.5">{reportData.report?.subtitle}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => downloadCsv(reportData.template?.slug)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-mono font-semibold text-green border border-green/[0.15] hover:bg-green/[0.04] transition">
+                    <Download size={11} /> Download CSV
+                  </button>
+                  <button onClick={() => setReportData(null)} className="p-1.5 rounded-lg text-t3 hover:text-t1 transition"><X size={14} /></button>
+                </div>
+              </div>
+              <div className="rounded-xl border border-border overflow-x-auto">
+                <table className="w-full text-[12px]">
+                  <thead>
+                    <tr className="bg-deep">
+                      {(reportData.report?.columns || []).map(c => (
+                        <th key={c} className="text-left px-4 py-2.5 font-mono text-t3 font-semibold uppercase tracking-wider text-[10px]">{c.replace('_', ' ')}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(reportData.report?.rows || []).map((row, i) => (
+                      <tr key={i} className="border-t border-border/20 hover:bg-deep/50 transition">
+                        {(reportData.report?.columns || []).map(c => (
+                          <td key={c} className="px-4 py-2.5 font-mono text-t2">{row[c] ?? ''}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex items-center gap-3 mt-3 text-[10px] font-mono text-t4">
+                <span>{reportData.report?.row_count} rows</span>
+                <span>Generated {new Date(reportData.report?.generated_at).toLocaleString()}</span>
+                <span>Template: {reportData.template?.slug}</span>
               </div>
             </div>
-          ))}
+          )}
         </div>
       )}
 
