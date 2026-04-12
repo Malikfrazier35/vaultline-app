@@ -54,11 +54,13 @@ async function checkRateLimit(orgId: string, keyId: string, limit: number): Prom
 
 // ── Log usage ──
 async function logUsage(orgId: string, keyId: string, endpoint: string, method: string, statusCode: number, latencyMs: number, ip: string | null) {
-  await supabase.from('api_usage').insert({
-    org_id: orgId, key_id: keyId, endpoint, method,
-    status_code: statusCode, latency_ms: latencyMs,
-    request_ip: ip,
-  }).catch(() => {})
+  try {
+    await supabase.from('api_usage').insert({
+      org_id: orgId, key_id: keyId, endpoint, method,
+      status_code: statusCode, latency_ms: latencyMs,
+      request_ip: ip,
+    })
+  } catch {}
 }
 
 // ── Scope check ──
