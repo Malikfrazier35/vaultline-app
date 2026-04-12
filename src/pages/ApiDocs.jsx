@@ -20,17 +20,18 @@ const SECTIONS = [
 ]
 
 const ENDPOINTS = [
-  { method: 'GET', path: '/v1/accounts', desc: 'List connected bank accounts', response: '{ "data": [{ "id": "acc_...", "name": "Operating", "institution": "JPMorgan Chase", "type": "checking", "balance": 4250000, "currency": "USD", "last_synced": "2026-03-16T..." }], "meta": { "total": 4 } }' },
-  { method: 'GET', path: '/v1/accounts/:id', desc: 'Get single account details', response: '{ "data": { "id": "acc_...", "name": "Operating", "balance": 4250000, "transactions_count": 847 } }' },
-  { method: 'GET', path: '/v1/transactions', desc: 'Query transactions with filters', params: 'account_id, category, start_date, end_date, min_amount, max_amount, cursor, limit', response: '{ "data": [{ "id": "tx_...", "date": "2026-03-15", "description": "Stripe Payout", "amount": -12500, "category": "revenue" }], "meta": { "total": 247, "cursor": "tx_abc..." } }' },
-  { method: 'POST', path: '/v1/transactions', desc: 'Create a manual transaction', body: '{ "account_id": "acc_...", "amount": 1500, "description": "Wire Transfer", "date": "2026-03-16", "category": "transfer" }' },
-  { method: 'GET', path: '/v1/cash-position', desc: 'Current cash position summary', response: '{ "data": { "total_balance": 14200000, "accounts": 4, "last_updated": "2026-03-16T...", "change_24h": 125000, "change_7d": 892000 } }' },
-  { method: 'GET', path: '/v1/forecast', desc: 'Cash flow forecast & runway', response: '{ "data": { "runway_months": 18.4, "monthly_burn": 245000, "confidence": 0.94, "projections": [{ "date": "2026-03-23", "projected": 14050000, "upper": 14200000, "lower": 13900000 }] } }' },
-  { method: 'GET', path: '/v1/balances/daily', desc: 'Historical daily balances', params: 'start_date, end_date, account_id', response: '{ "data": [{ "date": "2026-03-15", "balance": 14150000 }] }' },
-  { method: 'GET', path: '/v1/entities', desc: 'List entities (subsidiaries)', response: '{ "data": [{ "id": "ent_...", "name": "Acme Corp", "accounts": 2, "balance": 8500000 }] }' },
-  { method: 'GET', path: '/v1/fx/rates', desc: 'Current FX rates for watchlist', response: '{ "data": { "base": "USD", "rates": { "EUR": 0.9215, "GBP": 0.7891 }, "updated": "2026-03-16T..." } }' },
-  { method: 'POST', path: '/v1/webhooks', desc: 'Register a webhook endpoint', body: '{ "url": "https://your-server.com/webhook", "events": ["transaction.created", "balance.updated", "forecast.generated"] }' },
-  { method: 'DELETE', path: '/v1/webhooks/:id', desc: 'Remove a webhook', response: '{ "deleted": true }' },
+  { method: 'GET', path: '/v1/accounts', desc: 'List connected bank accounts', response: '{ "accounts": [{ "id": "...", "account_name": "Operating", "institution_name": "Chase", "current_balance": 4250000 }], "count": 4, "_meta": { "latency_ms": 45, "api_version": "v1" } }' },
+  { method: 'GET', path: '/v1/transactions', desc: 'Query transactions with filters', params: 'account_id, category, from, to, limit, offset', response: '{ "transactions": [{ "id": "...", "date": "2026-03-15", "name": "Stripe Payout", "amount": -12500, "category": "revenue" }], "count": 50, "limit": 50, "offset": 0, "_meta": { ... } }' },
+  { method: 'POST', path: '/v1/transactions', desc: 'Create a manual transaction', body: '{ "account_id": "...", "name": "Wire Transfer", "amount": 1500, "date": "2026-03-16", "category": "transfer" }' },
+  { method: 'GET', path: '/v1/cash-position', desc: 'Current cash position summary', response: '{ "total_balance": 1284500, "total_available": 1180320, "account_count": 4, "currency": "USD", "by_type": { "checking": 842300, "savings": 442200 }, "as_of": "...", "_meta": { ... } }' },
+  { method: 'GET', path: '/v1/forecast', desc: 'Cash flow forecast & runway', response: '{ "model": "ema", "mape": 8.4, "recommended": true, "forecast": { ... }, "generated_at": "...", "_meta": { ... } }' },
+  { method: 'GET', path: '/v1/balances/daily', desc: 'Historical daily balances', params: 'days (default 30, max 365)', response: '{ "balances": [{ "date": "2026-03-15", "total_balance": 14150000, "account_count": 4 }], "days": 30, "_meta": { ... } }' },
+  { method: 'GET', path: '/v1/entities', desc: 'List entities (subsidiaries)', response: '{ "entities": [{ "id": "...", "name": "Acme Corp", "entity_type": "subsidiary", "currency": "USD" }], "count": 2, "_meta": { ... } }' },
+  { method: 'GET', path: '/v1/fx/rates', desc: 'Current FX rates for watchlist', response: '{ "rates": [{ "base_currency": "USD", "quote_currency": "EUR", "rate": 0.9215 }], "_meta": { ... } }' },
+  { method: 'GET', path: '/v1/audit', desc: 'Audit log entries', params: 'limit (default 50, max 200)', response: '{ "events": [{ "action": "login", "resource_type": "user", "created_at": "..." }], "count": 50, "_meta": { ... } }' },
+  { method: 'GET', path: '/v1/webhooks', desc: 'List registered webhooks', response: '{ "webhooks": [{ "id": "...", "url": "https://...", "events": ["balance.updated"], "status": "active" }], "count": 1, "_meta": { ... } }' },
+  { method: 'POST', path: '/v1/webhooks', desc: 'Register a webhook endpoint', body: '{ "url": "https://your-server.com/webhook", "events": ["transaction.created", "balance.updated"] }' },
+  { method: 'DELETE', path: '/v1/webhooks/:id', desc: 'Remove a webhook', response: '{ "deleted": true, "_meta": { ... } }' },
 ]
 
 const ERRORS = [
@@ -137,15 +138,15 @@ export default function ApiDocs() {
           {/* Response Format */}
           <section id="responses" className="glass-card rounded-2xl p-6">
             <h2 className="flex items-center gap-2 text-[16px] font-display font-bold mb-4"><Code size={16} className="text-cyan" /> Response Format</h2>
-            <p className="text-[13px] text-t2 mb-4">All responses return JSON with a consistent envelope. Successful responses use a <code className="text-cyan">data</code> key. Errors use an <code className="text-red">error</code> key.</p>
+            <p className="text-[13px] text-t2 mb-4">All responses return JSON with the resource data at the top level and a <code className="text-cyan">_meta</code> envelope for request metadata. Errors return an <code className="text-red">error</code> string.</p>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-[10px] font-mono text-green uppercase mb-2">SUCCESS (200)</p>
-                <div className="terminal-inset p-4 rounded-xl"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'{\n  "data": { ... },\n  "meta": {\n    "total": 247,\n    "cursor": "tx_abc...",\n    "request_id": "req_..."\n  }\n}'}</pre></div>
+                <div className="terminal-inset p-4 rounded-xl"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'{\n  "total_balance": 1284500.00,\n  "account_count": 4,\n  "currency": "USD",\n  "as_of": "2026-04-12T...",\n  "_meta": {\n    "latency_ms": 45,\n    "api_version": "v1"\n  }\n}'}</pre></div>
               </div>
               <div>
                 <p className="text-[10px] font-mono text-red uppercase mb-2">ERROR (4xx/5xx)</p>
-                <div className="terminal-inset p-4 rounded-xl"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'{\n  "error": {\n    "code": "invalid_param",\n    "message": "start_date must\n      be before end_date",\n    "request_id": "req_..."\n  }\n}'}</pre></div>
+                <div className="terminal-inset p-4 rounded-xl"><pre className="text-[11px] font-mono text-t2 whitespace-pre-wrap">{'{\n  "error": "Invalid or missing\n    API key. Include:\n    Authorization: Bearer\n    vl_live_..."\n}'}</pre></div>
               </div>
             </div>
           </section>
@@ -170,11 +171,11 @@ export default function ApiDocs() {
           {/* Pagination */}
           <section id="pagination" className="glass-card rounded-2xl p-6">
             <h2 className="flex items-center gap-2 text-[16px] font-display font-bold mb-4"><Hash size={16} className="text-purple" /> Pagination</h2>
-            <p className="text-[13px] text-t2 mb-4">List endpoints use cursor-based pagination. Pass <code className="text-cyan">limit</code> (max 100, default 25) and the returned <code className="text-cyan">cursor</code> for the next page.</p>
+            <p className="text-[13px] text-t2 mb-4">List endpoints use offset-based pagination. Pass <code className="text-cyan">limit</code> (max 200, default 50) and <code className="text-cyan">offset</code> to page through results.</p>
             <div className="terminal-inset p-4 rounded-xl">
-              <pre className="text-[12px] font-mono text-t2">GET /v1/transactions?limit=50&cursor=tx_abc123...</pre>
+              <pre className="text-[12px] font-mono text-t2">GET /v1/transactions?limit=50&offset=100</pre>
             </div>
-            <p className="text-[12px] text-t3 mt-3">When no more results exist, the <code className="text-t2">cursor</code> field in <code className="text-t2">meta</code> will be <code className="text-t2">null</code>.</p>
+            <p className="text-[12px] text-t3 mt-3">The response includes <code className="text-t2">count</code>, <code className="text-t2">limit</code>, and <code className="text-t2">offset</code> fields. When <code className="text-t2">count</code> is less than <code className="text-t2">limit</code>, you've reached the last page.</p>
           </section>
 
           {/* Rate Limits */}
@@ -224,18 +225,17 @@ export default function ApiDocs() {
           {/* SDKs */}
           <section id="sdks" className="glass-card rounded-2xl p-6">
             <h2 className="flex items-center gap-2 text-[16px] font-display font-bold mb-4"><Terminal size={16} className="text-purple" /> SDKs & Libraries</h2>
+            <p className="text-[13px] text-t2 mb-4">Official SDKs are in development. For now, use the REST API directly — it's a simple Bearer token + JSON interface that works from any language.</p>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { lang: 'Node.js', pkg: 'npm install @vaultline/sdk', color: 'green' },
-                { lang: 'Python', pkg: 'pip install vaultline', color: 'cyan' },
-                { lang: 'Ruby', pkg: 'gem install vaultline', color: 'red' },
+                { lang: 'Node.js', pkg: '@vaultline/sdk', color: 'green', status: 'Coming Q3 2026' },
+                { lang: 'Python', pkg: 'vaultline', color: 'cyan', status: 'Coming Q3 2026' },
+                { lang: 'Ruby', pkg: 'vaultline', color: 'red', status: 'Coming Q4 2026' },
               ].map(s => (
-                <div key={s.lang} className="terminal-inset p-4 rounded-xl">
+                <div key={s.lang} className="terminal-inset p-4 rounded-xl opacity-60">
                   <p className="text-[11px] font-mono text-t3 uppercase mb-2">{s.lang}</p>
-                  <div className="flex items-center gap-2">
-                    <code className={`text-[12px] font-mono text-${s.color} terminal-data`}>{s.pkg}</code>
-                    <CopyBtn text={s.pkg} />
-                  </div>
+                  <code className={`text-[12px] font-mono text-t3 terminal-data`}>{s.pkg}</code>
+                  <p className="text-[10px] font-mono text-amber mt-2">{s.status}</p>
                 </div>
               ))}
             </div>
