@@ -32,7 +32,7 @@ Vaultline connects to your bank accounts via Plaid (12,000+ supported institutio
 - Growth: $1,499/month — 10 bank connections, 90-day AI forecast, multi-entity, API access, Copilot (100 messages/day)
 - Enterprise: $2,499/month — Unlimited connections, scenario modeling, SSO, security center, compliance reports, unlimited Copilot
 
-All plans include a 14-day free trial with no credit card required.
+All plans include a 14-day free trial with cancel-anytime flexibility.
 
 ## How Vaultline Compares
 
@@ -71,7 +71,7 @@ Q: How long does it take to set up?
 A: Under 60 seconds. Sign up, connect your bank via Plaid, and your dashboard is live.
 
 Q: Can I try it for free?
-A: Yes. All plans include a 14-day free trial with no credit card required.
+A: Yes. All plans include a 14-day free trial with cancel-anytime flexibility.
 
 Q: What banks does Vaultline support?
 A: Over 12,000 financial institutions in the US and Canada via Plaid, including Chase, Bank of America, Wells Fargo, Citi, Capital One, and all major banks.
