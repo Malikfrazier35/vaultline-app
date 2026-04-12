@@ -48,6 +48,7 @@ const DataIntelligence = lazyRetry(() => import('@/pages/DataIntelligence'))
 const CashVisibility = lazyRetry(() => import('@/pages/CashVisibility'))
 const UXCenter = lazyRetry(() => import('@/pages/UXCenter'))
 const ResourceHub = lazyRetry(() => import('@/pages/ResourceHub'))
+const ResourceDetail = lazyRetry(() => import('@/pages/ResourceDetail'))
 const PaymentHub = lazyRetry(() => import('@/pages/PaymentHub'))
 const DesignSystem = lazyRetry(() => import('@/pages/DesignSystem'))
 const AutomationCenter = lazyRetry(() => import('@/pages/AutomationCenter'))
@@ -207,6 +208,7 @@ export default function App() {
               <Route path="cash-visibility" element={<SafePage name="Cash Visibility"><CashVisibility /></SafePage>} />
               <Route path="ux" element={<SafePage name="UX"><UXCenter /></SafePage>} />
               <Route path="resources" element={<SafePage name="Resources"><ResourceHub /></SafePage>} />
+              <Route path="resources/:slug" element={<SafePage name="Resource"><ResourceDetail /></SafePage>} />
               <Route path="copilot" element={<SafePage name="Treasury Operations"><CopilotCenter /></SafePage>} />
               <Route path="payment-hub" element={<SafePage name="Payment Hub"><PaymentHub /></SafePage>} />
               <Route path="design-system" element={<SafePage name="Design System"><DesignSystem /></SafePage>} />

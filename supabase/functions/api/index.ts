@@ -253,20 +253,34 @@ serve(async (req) => {
       else body = { transaction: data }
     }
 
+    // GET /v1/webhooks
+    else if (path === '/v1/webhooks' && method === 'GET') {
+      if (!hasScope(auth.scopes, 'read:accounts')) return err('Insufficient scope required', 403)
+      const { data } = await supabase.from('webhook_endpoints')
+        .select('id, url, events, status, description, failure_count, last_success_at, last_failure_at, created_at')
+        .eq('org_id', auth.orgId)
+        .neq('status', 'deleted')
+        .order('created_at', { ascending: false })
+      body = { webhooks: data || [], count: data?.length || 0 }
+    }
+
     // POST /v1/webhooks
     else if (path === '/v1/webhooks' && method === 'POST') {
       if (!hasScope(auth.scopes, 'write:webhooks')) return err('Insufficient scope: write:webhooks required', 403)
-      const { url: hookUrl, events } = await req.json()
+      const { url: hookUrl, events, description } = await req.json()
       if (!hookUrl) return err('url is required', 400)
 
+      const secret = 'whsec_' + Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2, '0')).join('')
+
       const { data, error: insertErr } = await supabase.from('webhook_endpoints').insert({
-        org_id: auth.orgId, url: hookUrl,
+        org_id: auth.orgId, url: hookUrl, secret,
         events: events || ['balance.updated', 'transaction.created'],
+        description: description || null,
         status: 'active',
-      }).select().single()
+      }).select('id, url, events, status, created_at').single()
 
       if (insertErr) { status = 400; body = { error: insertErr.message } }
-      else body = { webhook: data }
+      else body = { webhook: data, secret }
     }
 
     // DELETE /v1/webhooks/:id

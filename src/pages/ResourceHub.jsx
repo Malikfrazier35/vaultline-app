@@ -107,14 +107,14 @@ export default function ResourceHub() {
                 const CatIcon = CATEGORY_ICONS[r.category] || BookOpen
                 const color = CATEGORY_COLORS[r.category] || 't3'
                 return (
-                  <div key={r.slug} className="glass-card rounded-xl p-5 hover:border-border-hover transition group cursor-pointer" onClick={() => { setTab('library'); setSearchTerm(r.title) }}>
+                  <Link key={r.slug} to={`/resources/${r.slug}`} className="glass-card rounded-xl p-5 hover:border-border-hover transition group cursor-pointer block">
                     <div className="flex items-center gap-2 mb-2">
                       <div className={`w-7 h-7 rounded-lg bg-${color}/[0.08] flex items-center justify-center`}><CatIcon size={13} className={`text-${color}`} /></div>
                       <span className="text-[9px] font-mono text-t4 uppercase">{r.resource_type?.replace('_', ' ')}</span>
                     </div>
                     <h3 className="text-[13px] font-bold text-t1 group-hover:text-cyan transition">{r.title}</h3>
                     <p className="text-[11px] text-t3 mt-1 line-clamp-2">{r.excerpt}</p>
-                  </div>
+                  </Link>
                 )
               })}
             </div>
@@ -176,7 +176,7 @@ export default function ResourceHub() {
             {resources.map(r => {
               const CatIcon = CATEGORY_ICONS[r.category] || BookOpen
               return (
-                <div key={r.id} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-border-hover transition">
+                <Link key={r.id} to={`/resources/${r.slug}`} className="glass-card rounded-xl p-4 flex items-center justify-between group hover:border-border-hover transition block">
                   <div className="flex items-center gap-3">
                     <CatIcon size={16} className={`text-${CATEGORY_COLORS[r.category] || 't3'}`} />
                     <div>
@@ -193,7 +193,7 @@ export default function ResourceHub() {
                     </div>
                   </div>
                   {r.video_url ? <Play size={14} className="text-purple" /> : <ChevronRight size={14} className="text-t4" />}
-                </div>
+                </Link>
               )
             })}
             {resources.length === 0 && <div className="glass-card rounded-2xl p-12 text-center"><Search size={28} className="text-t4 mx-auto mb-3" /><p className="text-[14px] text-t2">{searchTerm ? 'No results found' : 'Loading resources...'}</p></div>}
