@@ -29,6 +29,7 @@ const LPTrial = lazyRetry(() => import('@/pages/LPTrial'))
 const CopilotCenter = lazyRetry(() => import('@/pages/CopilotCenter'))
 const Login = lazyRetry(() => import('@/pages/Login'))
 const Signup = lazyRetry(() => import('@/pages/Signup'))
+const AcceptInvite = lazyRetry(() => import('@/pages/AcceptInvite'))
 const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'))
 const ResetPassword = lazyRetry(() => import('@/pages/ResetPassword'))
 const ROICalculator = lazyRetry(() => import('@/pages/ROICalculator'))
@@ -160,6 +161,7 @@ export default function App() {
             <Route path="/burn-simulator" element={<BurnSimulator />} />
             <Route path="/legal" element={<LegalCenter />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/lp/demo" element={<LPDemo />} />
             <Route path="/lp/trial" element={<LPTrial />} />
             <Route path="/privacy" element={<Privacy />} />

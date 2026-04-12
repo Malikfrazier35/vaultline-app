@@ -49,7 +49,7 @@ function alertEmailHtml(title: string, body: string, actionUrl?: string): string
 }
 
 function inviteEmailHtml(orgName: string, inviterName: string, role: string, token: string): string {
-  const acceptUrl = `https://www.vaultline.app/signup?invite=${token}`
+  const acceptUrl = `https://www.vaultline.app/accept-invite?token=${token}`
   return `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#0C1222;color:#F1F5F9;border-radius:16px;">
       <div style="text-align:center;margin-bottom:24px;">
@@ -201,6 +201,57 @@ serve(async (req) => {
         await supabase.from('notifications').update({ read_at: new Date().toISOString() })
           .eq('org_id', org_id).is('read_at', null).is('dismissed_at', null)
         return json({ success: true })
+      }
+
+      // ── SIGNUP ALERT: Real-time notification to founder on new signups ──
+      case 'signup_alert': {
+        const { email, full_name, company_name, source, utm_source, utm_medium, utm_campaign } = body
+        const SLACK_WEBHOOK = Deno.env.get('SLACK_SIGNUP_WEBHOOK') || ''
+        const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAILS') || '').split(',').map(e => e.trim()).filter(Boolean)
+        const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' })
+        const utmInfo = [utm_source, utm_medium, utm_campaign].filter(Boolean).join(' / ') || 'Direct'
+
+        // Slack notification with rich formatting
+        if (SLACK_WEBHOOK) {
+          await sendSlack(SLACK_WEBHOOK, '', [
+            {
+              type: 'header',
+              text: { type: 'plain_text', text: '🎉 New Signup', emoji: true }
+            },
+            {
+              type: 'section',
+              fields: [
+                { type: 'mrkdwn', text: `*Name:*\n${full_name || 'Not provided'}` },
+                { type: 'mrkdwn', text: `*Email:*\n${email}` },
+                { type: 'mrkdwn', text: `*Company:*\n${company_name || 'Not provided'}` },
+                { type: 'mrkdwn', text: `*Source:*\n${utmInfo}` },
+              ]
+            },
+            {
+              type: 'context',
+              elements: [{ type: 'mrkdwn', text: `${timestamp} ET` }]
+            }
+          ])
+        }
+
+        // Email to admin(s)
+        for (const admin of ADMIN_EMAILS) {
+          await sendEmail(admin, `New signup: ${full_name || email}`, `
+            <div style="font-family:-apple-system,sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0C1222;color:#F1F5F9;border-radius:12px;">
+              <h2 style="margin:0 0 16px;font-size:18px;color:#22D3EE;">New Vaultline Signup</h2>
+              <table style="width:100%;font-size:14px;color:#94A3B8;">
+                <tr><td style="padding:6px 0;font-weight:600;color:#F1F5F9;">Name</td><td>${full_name || '—'}</td></tr>
+                <tr><td style="padding:6px 0;font-weight:600;color:#F1F5F9;">Email</td><td>${email}</td></tr>
+                <tr><td style="padding:6px 0;font-weight:600;color:#F1F5F9;">Company</td><td>${company_name || '—'}</td></tr>
+                <tr><td style="padding:6px 0;font-weight:600;color:#F1F5F9;">Source</td><td>${utmInfo}</td></tr>
+                <tr><td style="padding:6px 0;font-weight:600;color:#F1F5F9;">Time</td><td>${timestamp} ET</td></tr>
+              </table>
+              <a href="https://www.vaultline.app/super-admin" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#22D3EE;color:#0C1222;font-weight:600;font-size:13px;border-radius:8px;text-decoration:none;">View in Admin</a>
+            </div>
+          `)
+        }
+
+        return json({ success: true, slack: !!SLACK_WEBHOOK, email: ADMIN_EMAILS.length })
       }
 
       // ── DISMISS ──

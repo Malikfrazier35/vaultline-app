@@ -134,7 +134,7 @@ serve(async (req) => {
         if (profile_id === user.id) return json({ error: 'Cannot remove yourself' })
         await supabase.from('profiles').update({ status: 'deactivated', role: 'viewer' }).eq('id', profile_id).eq('org_id', orgId)
         // CC6.3 — Revoke all active sessions on removal
-        await supabase.from('active_sessions').update({ is_active: false }).eq('user_id', profile_id).eq('org_id', orgId)
+        await supabase.from('active_sessions').update({ revoked_at: new Date().toISOString() }).eq('user_id', profile_id).eq('org_id', orgId).is('revoked_at', null)
         // Force sign-out via admin API
         try { await supabase.auth.admin.signOut(profile_id, 'global') } catch {}
         await supabase.from('audit_log').insert({ org_id: orgId, user_id: user.id, action: 'member_removed', details: { target_id: profile_id, sessions_revoked: true } })
@@ -146,7 +146,7 @@ serve(async (req) => {
         const { profile_id } = body
         await supabase.from('profiles').update({ status: 'suspended' }).eq('id', profile_id).eq('org_id', orgId)
         // CC6.3 — Revoke sessions on suspension
-        await supabase.from('active_sessions').update({ is_active: false }).eq('user_id', profile_id).eq('org_id', orgId)
+        await supabase.from('active_sessions').update({ revoked_at: new Date().toISOString() }).eq('user_id', profile_id).eq('org_id', orgId).is('revoked_at', null)
         try { await supabase.auth.admin.signOut(profile_id, 'global') } catch {}
         await supabase.from('security_events').insert({ org_id: orgId, event_type: 'access_suspended', severity: 'warning', description: `Team member ${profile_id} suspended — sessions revoked`, user_id: profile_id })
         return json({ success: true })
