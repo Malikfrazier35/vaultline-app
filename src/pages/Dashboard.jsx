@@ -49,7 +49,7 @@ function fmt(n) {
 
 export default function Dashboard() {
   const { profile, org } = useAuth()
-  const { accounts, transactions, cashPosition, forecast, loading, lastFetched, refetch } = useTreasury()
+  const { accounts, transactions, cashPosition, forecast, loading, lastFetched, refetch, bankConnections } = useTreasury()
   const [searchQuery, setSearchQuery] = useState('')
   const [chartPeriod, setChartPeriod] = useState('30D')
   const [showMA, setShowMA] = useState(false)
@@ -144,6 +144,27 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+
+      {/* Empty state hero — no bank accounts connected */}
+      {accounts.length === 0 && (
+        <div className="glass-card rounded-2xl p-8 text-center border-cyan/[0.12] mb-2 -mt-2">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan/[0.12] to-purple/[0.08] flex items-center justify-center mx-auto mb-4">
+            <CreditCard size={28} className="text-cyan" />
+          </div>
+          <h2 className="text-[22px] font-display font-black tracking-tight mb-2">Connect your first bank account</h2>
+          <p className="text-[14px] text-t2 max-w-md mx-auto mb-5">Link a bank to see real-time balances, cash flow charts, AI forecasts, and transaction feeds across your entire dashboard.</p>
+          <div className="flex items-center justify-center gap-3">
+            <Link to="/banks" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
+              <CreditCard size={14} /> Connect Bank
+            </Link>
+            <Link to="/import" className="flex items-center gap-2 px-5 py-3 rounded-xl border border-border text-[13px] text-t2 font-semibold hover:border-border-hover transition">
+              Or import CSV
+            </Link>
+          </div>
+          <p className="text-[11px] text-t3 font-mono mt-4">12,000+ banks supported via Plaid — 60-second setup — credentials never stored</p>
+        </div>
+      )}
+
       {/* Welcome bar */}
       <div className="flex items-end justify-between">
         <div>

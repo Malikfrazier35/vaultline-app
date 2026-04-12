@@ -1,13 +1,14 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { SkeletonPage } from '@/components/Skeleton'
 import { useTreasury } from '@/hooks/useTreasury'
 import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/components/Toast'
+import { supabase } from '@/lib/supabase'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, ComposedChart, Legend } from 'recharts'
 import { ChartTooltip } from '@/components/ChartTooltip'
 import { useChartTheme } from '@/hooks/useChartTheme'
 import { useTheme } from '@/hooks/useTheme'
-import { Layers, Plus, Trash2, Play, TrendingDown, TrendingUp, AlertTriangle, Save } from 'lucide-react'
+import { Layers, Plus, Trash2, Play, TrendingDown, TrendingUp, AlertTriangle, Save, FolderOpen, Check } from 'lucide-react'
 
 function fmt(n) {
   const abs = Math.abs(n || 0)
@@ -24,7 +25,7 @@ const DEFAULT_SCENARIOS = [
 
 export default function Scenarios() {
   const { accounts, transactions, cashPosition, forecast, loading } = useTreasury()
-  const { org } = useAuth()
+  const { org, user } = useAuth()
   const ct = useChartTheme()
   const { isDark } = useTheme()
   const toast = useToast()
@@ -36,6 +37,58 @@ export default function Scenarios() {
   })
   const [months, setMonths] = useState(12)
   const [showBands, setShowBands] = useState(true)
+  const [savedSets, setSavedSets] = useState([])
+  const [saveName, setSaveName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [activeSetId, setActiveSetId] = useState(null)
+
+  // Load saved scenario sets from DB
+  const loadSavedSets = useCallback(async () => {
+    if (!org?.id) return
+    const { data } = await supabase.from('saved_scenarios')
+      .select('id, name, scenarios, months, is_default, updated_at')
+      .eq('org_id', org.id)
+      .order('updated_at', { ascending: false })
+    setSavedSets(data || [])
+  }, [org?.id])
+
+  useEffect(() => { loadSavedSets() }, [loadSavedSets])
+
+  async function saveScenarioSet() {
+    if (!org?.id) return
+    setSaving(true)
+    const name = saveName.trim() || `Scenario Set ${new Date().toLocaleDateString()}`
+    if (activeSetId) {
+      await supabase.from('saved_scenarios').update({
+        scenarios, months, updated_at: new Date().toISOString(),
+      }).eq('id', activeSetId)
+      toast.success('Scenario updated')
+    } else {
+      const { data } = await supabase.from('saved_scenarios').insert({
+        org_id: org.id, name, scenarios, months,
+        created_by: user?.id,
+      }).select().single()
+      if (data) { setActiveSetId(data.id); toast.success('Scenario saved') }
+    }
+    setSaveName('')
+    setSaving(false)
+    loadSavedSets()
+  }
+
+  function loadScenarioSet(set) {
+    setScenarios(set.scenarios)
+    setMonths(set.months || 12)
+    setActiveSetId(set.id)
+    toast.success(`Loaded: ${set.name}`)
+  }
+
+  async function deleteScenarioSet(id) {
+    if (!confirm('Delete this saved scenario?')) return
+    await supabase.from('saved_scenarios').delete().eq('id', id)
+    if (activeSetId === id) setActiveSetId(null)
+    toast.success('Scenario deleted')
+    loadSavedSets()
+  }
 
   // Persist scenarios to localStorage on every change
   useEffect(() => {
@@ -128,8 +181,25 @@ export default function Scenarios() {
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan/90 to-cyan/70 text-void text-[13px] font-semibold glow-sm hover:-translate-y-px active:scale-[0.98] transition-all">
             <Plus size={14} /> Add Scenario
           </button>
+          <button onClick={saveScenarioSet} disabled={saving}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-green/[0.15] text-green text-[13px] font-semibold hover:bg-green/[0.04] active:scale-[0.98] transition-all disabled:opacity-50">
+            {saving ? <Check size={14} /> : <Save size={14} />} {activeSetId ? 'Update' : 'Save'}
+          </button>
         </div>
       </div>
+
+      {/* Saved scenarios bar */}
+      {savedSets.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] font-mono text-t3 uppercase tracking-wider">SAVED:</span>
+          {savedSets.map(s => (
+            <div key={s.id} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-mono transition cursor-pointer ${activeSetId === s.id ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : 'bg-deep text-t3 border border-border hover:border-border-hover'}`}>
+              <button onClick={() => loadScenarioSet(s)} className="hover:text-t1 transition">{s.name}</button>
+              <button onClick={() => deleteScenarioSet(s.id)} className="hover:text-red transition ml-1"><Trash2 size={10} /></button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Comparison chart */}
       <div className="glass-card rounded-2xl p-6 terminal-scanlines relative hover:border-border-hover active:border-border-hover transition-colors">

@@ -94,7 +94,7 @@ export default function Home() {
       </div>
 
       {/* KPI strip */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Link to="/position" className="glass-card rounded-2xl p-5 hover:border-border-hover transition group">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-mono font-bold uppercase tracking-[0.1em] text-t3">Total cash</span>
@@ -124,6 +124,15 @@ export default function Home() {
             {runway > 0 ? `${runway.toFixed(1)} mo` : '—'}
           </p>
           <p className="text-[11px] font-mono text-t3 mt-1">{runway > 12 ? 'Healthy' : runway > 6 ? 'Monitor' : runway > 0 ? 'Critical' : 'No data'}</p>
+        </Link>
+
+        <Link to="/banks" className="glass-card rounded-2xl p-5 hover:border-border-hover transition group">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-[0.1em] text-t3">Banks</span>
+            <ChevronRight size={14} className="text-t4 group-hover:text-cyan transition" />
+          </div>
+          <p className="text-[28px] font-mono font-black text-t1 tracking-tight terminal-data">{connectedBanks}</p>
+          <p className={`text-[11px] font-mono mt-1 ${connectedBanks > 0 ? 'text-green' : 'text-amber'}`}>{connectedBanks > 0 ? 'Connected' : 'Not connected'}</p>
         </Link>
       </div>
 
