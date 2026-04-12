@@ -18,9 +18,10 @@ export default function Login() {
 
   const isReturning = searchParams.get('expired') === 'true' || localStorage.getItem('vaultline-has-session')
   const savedEmail = localStorage.getItem('vaultline-last-email') || ''
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
 
   useEffect(() => {
-    document.title = 'Sign In — Vaultline'
+    document.title = 'Sign In \u2014 Vaultline'
     if (savedEmail && !email) setEmail(savedEmail)
   }, [])
 
@@ -28,7 +29,7 @@ export default function Login() {
   if (user) {
     localStorage.setItem('vaultline-has-session', 'true')
     localStorage.setItem('vaultline-last-email', user.email || '')
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={redirectTo} replace />
   }
 
   const [failedAttempts, setFailedAttempts] = useState(0)
@@ -56,7 +57,7 @@ export default function Login() {
     setError(null)
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/home` }
+      options: { redirectTo: `${window.location.origin}${redirectTo}` }
     })
     if (error) { setError(error.message); setSocialLoading(null) }
   }

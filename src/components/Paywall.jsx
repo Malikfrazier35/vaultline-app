@@ -65,7 +65,21 @@ export default function Paywall() {
             <Shield size={18} className="text-cyan" />
             <span className="text-[14px] text-t2">Welcome, {profile?.full_name || 'there'}.</span>
           </div>
-          {org?.plan_status === 'canceled' || org?.plan_status === 'pending_deletion' ? (
+          {org?.plan_status === 'past_due' ? (
+            <>
+              <h2 className="font-display text-3xl font-black mb-3">Payment Failed</h2>
+              <p className="text-t3 max-w-md mx-auto mb-4">Your last payment didn't go through. Update your payment method to restore access to your dashboard.</p>
+              <button onClick={async () => {
+                try {
+                  const { data } = await supabase.functions.invoke('stripe-portal', {})
+                  if (data?.url) window.location.href = data.url
+                } catch {}
+              }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan to-sky-400 text-white text-[14px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all">
+                Update Payment Method
+              </button>
+            </>
+          ) : org?.plan_status === 'canceled' || org?.plan_status === 'pending_deletion' ? (
             <>
               <h2 className="font-display text-3xl font-black mb-3">{org?.closed_at ? 'Welcome Back' : 'Reactivate Your Account'}</h2>
               <p className="text-t3 max-w-md mx-auto">{org?.closed_at
