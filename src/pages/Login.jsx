@@ -63,7 +63,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative" style={{ background:'#FAFBFC', '--color-void':'#FAFBFC','--color-deep':'#F1F5F9','--color-surface':'#FFFFFF','--color-card':'#FFFFFF','--color-elevated':'#F8FAFC','--color-t1':'#0F172A','--color-t2':'#475569','--color-t3':'#94A3B8','--color-t4':'#CBD5E1','--color-border':'rgba(15,23,42,0.08)','--color-border-hover':'rgba(15,23,42,0.16)','--color-border-cyan':'rgba(14,165,180,0.22)','--color-cyan':'#0891B2','--color-cyan-bright':'#06B6D4','--color-cyan-glow':'rgba(8,145,178,0.06)','--color-green':'#16A34A','--color-red':'#DC2626','--color-amber':'#D97706','--color-purple':'#7C3AED' }}>
+    <div className="min-h-screen flex items-center justify-center relative" style={{ background:'var(--color-void)' }}>
       <AnimatedBackground variant="dots" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
       <div className="absolute w-[800px] h-[800px] top-[-300px] right-[-200px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
@@ -105,7 +105,7 @@ export default function Login() {
           {/* Social login buttons */}
           <div className="space-y-2.5 mb-6">
             <button onClick={() => handleSocial('apple')} disabled={socialLoading === 'apple'}
-              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-white text-black text-[14px] font-semibold hover:bg-gray-100 transition-all disabled:opacity-50">
+              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-surface border border-border text-t1 text-[14px] font-semibold hover:border-border-hover active:bg-deep transition-all disabled:opacity-50">
               {socialLoading === 'apple' ? <Loader2 size={18} className="animate-spin" /> : (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
               )}

@@ -26,7 +26,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative" style={{ background:'#FAFBFC', '--color-void':'#FAFBFC','--color-deep':'#F1F5F9','--color-surface':'#FFFFFF','--color-card':'#FFFFFF','--color-elevated':'#F8FAFC','--color-t1':'#0F172A','--color-t2':'#475569','--color-t3':'#94A3B8','--color-t4':'#CBD5E1','--color-border':'rgba(15,23,42,0.08)','--color-border-hover':'rgba(15,23,42,0.16)','--color-border-cyan':'rgba(14,165,180,0.22)','--color-cyan':'#0891B2','--color-cyan-bright':'#06B6D4','--color-cyan-glow':'rgba(8,145,178,0.06)','--color-green':'#16A34A','--color-red':'#DC2626','--color-amber':'#D97706','--color-purple':'#7C3AED' }}>
+    <div className="min-h-screen flex items-center justify-center relative" style={{ background:'var(--color-void)' }}>
       <AnimatedBackground variant="dots" />
       <div className="fixed top-5 right-5 z-50"><ThemeToggle /></div>
       <div className="absolute w-[800px] h-[800px] top-[-300px] right-[-200px] bg-[radial-gradient(circle,var(--color-cyan-glow)_0%,transparent_60%)] pointer-events-none" />
