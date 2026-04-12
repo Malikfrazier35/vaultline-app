@@ -26,6 +26,16 @@ serve(async (req) => {
       case 'invite': {
         const { email, role = 'member' } = body
         if (!email) return json({ error: 'Email required' })
+
+        // Seat limit enforcement
+        const { data: orgInfo } = await supabase.from('organizations').select('max_team_members').eq('id', orgId).single()
+        const seatLimit = orgInfo?.max_team_members || 3
+        const { count: memberCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('org_id', orgId)
+        const { count: pendingCount } = await supabase.from('invites').select('id', { count: 'exact', head: true }).eq('org_id', orgId).eq('status', 'pending')
+        if ((memberCount || 0) + (pendingCount || 0) >= seatLimit) {
+          return json({ error: `Team limit reached (${seatLimit} seats). Upgrade your plan for more seats.` })
+        }
+
         // Check existing
         const { data: existing } = await supabase.from('invites').select('id').eq('org_id', orgId).eq('email', email).eq('status', 'pending').single()
         if (existing) return json({ error: 'Already invited' })
@@ -43,8 +53,17 @@ serve(async (req) => {
       case 'bulk_invite': {
         const { emails, role = 'member' } = body
         if (!emails?.length) return json({ error: 'Emails required' })
+
+        // Seat limit check
+        const { data: orgInfo2 } = await supabase.from('organizations').select('max_team_members').eq('id', orgId).single()
+        const seatLimit2 = orgInfo2?.max_team_members || 3
+        const { count: mc } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('org_id', orgId)
+        const { count: pc } = await supabase.from('invites').select('id', { count: 'exact', head: true }).eq('org_id', orgId).eq('status', 'pending')
+        const remaining = seatLimit2 - (mc || 0) - (pc || 0)
+        if (remaining <= 0) return json({ error: `Team limit reached (${seatLimit2} seats). Upgrade your plan.` })
+
         const results = []
-        for (const email of emails.slice(0, 20)) {
+        for (const email of emails.slice(0, Math.min(20, remaining))) {
           const { data: existing } = await supabase.from('invites').select('id').eq('org_id', orgId).eq('email', email.trim()).eq('status', 'pending').single()
           if (existing) { results.push({ email, success: false, reason: 'already_invited' }); continue }
           const { error } = await supabase.from('invites').insert({ org_id: orgId, email: email.trim(), role, invited_by: profile.id })
