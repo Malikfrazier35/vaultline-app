@@ -36,13 +36,12 @@ serve(async (req) => {
     switch (action) {
       // ── CREATE TICKET ──
       case 'create_ticket': {
-        const { subject, body: ticketBody, category, priority, page_url } = body
+        const { subject, body: ticketBody, category, priority } = body
         if (!subject || !ticketBody) return json({ error: 'Subject and body required' })
 
         const { data: ticket, error } = await supabase.from('support_tickets').insert({
-          org_id: orgId, created_by: user!.id, subject, body: ticketBody,
+          org_id: orgId, created_by: user!.id, subject,
           category: category || 'general', priority: priority || 'medium',
-          source: 'app', page_url, user_agent: req.headers.get('user-agent'),
         }).select().single()
         if (error) return json({ error: error.message })
 
@@ -58,6 +57,23 @@ serve(async (req) => {
         })
 
         await supabase.from('audit_log').insert({ org_id: orgId, user_id: user!.id, action: 'ticket_created', details: { ticket_id: ticket.id, category, priority } })
+
+        // Notify admin via Slack + email
+        try {
+          const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user!.id).single()
+          const { data: org } = await supabase.from('organizations').select('name').eq('id', orgId).single()
+          await supabase.functions.invoke('notify', {
+            body: {
+              action: 'signup_alert',
+              email: user!.email,
+              full_name: profile?.full_name || 'Customer',
+              company_name: org?.name || 'Unknown',
+              source: `Support ticket: ${category || 'general'} (${priority || 'medium'})`,
+              utm_source: subject.slice(0, 80),
+            },
+          })
+        } catch {}
+
         return json({ success: true, ticket })
       }
 
