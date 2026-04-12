@@ -28,9 +28,11 @@ serve(async (req) => {
     }
 
     let orgId: string | null = null
+    let orgPlan = 'starter'
     if (user) {
-      const { data: profile } = await supabase.from('profiles').select('org_id, full_name, role').eq('id', user.id).single()
+      const { data: profile } = await supabase.from('profiles').select('org_id, full_name, role, organizations(plan)').eq('id', user.id).single()
       orgId = profile?.org_id
+      orgPlan = profile?.organizations?.plan || 'starter'
     }
 
     switch (action) {
@@ -39,9 +41,15 @@ serve(async (req) => {
         const { subject, body: ticketBody, category, priority } = body
         if (!subject || !ticketBody) return json({ error: 'Subject and body required' })
 
+        // Enterprise customers get minimum 'high' priority
+        let effectivePriority = priority || 'medium'
+        if (orgPlan === 'enterprise' && ['medium', 'low'].includes(effectivePriority)) {
+          effectivePriority = 'high'
+        }
+
         const { data: ticket, error } = await supabase.from('support_tickets').insert({
           org_id: orgId, created_by: user!.id, subject,
-          category: category || 'general', priority: priority || 'medium',
+          category: category || 'general', priority: effectivePriority,
         }).select().single()
         if (error) return json({ error: error.message })
 
@@ -53,7 +61,7 @@ serve(async (req) => {
         // Auto-acknowledge
         await supabase.from('ticket_messages').insert({
           ticket_id: ticket.id, sender_type: 'system',
-          body: `Ticket #${ticket.id.slice(0, 8)} created. Our team will respond within ${SLA[priority || 'medium'].first_response} hours.`,
+          body: `Ticket #${ticket.id.slice(0, 8)} created. Our team will respond within ${SLA[effectivePriority || 'medium'].first_response} hours.`,
         })
 
         await supabase.from('audit_log').insert({ org_id: orgId, user_id: user!.id, action: 'ticket_created', details: { ticket_id: ticket.id, category, priority } })

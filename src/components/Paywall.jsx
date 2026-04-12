@@ -7,18 +7,18 @@ import { ArrowRight, Check, Shield, Loader2 } from 'lucide-react'
 const PLANS = [
   {
     name: 'Starter', price: '$499', period: '/mo',
-    features: ['3 bank connections', 'Cash position dashboard', '30-day forecasting', 'AI Treasury Copilot', 'Email alerts'],
-    priceId: 'price_1TAdoLFV8yRihVmreiDmJaka',
+    features: ['3 bank connections', 'Cash position dashboard', '30-day forecasting', 'Email alerts', 'Basic reports'],
+    priceId: 'price_1THX62FNFhtB2ZujfPfhaKXc',
   },
   {
     name: 'Growth', price: '$1,499', period: '/mo', popular: true,
-    features: ['10 bank connections', 'Advanced AI Treasury Copilot', '90-day forecasting', 'Custom reports', 'API access'],
-    priceId: 'price_1TAdoVFV8yRihVmr3OFQDI5C',
+    features: ['10 bank connections', 'Advanced AI Treasury Copilot', '90-day forecasting', 'Custom reports', 'Slack integration', 'API access'],
+    priceId: 'price_1THX63FNFhtB2ZujQmJpAnaU',
   },
   {
     name: 'Enterprise', price: '$2,499', period: '/mo',
-    features: ['Unlimited connections', 'Advanced AI Treasury Copilot — Unlimited', 'Accounting sync', 'Security center', 'Compliance reports', 'Priority support'],
-    priceId: 'price_1TAdogFV8yRihVmrKdDLEbP7',
+    features: ['Unlimited connections', 'Priority support', 'Custom integrations', 'SSO / SAML', 'Audit log & compliance', 'Advanced security controls'],
+    priceId: 'price_1THX64FNFhtB2Zujajul8HIw',
   },
 ]
 
