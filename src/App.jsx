@@ -31,6 +31,9 @@ const Login = lazyRetry(() => import('@/pages/Login'))
 const Signup = lazyRetry(() => import('@/pages/Signup'))
 const AcceptInvite = lazyRetry(() => import('@/pages/AcceptInvite'))
 const Reactivate = lazyRetry(() => import('@/pages/Reactivate'))
+const FinanceOSService = lazyRetry(() => import('@/pages/FinanceOSService'))
+const ParallaxService = lazyRetry(() => import('@/pages/ParallaxService'))
+const Ecosystem = lazyRetry(() => import('@/pages/Ecosystem'))
 const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'))
 const ResetPassword = lazyRetry(() => import('@/pages/ResetPassword'))
 const ROICalculator = lazyRetry(() => import('@/pages/ROICalculator'))
@@ -166,6 +169,9 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/reactivate" element={<Reactivate />} />
+            <Route path="/products/financeos" element={<FinanceOSService />} />
+            <Route path="/products/parallax" element={<ParallaxService />} />
+            <Route path="/ecosystem" element={<Ecosystem />} />
             <Route path="/lp/demo" element={<LPDemo />} />
             <Route path="/lp/trial" element={<LPTrial />} />
             <Route path="/privacy" element={<Privacy />} />
