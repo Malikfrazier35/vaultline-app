@@ -23,6 +23,8 @@ serve(async (req) => {
 
     const org = profile.organizations
     const orgId = profile.org_id
+    const orgPlan = org?.plan || 'starter'
+    const aiModel = orgPlan === 'starter' ? 'claude-sonnet-4-6' : 'claude-opus-4-6'
 
     // ═══ LOAD CUSTOMER CONTEXT ═══
     const [acctRes, txRes, bankRes, fcRes, alertRes, ticketRes] = await Promise.all([
@@ -172,7 +174,7 @@ RULES:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: aiModel,
         max_tokens: 1024,
         system: systemPrompt,
         tools,
@@ -286,7 +288,7 @@ RULES:
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: aiModel,
           max_tokens: 1024,
           system: systemPrompt,
           messages: [
