@@ -79,14 +79,14 @@ serve(async (req) => {
       }
 
       case 'forecast': {
-        columns = ['date', 'projected_inflows', 'projected_outflows', 'net', 'cumulative', 'confidence']
+        columns = ['date', 'projected_balance', 'lower_bound', 'upper_bound', 'confidence']
         const { data: fc } = await supabase.from('forecasts').select('model_version, data, confidence, monthly_burn, generated_at').eq('org_id', orgId).order('generated_at', { ascending: false }).limit(1).maybeSingle()
         if (fc?.data) {
           const pts = Array.isArray(fc.data) ? fc.data : fc.data.points || []
-          rows = pts.slice(0, 12).map((p: any) => ({ date: p.date || p.month || 'N/A', projected_inflows: (p.inflows||0).toFixed(2), projected_outflows: (p.outflows||0).toFixed(2), net: ((p.inflows||0) - Math.abs(p.outflows||0)).toFixed(2), cumulative: (p.cumulative||p.balance||0).toFixed(2), confidence: (p.confidence || fc.confidence || 0.85).toFixed(2) }))
-          subtitle += ` | Model: ${fc.model_version || 'auto'} | Confidence: ${(fc.confidence||0).toFixed(1)}%`
+          rows = pts.map((p: any) => ({ date: p.date || 'N/A', projected_balance: '$' + ((p.projected_balance||0)/100).toLocaleString('en-US', { minimumFractionDigits: 2 }), lower_bound: '$' + ((p.lower_bound||0)/100).toLocaleString('en-US', { minimumFractionDigits: 2 }), upper_bound: '$' + ((p.upper_bound||0)/100).toLocaleString('en-US', { minimumFractionDigits: 2 }), confidence: (fc.confidence || 0.95).toFixed(2) }))
+          subtitle += ` | Model: ${fc.model_version || 'auto'} | Confidence: ${(fc.confidence||0).toFixed(1)}% | Burn: $${fc.monthly_burn ? (fc.monthly_burn/100).toLocaleString() : 'N/A'}/mo`
         } else {
-          rows = [{ date: 'No forecast generated', projected_inflows: '0', projected_outflows: '0', net: '0', cumulative: '0', confidence: 'N/A' }]
+          rows = [{ date: 'No forecast generated', projected_balance: '$0', lower_bound: '$0', upper_bound: '$0', confidence: 'N/A' }]
         }
         break
       }
