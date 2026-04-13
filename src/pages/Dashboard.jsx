@@ -73,6 +73,12 @@ export default function Dashboard() {
     const pad = n => String(n).padStart(2,'0')
     const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth()+1)}-${pad(cutoff.getDate())}`
     const byDate = {}
+    // Pre-fill every day in the period so chart shows full timeline
+    for (let i = 0; i <= days; i++) {
+      const dt = new Date(cutoff); dt.setDate(cutoff.getDate() + i)
+      const key = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`
+      byDate[key] = { date: key, inflows: 0, outflows: 0 }
+    }
     transactions.forEach((tx) => {
       const d = tx.date
       if (!d || d < cutoffStr) return
