@@ -66,6 +66,13 @@ export default function CashPosition() {
     const cutoffStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth()+1)}-${pad(cutoff.getDate())}`
 
     const byDate = {}
+    // Pre-fill every day in the period so chart shows full timeline
+    const diffDays = Math.round((today - cutoff) / 86400000)
+    for (let i = 0; i <= diffDays; i++) {
+      const dt = new Date(cutoff); dt.setDate(cutoff.getDate() + i)
+      const key = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`
+      byDate[key] = { date: key, _total: 0 }
+    }
     dailyBalances.forEach((b) => {
       if (b.date < cutoffStr) return
       // Account type filter

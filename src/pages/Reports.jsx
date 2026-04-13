@@ -8,6 +8,7 @@ import {
   BarChart3, Shield, Zap, Building2, ChevronDown
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { PLAN_PERIODS } from '@/lib/planEngine'
 
 const TEMPLATE_ICONS = {
   cash_flow: Activity, balance_summary: DollarSign, forecast: Calendar,
@@ -163,12 +164,16 @@ export default function Reports() {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 p-1 rounded-lg bg-deep border border-border">
-            {PERIODS.map(p => (
-              <button key={p.id} onClick={() => setPeriod(p.id)}
-                className={`px-3 py-1.5 rounded-md text-[11px] font-mono font-semibold transition-all ${period === p.id ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : 'text-t3 hover:text-t2'}`}>
-                {p.label}
-              </button>
-            ))}
+            {PERIODS.map(p => {
+              const planPeriodId = p.label.toUpperCase()
+              const allowed = (PLAN_PERIODS[currentPlan] || PLAN_PERIODS.starter).includes(planPeriodId)
+              return (
+                <button key={p.id} onClick={() => allowed && setPeriod(p.id)} disabled={!allowed}
+                  className={`px-3 py-1.5 rounded-md text-[11px] font-mono font-semibold transition-all ${period === p.id ? 'bg-cyan/[0.08] text-cyan border border-cyan/[0.12]' : allowed ? 'text-t3 hover:text-t2' : 'text-t4 opacity-40 cursor-not-allowed line-through'}`}>
+                  {p.label}
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>

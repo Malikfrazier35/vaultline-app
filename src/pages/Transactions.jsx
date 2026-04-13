@@ -73,12 +73,19 @@ export default function Transactions() {
   // Daily volume for sparkline
   const dailyVolume = useMemo(() => {
     const map = {}
+    const pad = n => String(n).padStart(2, '0')
+    const today = new Date()
+    for (let i = 13; i >= 0; i--) {
+      const dt = new Date(today); dt.setDate(today.getDate() - i)
+      const key = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`
+      map[key] = { date: key, in: 0, out: 0 }
+    }
     transactions.slice(0, 100).forEach(t => {
-      if (!map[t.date]) map[t.date] = { date: t.date, in: 0, out: 0 }
+      if (!t.date || !map[t.date]) return
       if (t.amount < 0) map[t.date].in += Math.abs(t.amount)
       else map[t.date].out += t.amount
     })
-    return Object.values(map).sort((a, b) => a.date.localeCompare(b.date)).slice(-14)
+    return Object.values(map).sort((a, b) => a.date.localeCompare(b.date))
   }, [transactions])
 
   function exportCSV() {
