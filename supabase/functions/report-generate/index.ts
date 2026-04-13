@@ -83,8 +83,8 @@ serve(async (req) => {
         const { data: fc } = await supabase.from('forecasts').select('model_version, data, confidence, monthly_burn, generated_at').eq('org_id', orgId).order('generated_at', { ascending: false }).limit(1).maybeSingle()
         if (fc?.data) {
           const pts = Array.isArray(fc.data) ? fc.data : fc.data.points || []
-          rows = pts.map((p: any) => ({ date: p.date || 'N/A', projected_balance: '$' + ((p.projected_balance||0)/100).toLocaleString('en-US', { minimumFractionDigits: 2 }), lower_bound: '$' + ((p.lower_bound||0)/100).toLocaleString('en-US', { minimumFractionDigits: 2 }), upper_bound: '$' + ((p.upper_bound||0)/100).toLocaleString('en-US', { minimumFractionDigits: 2 }), confidence: (fc.confidence || 0.95).toFixed(2) }))
-          subtitle += ` | Model: ${fc.model_version || 'auto'} | Confidence: ${(fc.confidence||0).toFixed(1)}% | Burn: $${fc.monthly_burn ? (fc.monthly_burn/100).toLocaleString() : 'N/A'}/mo`
+          rows = pts.map((p: any) => ({ date: p.date || 'N/A', projected_balance: '$' + (p.projected_balance||0).toLocaleString('en-US', { minimumFractionDigits: 2 }), lower_bound: '$' + (p.lower_bound||0).toLocaleString('en-US', { minimumFractionDigits: 2 }), upper_bound: '$' + (p.upper_bound||0).toLocaleString('en-US', { minimumFractionDigits: 2 }), confidence: (fc.confidence || 0.95).toFixed(2) }))
+          subtitle += ` | Model: ${fc.model_version || 'auto'} | Confidence: ${(fc.confidence||0).toFixed(1)}% | Burn: $${fc.monthly_burn ? fc.monthly_burn.toLocaleString() : 'N/A'}/mo`
         } else {
           rows = [{ date: 'No forecast generated', projected_balance: '$0', lower_bound: '$0', upper_bound: '$0', confidence: 'N/A' }]
         }

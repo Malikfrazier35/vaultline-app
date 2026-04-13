@@ -108,11 +108,12 @@ serve(async (req) => {
     // GET /v1/accounts
     if (path === '/v1/accounts' && method === 'GET') {
       if (!hasScope(auth.scopes, 'read:accounts')) return err('Insufficient scope: read:accounts required', 403)
-      const { data } = await supabase.from('bank_accounts')
-        .select('id, account_name, institution_name, account_type, mask, current_balance, available_balance, currency, last_synced_at')
+      const { data } = await supabase.from('accounts')
+        .select('id, name, type, mask, current_balance, available_balance, currency, bank_connections(institution_name)')
         .eq('org_id', auth.orgId)
-        .order('institution_name')
-      body = { accounts: data || [], count: data?.length || 0 }
+        .eq('is_active', true)
+        .order('name')
+      body = { accounts: (data || []).map((a: any) => ({ ...a, institution_name: a.bank_connections?.institution_name || null, bank_connections: undefined })), count: data?.length || 0 }
     }
 
     // GET /v1/transactions
@@ -126,7 +127,7 @@ serve(async (req) => {
       const category = url.searchParams.get('category')
 
       let q = supabase.from('transactions')
-        .select('id, date, name, amount, category, account_id, pending, merchant_name')
+        .select('id, date, description, amount, category, account_id, is_pending, merchant_name')
         .eq('org_id', auth.orgId)
         .order('date', { ascending: false })
         .range(offset, offset + limit - 1)
@@ -143,15 +144,16 @@ serve(async (req) => {
     // GET /v1/cash-position
     else if (path === '/v1/cash-position' && method === 'GET') {
       if (!hasScope(auth.scopes, 'read:accounts')) return err('Insufficient scope: read:accounts required', 403)
-      const { data: accounts } = await supabase.from('bank_accounts')
-        .select('current_balance, available_balance, currency, account_type')
+      const { data: accounts } = await supabase.from('accounts')
+        .select('current_balance, available_balance, currency, type')
         .eq('org_id', auth.orgId)
+        .eq('is_active', true)
 
       const totalBalance = (accounts || []).reduce((sum: number, a: any) => sum + (a.current_balance || 0), 0)
       const totalAvailable = (accounts || []).reduce((sum: number, a: any) => sum + (a.available_balance || 0), 0)
       const byType: Record<string, number> = {}
       for (const a of accounts || []) {
-        byType[a.account_type || 'other'] = (byType[a.account_type || 'other'] || 0) + (a.current_balance || 0)
+        byType[a.type || 'other'] = (byType[a.type || 'other'] || 0) + (a.current_balance || 0)
       }
       body = {
         total_balance: totalBalance,
