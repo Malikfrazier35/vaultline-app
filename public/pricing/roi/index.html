@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
+  <title>Treasury ROI Calculator — See Your Savings | Vaultline</title>
+  <meta name="description" content="Calculate how much your finance team could save with Vaultline. Personalized ROI report based on your company size, industry, and current treasury tools. Takes 60 seconds. Free, no credit card required." />
+  <meta name="keywords" content="treasury ROI calculator, treasury savings calculator, cash management ROI, finance automation savings" />
+  <link rel="canonical" href="https://vaultline.app/roi" />
+ 
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vaultline.app/roi" />
+  <meta property="og:title" content="Treasury ROI Calculator — Vaultline" />
+  <meta property="og:description" content="See how much your team could save with Vaultline. Personalized report in 60 seconds." />
+  <meta property="og:image" content="https://vaultline.app/og-image.png" />
+ 
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+ 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWFEGEPQ9C"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-HWFEGEPQ9C');
+  </script>
+ 
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --denim: #1E3A5F; --denim-dark: #0F1F33; --denim-light: #2D5282;
+      --accent: #3B82F6; --success: #10B981; --text: #1A2332;
+      --text-muted: #64748B; --bg: #FAFBFD; --border: #E2E8F0; --white: #FFFFFF;
+    }
+    body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 0; }
+    nav .container { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 22px; font-weight: 700; color: var(--denim); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; }
+    .btn { display: inline-block; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; font-family: inherit; }
+    .btn-primary { background: var(--denim); color: var(--white); }
+    .btn-primary:hover { background: var(--denim-dark); }
+    .btn-secondary { background: transparent; color: var(--denim); border: 1px solid var(--border); }
+    .btn-large { padding: 16px 32px; font-size: 16px; }
+ 
+    .hero { padding: 96px 0 64px; text-align: center; }
+    .hero-badge { display: inline-block; padding: 6px 16px; border-radius: 100px; background: rgba(16, 185, 129, 0.1); color: var(--success); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 24px; }
+    h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; color: var(--denim-dark); margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    .hero p { font-size: 19px; color: var(--text-muted); max-width: 620px; margin: 0 auto 40px; line-height: 1.5; }
+ 
+    .example { padding: 48px 0 80px; }
+    .example-card { max-width: 720px; margin: 0 auto; background: var(--white); border: 1px solid var(--border); border-radius: 20px; padding: 40px; box-shadow: 0 8px 32px rgba(30, 58, 95, 0.06); }
+    .example-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .example-savings { font-size: 56px; font-weight: 800; color: var(--denim-dark); letter-spacing: -0.02em; line-height: 1; margin-bottom: 8px; }
+    .example-savings span { color: var(--success); }
+    .example-roi { font-size: 17px; color: var(--text-muted); margin-bottom: 32px; }
+    .breakdown { display: grid; gap: 14px; margin-bottom: 32px; }
+    .break-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--bg); border-radius: 10px; }
+    .break-cat { font-size: 14px; font-weight: 500; color: var(--text); }
+    .break-amt { font-size: 16px; font-weight: 700; color: var(--denim-dark); font-variant-numeric: tabular-nums; }
+    .example-note { font-size: 13px; color: var(--text-muted); text-align: center; padding-top: 20px; border-top: 1px solid var(--border); }
+ 
+    .how-it-works { padding: 80px 0; background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .how-it-works h2 { font-size: 36px; font-weight: 700; text-align: center; color: var(--denim-dark); margin-bottom: 48px; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 960px; margin: 0 auto; }
+    .step { text-align: center; }
+    .step-num { width: 48px; height: 48px; border-radius: 12px; background: var(--denim); color: var(--white); display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+    .step h3 { font-size: 18px; font-weight: 700; color: var(--denim-dark); margin-bottom: 8px; }
+    .step p { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+ 
+    .cta-section { padding: 80px 0; text-align: center; }
+    .cta-section h2 { font-size: 36px; font-weight: 700; color: var(--denim-dark); margin-bottom: 16px; }
+    .cta-section p { font-size: 17px; color: var(--text-muted); margin-bottom: 32px; }
+ 
+    footer { background: var(--denim-dark); color: rgba(255,255,255,0.7); padding: 48px 0 32px; }
+    footer .container { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    footer a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 24px; }
+ 
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: 1fr; }
+      .nav-links a:not(.btn) { display: none; }
+      .example-savings { font-size: 42px; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a href="/" class="logo">Vaultline</a>
+      <div class="nav-links">
+        <a href="/pricing">Pricing</a>
+        <a href="/roi">ROI Calculator</a>
+        <a href="/security">Security</a>
+        <a href="/signin" class="btn btn-secondary">Sign in</a>
+        <a href="/signup" class="btn btn-primary">Start free trial</a>
+      </div>
+    </div>
+  </nav>
+ 
+  <header class="hero">
+    <div class="container">
+      <span class="hero-badge">Free · 60 seconds · No credit card</span>
+      <h1>See exactly how much your team could save with Vaultline</h1>
+      <p>Get a personalized ROI report based on your company size, industry, and current treasury tools. Powered by AFP industry benchmarks and real customer data.</p>
+      <a href="/roi/calculator" class="btn btn-primary btn-large">Calculate my ROI →</a>
+    </div>
+  </header>
+ 
+  <section class="example">
+    <div class="container">
+      <div class="example-card">
+        <div class="example-label">Example: $20M Manufacturing Company</div>
+        <div class="example-savings"><span>$422,220</span> per year</div>
+        <div class="example-roi">That's a <strong style="color: var(--success);">14.1x ROI</strong> on Vaultline Enterprise</div>
+ 
+        <div class="breakdown">
+          <div class="break-row">
+            <span class="break-cat">◆ Cash Visibility</span>
+            <span class="break-amt">$98,400/yr</span>
+          </div>
+          <div class="break-row">
+            <span class="break-cat">⚡ Payment Automation</span>
+            <span class="break-amt">$124,800/yr</span>
+          </div>
+          <div class="break-row">
+            <span class="break-cat">🎯 Forecast Accuracy</span>
+            <span class="break-amt">$86,400/yr</span>
+          </div>
+          <div class="break-row">
+            <span class="break-cat">⏱ Manual Work Reduction</span>
+            <span class="break-amt">$72,000/yr</span>
+          </div>
+          <div class="break-row">
+            <span class="break-cat">📈 Yield Optimization</span>
+            <span class="break-amt">$40,620/yr</span>
+          </div>
+        </div>
+ 
+        <div class="example-note">Based on AFP treasury benchmarks · Your results will be personalized to your company</div>
+      </div>
+    </div>
+  </section>
+ 
+  <section class="how-it-works">
+    <div class="container">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Tell us about your company</h3>
+          <p>Revenue bracket, industry, team size, and current treasury tools. Takes 30 seconds.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>We run the numbers</h3>
+          <p>Our engine applies AFP industry benchmarks, live market rates, and Vaultline's actual customer data to your profile.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Get your personalized report</h3>
+          <p>See exactly where your savings come from across 5 categories, with a recommended plan for your company.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to see your numbers?</h2>
+      <p>Free, takes 60 seconds, and you'll walk away with a real report even if you don't sign up.</p>
+      <a href="/roi/calculator" class="btn btn-primary btn-large">Start calculator →</a>
+    </div>
+  </section>
+ 
+  <footer>
+    <div class="container">
+      <span>© 2026 Financial Holding LLC</span>
+      <div>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/security">Security</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+ 
