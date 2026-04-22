@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
+  <title>Pricing — Vaultline Treasury Management</title>
+  <meta name="description" content="Simple, transparent pricing for Vaultline's AI-powered treasury management platform. Starter at $499/mo, Growth at $1,499/mo, Enterprise at $2,499/mo. 14-day free trial, no credit card required." />
+  <meta name="keywords" content="vaultline pricing, treasury software pricing, cash management software cost, treasury platform plans" />
+  <link rel="canonical" href="https://vaultline.app/pricing" />
+ 
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vaultline.app/pricing" />
+  <meta property="og:title" content="Vaultline Pricing — Simple, Transparent Plans" />
+  <meta property="og:description" content="Three plans built for mid-market finance teams. 14-day free trial on every tier." />
+  <meta property="og:image" content="https://vaultline.app/og-image.png" />
+ 
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+ 
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Vaultline Treasury Management",
+    "description": "AI-powered treasury management platform for mid-market finance teams",
+    "offers": [
+      { "@type": "Offer", "name": "Starter", "price": "499", "priceCurrency": "USD" },
+      { "@type": "Offer", "name": "Growth", "price": "1499", "priceCurrency": "USD" },
+      { "@type": "Offer", "name": "Enterprise", "price": "2499", "priceCurrency": "USD" }
+    ]
+  }
+  </script>
+ 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWFEGEPQ9C"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-HWFEGEPQ9C');
+  </script>
+ 
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --denim: #1E3A5F; --denim-dark: #0F1F33; --denim-light: #2D5282;
+      --accent: #3B82F6; --text: #1A2332; --text-muted: #64748B;
+      --bg: #FAFBFD; --border: #E2E8F0; --white: #FFFFFF;
+    }
+    body { font-family: 'Manrope', -apple-system, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 16px 0; }
+    nav .container { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 22px; font-weight: 700; color: var(--denim); text-decoration: none; letter-spacing: -0.02em; }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; }
+    .btn { display: inline-block; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: var(--denim); color: var(--white); }
+    .btn-primary:hover { background: var(--denim-dark); }
+    .btn-secondary { background: transparent; color: var(--denim); border: 1px solid var(--border); }
+ 
+    .hero { padding: 96px 0 48px; text-align: center; }
+    h1 { font-size: clamp(36px, 5vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; color: var(--denim-dark); margin-bottom: 20px; }
+    .hero p { font-size: 19px; color: var(--text-muted); max-width: 600px; margin: 0 auto; }
+ 
+    .pricing { padding: 48px 0 96px; }
+    .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1080px; margin: 0 auto; }
+    .tier {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 32px; position: relative;
+      transition: all 0.2s;
+    }
+    .tier.featured {
+      border-color: var(--denim); border-width: 2px;
+      box-shadow: 0 12px 40px rgba(30, 58, 95, 0.12);
+      transform: translateY(-8px);
+    }
+    .tier-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--denim); color: var(--white);
+      padding: 4px 16px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .tier h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--denim-dark); }
+    .tier-tagline { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; min-height: 40px; }
+    .tier-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 8px; }
+    .tier-price .num { font-size: 48px; font-weight: 800; color: var(--denim-dark); letter-spacing: -0.02em; }
+    .tier-price .unit { font-size: 15px; color: var(--text-muted); font-weight: 500; }
+    .tier-annual { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; }
+    .tier-cta { display: block; text-align: center; padding: 14px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; margin-bottom: 32px; transition: all 0.2s; }
+    .tier-cta.primary { background: var(--denim); color: var(--white); }
+    .tier-cta.primary:hover { background: var(--denim-dark); }
+    .tier-cta.secondary { background: var(--white); color: var(--denim); border: 1px solid var(--border); }
+    .tier-cta.secondary:hover { border-color: var(--denim); }
+    .tier ul { list-style: none; padding: 0; }
+    .tier ul li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 14px; color: var(--text); }
+    .tier ul li:before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+ 
+    .faq { padding: 80px 0; background: var(--white); border-top: 1px solid var(--border); }
+    .faq h2 { font-size: 36px; font-weight: 700; text-align: center; color: var(--denim-dark); margin-bottom: 48px; }
+    .faq-grid { max-width: 720px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 24px 0; }
+    .faq-item h3 { font-size: 17px; font-weight: 600; color: var(--denim-dark); margin-bottom: 8px; }
+    .faq-item p { font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+ 
+    footer { background: var(--denim-dark); color: rgba(255,255,255,0.7); padding: 48px 0 32px; }
+    footer .container { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    footer a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 24px; }
+    footer a:hover { color: var(--white); }
+ 
+    @media (max-width: 768px) {
+      .tiers { grid-template-columns: 1fr; }
+      .tier.featured { transform: none; }
+      .nav-links a:not(.btn) { display: none; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a href="/" class="logo">Vaultline</a>
+      <div class="nav-links">
+        <a href="/pricing">Pricing</a>
+        <a href="/roi">ROI Calculator</a>
+        <a href="/security">Security</a>
+        <a href="/signin" class="btn btn-secondary">Sign in</a>
+        <a href="/signup" class="btn btn-primary">Start free trial</a>
+      </div>
+    </div>
+  </nav>
+ 
+  <header class="hero">
+    <div class="container">
+      <h1>Simple, transparent pricing</h1>
+      <p>Every plan includes a 14-day free trial. No credit card required to start.</p>
+    </div>
+  </header>
+ 
+  <section class="pricing">
+    <div class="container">
+      <div class="tiers">
+        <div class="tier">
+          <h3>Starter</h3>
+          <p class="tier-tagline">For early-stage teams getting their treasury operations in order.</p>
+          <div class="tier-price"><span class="num">$499</span><span class="unit">/month</span></div>
+          <div class="tier-annual">or $5,388/year (save 10%)</div>
+          <a href="/signup?plan=starter" class="tier-cta secondary">Start free trial</a>
+          <ul>
+            <li>Up to 3 bank connections</li>
+            <li>Up to 3 team members</li>
+            <li>30-day cash forecast</li>
+            <li>Basic P&amp;L, balance sheet, cash flow</li>
+            <li>Automated alerts</li>
+            <li>Email support</li>
+          </ul>
+        </div>
+ 
+        <div class="tier featured">
+          <span class="tier-badge">Most Popular</span>
+          <h3>Growth</h3>
+          <p class="tier-tagline">For scaling finance teams that need forecasting and automation.</p>
+          <div class="tier-price"><span class="num">$1,499</span><span class="unit">/month</span></div>
+          <div class="tier-annual">or $16,188/year (save 10%)</div>
+          <a href="/signup?plan=growth" class="tier-cta primary">Start free trial</a>
+          <ul>
+            <li>Up to 10 bank connections</li>
+            <li>Up to 15 team members</li>
+            <li>90-day AI cash forecast</li>
+            <li>Treasury Copilot (AI assistant)</li>
+            <li>API access</li>
+            <li>Multi-currency support</li>
+            <li>QuickBooks + Xero integration</li>
+            <li>Priority support</li>
+          </ul>
+        </div>
+ 
+        <div class="tier">
+          <h3>Enterprise</h3>
+          <p class="tier-tagline">For larger finance teams with complex treasury requirements.</p>
+          <div class="tier-price"><span class="num">$2,499</span><span class="unit">/month</span></div>
+          <div class="tier-annual">Custom annual pricing available</div>
+          <a href="/lp/demo" class="tier-cta secondary">Book a demo</a>
+          <ul>
+            <li>Unlimited bank connections</li>
+            <li>Unlimited team members</li>
+            <li>365-day AI cash forecast</li>
+            <li>Dedicated CSM</li>
+            <li>Voice support (AI concierge)</li>
+            <li>Custom integrations</li>
+            <li>SSO + advanced security</li>
+            <li>SLA &amp; priority routing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <section class="faq">
+    <div class="container">
+      <h2>Pricing questions</h2>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Is there really a 14-day free trial?</h3>
+          <p>Yes. Full access to all features on your selected plan for 14 days. No credit card required to start. Cancel anytime during the trial with no charge.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I change plans later?</h3>
+          <p>Yes, you can upgrade or downgrade at any time. Upgrades take effect immediately with prorated billing. Downgrades take effect at the end of your current billing period.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Do you offer annual billing?</h3>
+          <p>Yes. Annual plans save 10% across all tiers. Enterprise customers can also negotiate multi-year contracts with additional discounts.</p>
+        </div>
+        <div class="faq-item">
+          <h3>What happens if I exceed my plan limits?</h3>
+          <p>We notify you well before you hit a limit and give you the option to upgrade. We never cut off access or charge overage fees without your approval.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Is my data secure?</h3>
+          <p>Yes. SOC 2 Type II controls, bank-grade encryption at rest and in transit, and granular access controls. Your financial data never leaves our secure infrastructure.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Do you offer nonprofit or startup discounts?</h3>
+          <p>Yes. We offer 30% discounts for registered nonprofits and early-stage startups (pre-Series A). Contact us to apply.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <footer>
+    <div class="container">
+      <span>© 2026 Financial Holding LLC</span>
+      <div>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/security">Security</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+ 
