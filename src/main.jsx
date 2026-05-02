@@ -43,14 +43,13 @@ console.error = (...args) => {
   if (typeof args[0] === 'string' && args[0].includes('ResizeObserver')) return
   origError.apply(console, args)
 }
-
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+  <>
     <ErrorBoundary>
       <ToastProvider>
         <App />
       </ToastProvider>
     </ErrorBoundary>
     <Analytics />
-  </React.StrictMode>
+  </>
 )
