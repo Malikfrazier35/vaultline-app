@@ -46,7 +46,7 @@ serve(async (req) => {
   let event: Stripe.Event
   try {
     const body = await req.text()
-    event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
+    event = await stripe.webhooks.constructEventAsync(body, sig, endpointSecret)
   } catch (err: any) {
     console.error('Webhook sig verification failed:', err.message)
     await safeInsert('security_events', {
