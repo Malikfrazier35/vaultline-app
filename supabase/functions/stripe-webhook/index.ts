@@ -58,25 +58,31 @@ serve(async (req) => {
     return new Response(`Webhook Error: ${err.message}`, { status: 400 })
   }
 
-  // Idempotency via dedicated stripe_event_log (org-agnostic, text PK fits stripe event IDs)
+  // Idempotency: only events already PROCESSED count as duplicates.
+  // Failed/received rows are eligible for retry — Stripe's retry shouldn't be
+  // short-circuited just because a previous attempt left a row behind.
   try {
     const { data: existing } = await supabase
       .from('stripe_event_log')
-      .select('event_id')
+      .select('event_id, status')
       .eq('event_id', event.id)
       .maybeSingle()
-    if (existing) {
+    if (existing?.status === 'processed') {
       return new Response(JSON.stringify({ received: true, duplicate: true }), { status: 200 })
     }
   } catch (e: any) {
     console.error('event_log lookup failed:', e?.message)
   }
 
-  await safeInsert('stripe_event_log', {
+  // Upsert so retries don't violate the PK constraint
+  await supabase.from('stripe_event_log').upsert({
     event_id: event.id,
     event_type: event.type,
     livemode: event.livemode,
     created_at_stripe: new Date(event.created * 1000).toISOString(),
+    status: 'received',
+  }, { onConflict: 'event_id' }).then(() => {}).catch((e: any) => {
+    console.error('event_log upsert failed:', e?.message)
   })
 
   const orgFromSub = async (subId: string) => {
