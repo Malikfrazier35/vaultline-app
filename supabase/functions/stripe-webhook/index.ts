@@ -33,25 +33,23 @@ serve(async (req) => {
     }).catch(() => {})
     return new Response(`Webhook Error: ${err.message}`, { status: 400 })
   }
-
-  // Replay protection — reject duplicate event IDs
+// Replay protection — store stripe event IDs in a dedicated table (not audit_log, which is org-scoped)
   const { data: existing } = await supabase
-    .from('audit_log')
-    .select('id')
-    .eq('resource_type', 'stripe_webhook')
-    .eq('resource_id', event.id)
-    .limit(1)
-  if (existing && existing.length > 0) {
+    .from('stripe_event_log')
+    .select('event_id')
+    .eq('event_id', event.id)
+    .maybeSingle()
+  if (existing) {
     return new Response(JSON.stringify({ received: true, duplicate: true }), { status: 200 })
   }
 
-  // Log all webhook events for audit trail
-  await supabase.from('audit_log').insert({
-    action: 'stripe_webhook_received',
-    resource_type: 'stripe_webhook',
-    resource_id: event.id,
-    details: { type: event.type, created: event.created, livemode: event.livemode },
-  }).catch(() => {})
+  // Log every webhook (independent of org_id, which we may not have yet)
+  await supabase.from('stripe_event_log').insert({
+    event_id: event.id,
+    event_type: event.type,
+    livemode: event.livemode,
+    created_at_stripe: new Date(event.created * 1000).toISOString(),
+  }).then(() => {}).catch((e) => console.error('event_log insert failed:', e.message))
 
   const orgFromSub = async (subId: string) => {
     const sub = await stripe.subscriptions.retrieve(subId)
