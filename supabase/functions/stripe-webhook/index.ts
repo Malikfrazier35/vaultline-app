@@ -6,7 +6,31 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
-// Dispatch events to customer-registered API webhooks
+const PLAN_LIMITS: Record<string, any> = {
+  starter:    { max_bank_connections: 3,   max_team_members: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
+  growth:     { max_bank_connections: 10,  max_team_members: 15,  forecast_days: 90,  copilot_enabled: true,  api_access: true,   multi_currency: true  },
+  enterprise: { max_bank_connections: 999, max_team_members: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
+}
+
+// Wrap every DB write so a single failed insert can't 500 the entire webhook
+const safeInsert = async (table: string, row: any) => {
+  try {
+    const { error } = await supabase.from(table).insert(row)
+    if (error) console.error(`[${table}] insert failed:`, error.message)
+  } catch (e: any) {
+    console.error(`[${table}] insert threw:`, e?.message)
+  }
+}
+
+const safeUpdate = async (table: string, patch: any, match: any) => {
+  try {
+    const { error } = await supabase.from(table).update(patch).match(match)
+    if (error) console.error(`[${table}] update failed:`, error.message)
+  } catch (e: any) {
+    console.error(`[${table}] update threw:`, e?.message)
+  }
+}
+
 async function dispatchWebhook(orgId: string, eventType: string, data: any) {
   try {
     await supabase.functions.invoke('webhook-deliver', {
@@ -23,71 +47,88 @@ serve(async (req) => {
   try {
     const body = await req.text()
     event = stripe.webhooks.constructEvent(body, sig, endpointSecret)
-  } catch (err) {
+  } catch (err: any) {
     console.error('Webhook sig verification failed:', err.message)
-    await supabase.from('security_events').insert({
+    await safeInsert('security_events', {
       event_type: 'webhook_signature_failed',
       severity: 'critical',
       description: `Stripe webhook signature verification failed: ${err.message}`,
       metadata: { source: 'stripe', error: err.message },
-    }).catch(() => {})
+    })
     return new Response(`Webhook Error: ${err.message}`, { status: 400 })
   }
-// Replay protection — store stripe event IDs in a dedicated table (not audit_log, which is org-scoped)
-  const { data: existing } = await supabase
-    .from('stripe_event_log')
-    .select('event_id')
-    .eq('event_id', event.id)
-    .maybeSingle()
-  if (existing) {
-    return new Response(JSON.stringify({ received: true, duplicate: true }), { status: 200 })
+
+  // Idempotency via dedicated stripe_event_log (org-agnostic, text PK fits stripe event IDs)
+  try {
+    const { data: existing } = await supabase
+      .from('stripe_event_log')
+      .select('event_id')
+      .eq('event_id', event.id)
+      .maybeSingle()
+    if (existing) {
+      return new Response(JSON.stringify({ received: true, duplicate: true }), { status: 200 })
+    }
+  } catch (e: any) {
+    console.error('event_log lookup failed:', e?.message)
   }
 
-  // Log every webhook (independent of org_id, which we may not have yet)
-  await supabase.from('stripe_event_log').insert({
+  await safeInsert('stripe_event_log', {
     event_id: event.id,
     event_type: event.type,
     livemode: event.livemode,
     created_at_stripe: new Date(event.created * 1000).toISOString(),
-  }).then(() => {}).catch((e) => console.error('event_log insert failed:', e.message))
+  })
 
   const orgFromSub = async (subId: string) => {
-    const sub = await stripe.subscriptions.retrieve(subId)
-    return sub.metadata?.org_id || null
+    try {
+      const sub = await stripe.subscriptions.retrieve(subId)
+      return sub.metadata?.org_id || null
+    } catch { return null }
   }
 
   const orgFromCustomer = async (custId: string) => {
-    const { data } = await supabase.from('organizations').select('id').eq('stripe_customer_id', custId).single()
-    return data?.id || null
+    try {
+      const { data } = await supabase.from('organizations').select('id').eq('stripe_customer_id', custId).maybeSingle()
+      return data?.id || null
+    } catch { return null }
   }
 
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const orgId = session.subscription ? (await orgFromSub(session.subscription as string)) : null
-        if (orgId) {
+        const orgId = session.subscription
+          ? (await orgFromSub(session.subscription as string)) || (session.customer ? await orgFromCustomer(session.customer as string) : null)
+          : null
+
+        if (orgId && session.subscription) {
           const sub = await stripe.subscriptions.retrieve(session.subscription as string)
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
-
-          // Plan-based limits
-          const PLAN_LIMITS: Record<string, any> = {
-            starter:    { max_bank_connections: 3,   max_team_members: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
-            growth:     { max_bank_connections: 10,  max_team_members: 15,  forecast_days: 90,  copilot_enabled: true,  api_access: true,   multi_currency: true  },
-            enterprise: { max_bank_connections: 999, max_team_members: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
-          }
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
 
-          await supabase.from('organizations').update({
+          await safeUpdate('organizations', {
             plan_status: 'active',
             plan,
             stripe_subscription_id: session.subscription,
             stripe_customer_id: session.customer,
             ...limits,
-          }).eq('id', orgId)
-          await supabase.from('growth_events').insert({ org_id: orgId, event: 'conversion', metadata: { plan, price_id: sub.items.data[0]?.price?.id } })
-          await supabase.from('audit_log').insert({ org_id: orgId, action: 'subscription_created', details: { plan, subscription_id: session.subscription } })
+          }, { id: orgId })
+
+          await safeInsert('growth_events', {
+            org_id: orgId,
+            event: 'conversion',
+            metadata: { plan, price_id: sub.items.data[0]?.price?.id },
+          })
+
+          await safeInsert('audit_log', {
+            org_id: orgId,
+            action: 'subscription_created',
+            details: { plan, subscription_id: session.subscription },
+          })
+
           await dispatchWebhook(orgId, 'subscription.created', { plan, status: 'active' })
+        } else {
+          console.error('checkout.session.completed: could not resolve org_id', { customer: session.customer, subscription: session.subscription })
         }
         break
       }
@@ -96,17 +137,17 @@ serve(async (req) => {
         const sub = event.data.object as Stripe.Subscription
         const orgId = sub.metadata?.org_id || await orgFromCustomer(sub.customer as string)
         if (orgId) {
-          const status = sub.status === 'active' ? 'active' : sub.status === 'past_due' ? 'past_due' : sub.status === 'trialing' ? 'trialing' : 'canceled'
+          const status = sub.status === 'active' ? 'active'
+            : sub.status === 'past_due' ? 'past_due'
+            : sub.status === 'trialing' ? 'trialing'
+            : 'canceled'
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
-
-          const PLAN_LIMITS: Record<string, any> = {
-            starter:    { max_bank_connections: 3,   max_team_members: 3,   forecast_days: 30,  copilot_enabled: false, api_access: false,  multi_currency: false },
-            growth:     { max_bank_connections: 10,  max_team_members: 15,  forecast_days: 90,  copilot_enabled: true,  api_access: true,   multi_currency: true  },
-            enterprise: { max_bank_connections: 999, max_team_members: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
-          }
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
 
-          await supabase.from('organizations').update({ plan_status: status, plan, stripe_subscription_id: sub.id, ...limits }).eq('id', orgId)
+          await safeUpdate('organizations', {
+            plan_status: status, plan, stripe_subscription_id: sub.id, ...limits,
+          }, { id: orgId })
+
           await dispatchWebhook(orgId, 'subscription.updated', { plan, status })
         }
         break
@@ -116,9 +157,18 @@ serve(async (req) => {
         const sub = event.data.object as Stripe.Subscription
         const orgId = sub.metadata?.org_id || await orgFromCustomer(sub.customer as string)
         if (orgId) {
-          await supabase.from('organizations').update({ plan_status: 'canceled', stripe_subscription_id: null }).eq('id', orgId)
-          await supabase.from('growth_events').insert({ org_id: orgId, event: 'churn', metadata: { reason: 'subscription_deleted' } })
-          await supabase.from('audit_log').insert({ org_id: orgId, action: 'subscription_canceled', details: { subscription_id: sub.id } })
+          await safeUpdate('organizations', {
+            plan_status: 'canceled', stripe_subscription_id: null,
+          }, { id: orgId })
+
+          await safeInsert('growth_events', {
+            org_id: orgId, event: 'churn', metadata: { reason: 'subscription_deleted' },
+          })
+
+          await safeInsert('audit_log', {
+            org_id: orgId, action: 'subscription_canceled', details: { subscription_id: sub.id },
+          })
+
           await dispatchWebhook(orgId, 'subscription.canceled', { reason: 'subscription_deleted' })
         }
         break
@@ -128,13 +178,22 @@ serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice
         const orgId = invoice.subscription ? (await orgFromSub(invoice.subscription as string)) : null
         if (orgId) {
-          await supabase.from('organizations').update({ plan_status: 'past_due' }).eq('id', orgId)
-          await supabase.from('audit_log').insert({ org_id: orgId, action: 'payment_failed', details: { invoice_id: invoice.id, amount: invoice.amount_due } })
-          await supabase.from('notifications').insert({
-            org_id: orgId, type: 'payment_failed', severity: 'critical',
-            title: 'Payment failed', body: `Your subscription payment of $${((invoice.amount_due || 0) / 100).toLocaleString()} was declined. Update your payment method to avoid service interruption.`,
-            metadata: { invoice_id: invoice.id, amount: invoice.amount_due }, action_url: '/billing', channels_sent: ['in_app'],
+          await safeUpdate('organizations', { plan_status: 'past_due' }, { id: orgId })
+
+          await safeInsert('audit_log', {
+            org_id: orgId, action: 'payment_failed',
+            details: { invoice_id: invoice.id, amount: invoice.amount_due },
           })
+
+          await safeInsert('notifications', {
+            org_id: orgId, type: 'payment_failed', severity: 'critical',
+            title: 'Payment failed',
+            body: `Your subscription payment of $${((invoice.amount_due || 0) / 100).toLocaleString()} was declined. Update your payment method to avoid service interruption.`,
+            metadata: { invoice_id: invoice.id, amount: invoice.amount_due },
+            action_url: '/billing',
+            channels_sent: ['in_app'],
+          })
+
           await dispatchWebhook(orgId, 'payment.failed', { invoice_id: invoice.id, amount: invoice.amount_due })
         }
         break
@@ -144,19 +203,28 @@ serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice
         const orgId = invoice.subscription ? (await orgFromSub(invoice.subscription as string)) : null
         if (orgId) {
-          await supabase.from('organizations').update({ plan_status: 'active' }).eq('id', orgId)
-          await supabase.from('notifications').insert({
+          await safeUpdate('organizations', { plan_status: 'active' }, { id: orgId })
+
+          await safeInsert('notifications', {
             org_id: orgId, type: 'payment_success', severity: 'success',
-            title: 'Payment successful', body: `Subscription payment of $${((invoice.amount_due || 0) / 100).toLocaleString()} processed successfully.`,
-            metadata: { invoice_id: invoice.id }, action_url: '/billing', channels_sent: ['in_app'],
+            title: 'Payment successful',
+            body: `Subscription payment of $${((invoice.amount_due || 0) / 100).toLocaleString()} processed successfully.`,
+            metadata: { invoice_id: invoice.id },
+            action_url: '/billing',
+            channels_sent: ['in_app'],
           })
+
           await dispatchWebhook(orgId, 'payment.succeeded', { invoice_id: invoice.id, amount: invoice.amount_due })
         }
         break
       }
     }
-  } catch (err) {
+
+    // Mark event as processed
+    await safeUpdate('stripe_event_log', { status: 'processed' }, { event_id: event.id })
+  } catch (err: any) {
     console.error('Webhook handler error:', err)
+    await safeUpdate('stripe_event_log', { status: 'failed', error_message: err?.message }, { event_id: event.id })
     return new Response(JSON.stringify({ error: err.message }), { status: 500 })
   }
 
