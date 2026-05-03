@@ -1,328 +1,452 @@
-import { useState, useEffect } from 'react'
-import { SkeletonPage } from '@/components/Skeleton'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Check, Crown, Sparkles, Building2, Users, Eye, ArrowUpRight, AlertTriangle, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/components/Toast'
-import { Check, Crown, Zap, Building2, Clock, CreditCard, Shield, ExternalLink, ArrowRight, Receipt, TrendingUp, Loader2, CheckCircle2, Lock } from 'lucide-react'
+import { useToast } from '@/hooks/useToast'
 
-const PLANS = [
+/**
+ * BILLING & PLANS — in-app subscription management.
+ * 
+ * Differs from public /pricing in that it shows:
+ *  - Current plan badge + seat usage upfront
+ *  - Upgrade / Current plan / Downgrade CTAs (not "Sign up")
+ *  - Overage warnings if applicable
+ *  - 14-day trial language (transparent for new product)
+ *  - Stripe Customer Portal for invoices/payment
+ */
+
+const TIERS = [
   {
-    name: 'Starter', icon: Zap, desc: 'Growing teams getting organized', color: 'cyan',
-    moPrice: 499, yrPrice: 399, annual: '$4,788/yr',
-    moPriceId: 'price_1THX62FNFhtB2ZujfPfhaKXc',
-    yrPriceId: 'price_1TL54bFNFhtB2Zuj9BKFWUwN',
-    features: ['Up to 3 bank connections', 'Real-time cash position', '30-day cash forecast', 'AI Treasury Copilot (20/day)', 'Smart transaction tagging', 'Basic reports & exports', 'Email support'],
+    key: 'starter',
+    name: 'Starter',
+    tagline: 'Small teams getting organized',
+    icon: Sparkles,
+    monthly: 499,
+    annual: 399,
+    fullSeats: 3,
+    readonlySeats: 0,
+    maxFullSeats: 10,
+    overage: 49,
+    features: [
+      'Up to 3 bank connections',
+      'Real-time cash position',
+      '30-day cash forecast',
+      'Daily Cash Position memo',
+      'Print-anywhere PDFs',
+      'Email & Slack alerts',
+      'Basic reports & exports',
+    ],
+    notIncluded: ['AI Treasury Copilot', 'Multi-currency', 'API access', 'Read-only seats'],
   },
   {
-    name: 'Growth', icon: Crown, desc: 'Full treasury visibility', featured: true, color: 'purple',
-    moPrice: 1499, yrPrice: 1199, annual: '$14,388/yr',
-    moPriceId: 'price_1THX63FNFhtB2ZujQmJpAnaU',
-    yrPriceId: 'price_1TL54fFNFhtB2ZujU9ZE1z58',
-    features: ['Up to 10 bank connections', 'Advanced AI Treasury Copilot', 'AI-powered 90-day forecast', 'Multi-entity support', 'Auto categorization', 'Board reporting templates', 'Slack & email alerts', 'API access', 'Priority support'],
+    key: 'growth',
+    name: 'Growth',
+    tagline: 'Treasury teams running operations',
+    icon: Crown,
+    monthly: 1499,
+    annual: 1199,
+    fullSeats: 10,
+    readonlySeats: 5,
+    maxFullSeats: 50,
+    overage: 39,
+    badge: 'Most popular',
+    features: [
+      'Up to 10 bank connections',
+      '90-day cash forecast',
+      'Daily Cash Position memo',
+      'Weekly Cash Flash',
+      'AI Treasury Copilot',
+      'Multi-currency support',
+      'API access',
+      'Unlimited free read-only seats',
+      'Auto-categorization',
+      'Slack + email alerts',
+    ],
+    notIncluded: ['Multi-entity consolidation', 'White-label reports', 'SSO/SCIM'],
   },
   {
-    name: 'Enterprise', icon: Building2, desc: 'Complex treasury at scale', color: 'green',
-    moPrice: 2499, yrPrice: 1999, annual: '$23,988/yr',
-    moPriceId: 'price_1THX64FNFhtB2Zujajul8HIw',
-    yrPriceId: 'price_1TL54kFNFhtB2ZujZaPvAY9T',
-    features: ['Unlimited bank connections', 'Advanced AI Treasury Copilot — Unlimited', 'Scenario modeling', 'Multi-currency & FX alerts', 'Accounting software sync', 'Security center & audit logs', 'Compliance report generator', 'SSO / SAML integration', 'Priority email support'],
+    key: 'enterprise',
+    name: 'Enterprise',
+    tagline: 'Large finance organizations',
+    icon: Building2,
+    monthly: 3499,
+    annual: 2799,
+    fullSeats: 25,
+    readonlySeats: null,
+    maxFullSeats: null,
+    overage: 29,
+    features: [
+      'Unlimited bank connections',
+      '365-day cash forecast',
+      'All standard reports',
+      'Custom report builder',
+      'White-label PDFs (your brand only)',
+      'AI Treasury Copilot — unlimited',
+      'Multi-entity consolidation',
+      'Multi-currency & FX alerts',
+      'SSO + SCIM provisioning',
+      'Audit log + security center',
+      'Dedicated CSM',
+    ],
+    notIncluded: [],
   },
   {
-    name: 'Custom', icon: Shield, desc: 'Tailored for large organizations', color: 'amber',
-    talkToSales: true,
-    features: ['Everything in Enterprise', 'SSO / SAML integration', 'Custom SLA & uptime guarantee', 'Dedicated onboarding', 'Custom API integrations', 'Volume discounts', 'Quarterly business reviews'],
+    key: 'custom',
+    name: 'Custom',
+    tagline: 'Tailored for your treasury',
+    icon: null,
+    monthly: null,
+    annual: null,
+    customCta: 'Talk to sales',
+    features: [
+      'Everything in Enterprise',
+      'Custom SLA & uptime guarantee',
+      'Dedicated onboarding',
+      'Custom API integrations',
+      'Volume discounts',
+      'Quarterly business reviews',
+    ],
+    notIncluded: [],
   },
 ]
 
 export default function Billing() {
-  const { org, refetch } = useAuth()
+  const { org } = useAuth()
   const toast = useToast()
+  
   const [annual, setAnnual] = useState(false)
-  const [checkoutLoading, setCheckoutLoading] = useState(null)
-  const [checkoutError, setCheckoutError] = useState(null)
-  const [portalLoading, setPortalLoading] = useState(false)
-  const [searchParams] = useSearchParams()
-  const checkoutSuccess = searchParams.get('checkout') === 'success'
+  const [seatCounts, setSeatCounts] = useState(null)
+  const [planLimits, setPlanLimits] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(null)
 
-  useEffect(() => { document.title = 'Billing \u2014 Vaultline' }, [])
+  useEffect(() => { document.title = 'Billing & Plans — Vaultline' }, [])
 
-  // Toast on checkout success
   useEffect(() => {
-    if (checkoutSuccess) toast.success('Subscription activated!', 'Welcome to Vaultline')
-  }, [checkoutSuccess])
+    if (!org?.id) return
+    let mounted = true
+    
+    Promise.all([
+      supabase.from('org_seat_counts').select('*').eq('org_id', org.id).maybeSingle(),
+      supabase.from('plan_seat_limits').select('*').eq('plan', org.plan || 'starter').maybeSingle(),
+    ]).then(([seats, limits]) => {
+      if (!mounted) return
+      setSeatCounts(seats.data)
+      setPlanLimits(limits.data)
+      setLoading(false)
+    })
+    
+    return () => { mounted = false }
+  }, [org?.id, org?.plan])
 
-  // Refresh org data on checkout return
-  useEffect(() => {
-    if (checkoutSuccess) {
-      const poll = setInterval(() => { refetch?.() }, 2000)
-      setTimeout(() => clearInterval(poll), 30000) // stop after 30s
-      return () => clearInterval(poll)
+  async function handleAction(tierKey) {
+    if (tierKey === 'custom') {
+      window.location.href = 'mailto:sales@vaultline.app?subject=Custom plan inquiry'
+      return
     }
-  }, [checkoutSuccess])
+    
+    setSubmitting(tierKey)
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: { plan: tierKey, billing_cycle: annual ? 'annual' : 'monthly' },
+      })
+      if (error) throw error
+      if (data?.url) window.location.href = data.url
+    } catch (e) {
+      toast.error('Could not start checkout', e.message)
+      setSubmitting(null)
+    }
+  }
+  
+  async function openStripePortal() {
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-portal')
+      if (error) throw error
+      if (data?.url) window.location.href = data.url
+    } catch (e) {
+      toast.error('Could not open billing portal', e.message)
+    }
+  }
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-32">
+      <Loader2 size={20} className="animate-spin text-t2" />
+    </div>
+  )
 
   const currentPlan = org?.plan || 'starter'
-  const isTrialing = org?.plan_status === 'trialing'
-  const trialEndsAt = org?.trial_ends_at ? new Date(org.trial_ends_at) : null
-  const daysLeft = trialEndsAt ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / 86400000)) : 0
-
-  async function startCheckout(priceId) {
-    setCheckoutLoading(priceId)
-    setCheckoutError(null)
-    try {
-      const { data, error: fnErr } = await supabase.functions.invoke('stripe-checkout', {
-        body: { price_id: priceId },
-      })
-      if (fnErr) throw new Error(fnErr.message || 'Checkout failed')
-      if (data?.error) throw new Error(data.error)
-      if (data?.url) window.location.href = data.url
-      else throw new Error('No checkout URL returned')
-    } catch (err) {
-      setCheckoutError(err.message)
-      toast.error(err.message, 'Checkout failed')
-    } finally {
-      setCheckoutLoading(null)
-    }
-  }
-
-  async function openPortal() {
-    setPortalLoading(true)
-    try {
-      const { data, error: fnErr } = await supabase.functions.invoke('stripe-portal')
-      if (fnErr) throw new Error(fnErr.message || 'Portal failed')
-      if (data?.error) throw new Error(data.error)
-      if (data?.url) window.location.href = data.url
-      else throw new Error('No portal URL returned')
-    } catch (err) {
-      toast.error(err.message, 'Unable to open billing portal')
-    } finally {
-      setPortalLoading(false)
-    }
-  }
+  const planStatus = org?.plan_status || 'inactive'
+  const fullUsed = seatCounts?.active_full_seats || 0
+  const fullIncluded = planLimits?.included_full_seats || 0
+  const fullCap = planLimits?.max_full_seats
+  const fullOverage = Math.max(0, fullUsed - fullIncluded)
+  const fullOverageCost = fullOverage * ((planLimits?.overage_full_seat_cents || 0) / 100)
+  const fullPctOfCap = fullCap ? (fullUsed / fullCap) * 100 : 0
+  const roUsed = seatCounts?.active_readonly_seats || 0
 
   return (
-    <div className="max-w-[1000px] mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="terminal-label">BILLING</span>
-          <span className="text-[12px] font-mono text-t3">{org?.name}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-[11px] font-mono px-2.5 py-1 rounded border ${isTrialing ? 'text-amber bg-amber/[0.06] border-amber/[0.1]' : 'text-green bg-green/[0.06] border-green/[0.1]'}`}>
-            {isTrialing ? 'TRIAL' : org?.plan_status === 'active' ? 'ACTIVE' : 'INACTIVE'}
-          </span>
-        </div>
-      </div>
-
-      {/* Status KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { icon: Shield, label: 'PLAN', value: currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1), color: 'cyan' },
-          { icon: Clock, label: 'STATUS', value: isTrialing ? `${daysLeft}d left` : 'Active', color: isTrialing ? 'amber' : 'green' },
-          { icon: Receipt, label: 'BILLING', value: annual ? 'Annual' : 'Monthly', color: 'purple' },
-          { icon: TrendingUp, label: 'SAVINGS', value: annual ? '20%' : '0%', color: annual ? 'green' : 'amber' },
-        ].map(k => {
-          const cm = { cyan: 'bg-cyan/[0.08] text-cyan', green: 'bg-green/[0.08] text-green', amber: 'bg-amber/[0.08] text-amber', purple: 'bg-purple/[0.08] text-purple' }
-          return (
-            <div key={k.label} className="glass-card rounded-xl p-4 terminal-scanlines relative">
-              <div className="relative z-[2]">
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${cm[k.color]}`}><k.icon size={13} /></div>
-                  <span className="text-[9px] font-mono text-t3 uppercase tracking-wider">{k.label}</span>
-                </div>
-                <p className="font-mono text-[20px] font-black text-t1 terminal-data">{k.value}</p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Trial banner */}
-      {isTrialing && (
-        <div className="glass-card rounded-2xl p-5 border-cyan/[0.15] terminal-scanlines relative">
-          <div className="relative z-[2] flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-cyan/[0.08] flex items-center justify-center"><Clock size={20} className="text-cyan" /></div>
-              <div>
-                <p className="text-[15px] font-bold">Plan Active</p>
-                <p className="text-[13px] text-t3 font-mono">{daysLeft} day{daysLeft !== 1 ? 's' : ''} remaining / Card on file</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: 14 }, (_, i) => (
-                <div key={i} className={`w-2 h-6 rounded-full transition-all ${i < (14 - daysLeft) ? 'bg-cyan' : 'bg-border/40'}`} />
-              ))}
-            </div>
+    <div className="space-y-8 max-w-7xl">
+      {/* ─── HEADER ─── */}
+      <header className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-[28px] font-display text-t1">Billing & Plans</h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-cyan/10 text-cyan text-[11px] font-semibold uppercase tracking-wider border border-cyan/20">
+              {currentPlan}
+            </span>
+            {planStatus === 'trialing' && (
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 text-[11px] font-semibold uppercase tracking-wider border border-amber-500/20">
+                Trial
+              </span>
+            )}
           </div>
+          <p className="text-[14px] text-t2">
+            {org?.name} · Manage your subscription, seats, and invoices.
+          </p>
         </div>
-      )}
+        {org?.stripe_customer_id && (
+          <button
+            onClick={openStripePortal}
+            className="px-4 py-2 rounded-lg border border-border text-t1 text-[13px] font-medium hover:border-border-hover inline-flex items-center gap-2"
+          >
+            Manage payment & invoices <ArrowUpRight size={14} />
+          </button>
+        )}
+      </header>
 
-      {/* Active subscriber — Manage Billing via Stripe Portal */}
-      {(org?.plan_status === 'active' || org?.plan_status === 'trialing') && org?.stripe_customer_id && (
-        <div className="glass-card rounded-2xl p-5 border-green/[0.15]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-11 h-11 rounded-xl bg-green/[0.08] flex items-center justify-center"><CreditCard size={20} className="text-green" /></div>
-              <div>
-                <p className="text-[15px] font-bold text-t1">Billing managed by Stripe</p>
-                <p className="text-[13px] text-t3">View invoices, update payment method, or cancel subscription.</p>
-              </div>
+      {/* ─── SEAT USAGE STRIP ─── */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="glass-card p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Users size={14} className="text-t2" />
+            <span className="text-[11px] uppercase tracking-wider text-t3 font-medium">Full seats</span>
+          </div>
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <span className="text-[28px] font-display text-t1 font-semibold">{fullUsed}</span>
+            <span className="text-[13px] text-t2">
+              / {fullCap || '∞'}{fullIncluded ? ` · ${fullIncluded} included` : ''}
+            </span>
+          </div>
+          {fullCap && (
+            <div className="w-full h-1 rounded-full bg-deep mb-2">
+              <div 
+                className={`h-full rounded-full ${fullPctOfCap > 95 ? 'bg-red-500' : fullPctOfCap > 80 ? 'bg-amber-500' : 'bg-cyan'}`}
+                style={{ width: `${Math.min(100, fullPctOfCap)}%` }}
+              />
             </div>
-            <button
-              onClick={openPortal}
-              disabled={portalLoading}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-green/90 to-green/70 text-void text-[13px] font-semibold hover:-translate-y-px active:scale-[0.98] transition-all flex items-center gap-2"
+          )}
+          {fullOverage > 0 && (
+            <p className="text-[12px] text-t2">
+              <strong className="text-t1">{fullOverage}</strong> over included · <strong className="text-t1">+${fullOverageCost}/mo</strong>
+            </p>
+          )}
+        </div>
+        
+        <div className="glass-card p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Eye size={14} className="text-t2" />
+            <span className="text-[11px] uppercase tracking-wider text-t3 font-medium">Read-only seats</span>
+          </div>
+          <div className="flex items-baseline gap-1.5 mb-2">
+            <span className="text-[28px] font-display text-t1 font-semibold">{roUsed}</span>
+            <span className="text-[13px] text-t2">
+              {currentPlan === 'starter' ? '· upgrade required' : '· unlimited free'}
+            </span>
+          </div>
+          <p className="text-[12px] text-t2">
+            {currentPlan === 'starter' 
+              ? 'Read-only seats available on Growth+'
+              : 'Invite CFOs, board, auditors at no cost'}
+          </p>
+        </div>
+        
+        <div className="glass-card p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[11px] uppercase tracking-wider text-t3 font-medium">Manage team</span>
+          </div>
+          <Link 
+            to="/settings/team"
+            className="text-[14px] text-cyan hover:underline inline-flex items-center gap-1 font-medium"
+          >
+            View team & invite members <ArrowUpRight size={14} />
+          </Link>
+          <p className="text-[12px] text-t2 mt-2">
+            Add admins, members, and read-only seats from one place.
+          </p>
+        </div>
+      </section>
+
+      {/* ─── BILLING TOGGLE ─── */}
+      <div className="flex items-center justify-center">
+        <div className="inline-flex items-center gap-1 p-1 rounded-full border border-border bg-deep">
+          <button 
+            onClick={() => setAnnual(false)}
+            className={`px-5 py-2 rounded-full text-[13px] font-medium transition-all ${
+              !annual ? 'bg-canvas text-t1 shadow-sm' : 'text-t2'
+            }`}
+          >
+            Monthly
+          </button>
+          <button 
+            onClick={() => setAnnual(true)}
+            className={`px-5 py-2 rounded-full text-[13px] font-medium transition-all ${
+              annual ? 'bg-canvas text-t1 shadow-sm' : 'text-t2'
+            }`}
+          >
+            Annual <span className="text-cyan ml-1">save 20%</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ─── TIER CARDS ─── */}
+      <section className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {TIERS.map(tier => {
+          const isCurrent = currentPlan === tier.key
+          const tierIndex = TIERS.findIndex(t => t.key === tier.key)
+          const currentIndex = TIERS.findIndex(t => t.key === currentPlan)
+          const isUpgrade = tierIndex > currentIndex && tier.key !== 'custom'
+          const isDowngrade = tierIndex < currentIndex
+          const isSubmitting = submitting === tier.key
+          const Icon = tier.icon
+          const price = annual ? tier.annual : tier.monthly
+          const isHighlighted = tier.key === 'growth' && !isCurrent
+          
+          return (
+            <div 
+              key={tier.key}
+              className={`relative rounded-2xl border p-5 flex flex-col ${
+                isCurrent 
+                  ? 'border-cyan bg-cyan/[0.04]' 
+                  : isHighlighted
+                    ? 'border-cyan/30 bg-canvas'
+                    : 'border-border bg-canvas'
+              }`}
             >
-              {portalLoading ? <><Loader2 size={14} className="animate-spin" /> Opening...</> : <>Manage Billing <ExternalLink size={14} /></>}
-            </button>
-          </div>
-          <div className="mt-3 flex items-center gap-4 pt-3 border-t border-border">
-            <div className="flex items-center gap-2">
-              <Shield size={12} className="text-green" />
-              <span className="text-[11px] text-t3 font-mono">PCI Level 1 certified</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Lock size={12} className="text-green" />
-              <span className="text-[11px] text-t3 font-mono">Card data never stored on our servers</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Checkout success banner */}
-      {checkoutSuccess && (
-        <div className="glass-card rounded-2xl p-5 border-green/[0.15]">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-green/[0.08] flex items-center justify-center"><CheckCircle2 size={20} className="text-green" /></div>
-            <div>
-              <p className="text-[15px] font-bold text-green">Checkout Complete</p>
-              <p className="text-[13px] text-t3 font-mono">Your subscription is being activated. This page will update automatically.</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Error */}
-      {checkoutError && (
-        <div className="glass-card rounded-xl p-4 border-red/[0.15]">
-          <p className="text-[13px] text-red font-mono">{checkoutError}</p>
-        </div>
-      )}
-
-      {/* Toggle */}
-      <div className="flex items-center justify-center gap-4">
-        <span className={`text-[14px] font-mono font-medium transition ${!annual ? 'text-t1' : 'text-t3'}`}>MONTHLY</span>
-        <button onClick={() => setAnnual(!annual)}
-          className={`relative w-14 h-7 rounded-full transition-colors ${annual ? 'bg-cyan' : 'bg-border'}`}>
-          <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all ${annual ? 'left-8' : 'left-1'}`} />
-        </button>
-        <span className={`text-[14px] font-mono font-medium transition ${annual ? 'text-t1' : 'text-t3'}`}>
-          ANNUAL <span className="text-green text-[12px] font-bold ml-1 bg-green/[0.06] px-2 py-0.5 rounded border border-green/[0.1]">SAVE 20%</span>
-        </span>
-      </div>
-
-      {/* Plan cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {PLANS.map(plan => {
-          const isCurrent = currentPlan === plan.name.toLowerCase()
-          const price = annual ? plan.yrPrice : plan.moPrice
-          const priceId = annual ? plan.yrPriceId : plan.moPriceId
-          const cm = { cyan: 'bg-cyan/[0.08] text-cyan', purple: 'bg-purple/[0.08] text-purple', green: 'bg-green/[0.08] text-green', amber: 'bg-amber/[0.08] text-amber' }
-          return (
-            <div key={plan.name} className={`glass-card rounded-2xl p-6 flex flex-col relative transition-all hover:-translate-y-1 active:scale-[0.99] ${plan.featured ? 'border-purple/[0.2] shadow-[0_0_30px_rgba(129,140,248,0.08)]' : ''}`}>
-              {plan.featured && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple to-cyan text-void text-[10px] font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider">MOST POPULAR</span>
+              {tier.badge && !isCurrent && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-cyan text-white text-[10px] font-semibold uppercase tracking-wider">
+                  {tier.badge}
+                </span>
               )}
-              <div className="flex items-center gap-3 mb-5">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${cm[plan.color] || cm.cyan}`}><plan.icon size={18} /></div>
-                <div>
-                  <h3 className="font-display text-[16px] font-bold">{plan.name}</h3>
-                  <p className="text-[12px] text-t3 font-mono">{plan.desc}</p>
-                </div>
+              {isCurrent && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-cyan text-white text-[10px] font-semibold uppercase tracking-wider">
+                  Current plan
+                </span>
+              )}
+              
+              <div className="flex items-center gap-2 mb-1">
+                {Icon && <Icon size={16} className="text-t2" />}
+                <h3 className="text-[18px] font-display text-t1 font-semibold">{tier.name}</h3>
               </div>
-              <div className="mb-5">
-                {plan.talkToSales ? (
-                  <span className="font-display text-[28px] font-black text-t1 tracking-tight">Let's Talk</span>
-                ) : (
+              <p className="text-[12px] text-t2 mb-4 leading-relaxed">{tier.tagline}</p>
+              
+              <div className="mb-4">
+                {price != null ? (
                   <>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="font-mono text-[36px] font-black text-t1 tracking-tight terminal-data">${price?.toLocaleString()}</span>
-                      <span className="text-[13px] text-t3 font-mono">/mo</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[32px] font-display text-t1 font-semibold">${price.toLocaleString()}</span>
+                      <span className="text-[13px] text-t2">/mo</span>
                     </div>
-                    {annual && plan.annual && <p className="text-[12px] text-t3 font-mono mt-1">{plan.annual} billed annually</p>}
+                    {annual && (
+                      <p className="text-[11px] text-t3 mt-1">Billed ${(price * 12).toLocaleString()}/yr</p>
+                    )}
                   </>
+                ) : (
+                  <div className="text-[24px] font-display text-t1 font-semibold">Let's talk</div>
                 )}
               </div>
-              <ul className="space-y-2.5 mb-6 flex-1">
-                {plan.features.map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-[13px] text-t2">
-                    <Check size={13} className="text-green shrink-0 mt-0.5" strokeWidth={2.5} /> {f}
+
+              {/* Seat block */}
+              {tier.fullSeats && (
+                <div className="mb-4 p-3 rounded-lg bg-deep/40 border border-border/60 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-[12px] text-t1">
+                    <Users size={12} className="text-t2" />
+                    <span><strong>{tier.fullSeats}</strong> full seats</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[12px] text-t1">
+                    <Eye size={12} className="text-t2" />
+                    {tier.readonlySeats === null ? (
+                      <span><strong>Unlimited</strong> read-only <span className="text-cyan">free</span></span>
+                    ) : tier.readonlySeats === 0 ? (
+                      <span className="text-t3">No read-only seats</span>
+                    ) : (
+                      <span><strong>{tier.readonlySeats}</strong> read-only, then unlimited <span className="text-cyan">free</span></span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-t3 pt-1.5 border-t border-border/60">
+                    {tier.maxFullSeats 
+                      ? `Cap ${tier.maxFullSeats} · +$${tier.overage}/seat` 
+                      : `No cap · +$${tier.overage}/seat`}
+                  </div>
+                </div>
+              )}
+              
+              <ul className="space-y-1.5 mb-5 flex-1 text-[12.5px]">
+                {tier.features.slice(0, 8).map((f, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <Check size={13} className="text-t2 mt-0.5 flex-shrink-0" />
+                    <span className="text-t1 leading-relaxed">{f}</span>
                   </li>
                 ))}
+                {tier.features.length > 8 && (
+                  <li className="text-[11px] text-t3 italic ml-5">+ {tier.features.length - 8} more</li>
+                )}
               </ul>
-              {isCurrent ? (
-                <div className="w-full py-3 rounded-xl border border-green/[0.15] text-center text-[13px] font-mono font-bold text-green bg-green/[0.04]">CURRENT PLAN</div>
-              ) : plan.talkToSales ? (
-                <a href="mailto:sales@vaultline.app" className="w-full py-3 rounded-xl border border-border text-center text-[13px] font-mono font-semibold text-t2 hover:border-amber/[0.3] hover:text-amber transition-all flex items-center justify-center gap-2">
-                  TALK TO SALES <ArrowRight size={13} />
-                </a>
-              ) : (
-                <button onClick={() => startCheckout(priceId)} disabled={checkoutLoading === priceId}
-                  className={`w-full py-3 rounded-xl text-[13px] font-mono font-bold transition-all flex items-center justify-center gap-2 btn-press ${
-                    plan.featured
-                      ? 'bg-gradient-to-r from-purple to-cyan text-white shadow-[0_2px_16px_rgba(129,140,248,0.25)] hover:-translate-y-px active:scale-[0.98]'
-                      : 'border border-border text-t2 hover:border-cyan/[0.2] hover:text-cyan'
-                  }`}>
-                  {checkoutLoading === priceId ? <Loader2 size={12} className="animate-spin" /> : <>UPGRADE <ArrowRight size={12} /></>}
-                </button>
-              )}
+              
+              <button
+                onClick={() => handleAction(tier.key)}
+                disabled={isCurrent || isSubmitting}
+                className={`w-full py-2.5 rounded-lg text-[13px] font-medium transition-all inline-flex items-center justify-center gap-2 ${
+                  isCurrent 
+                    ? 'bg-deep text-t2 cursor-default'
+                    : isHighlighted
+                      ? 'bg-cyan text-white hover:opacity-90'
+                      : 'border border-border text-t1 hover:border-border-hover'
+                }`}
+              >
+                {isSubmitting ? (
+                  <><Loader2 size={13} className="animate-spin" /> Loading…</>
+                ) : isCurrent ? (
+                  'Current plan'
+                ) : tier.customCta ? (
+                  tier.customCta
+                ) : isUpgrade ? (
+                  <>Upgrade <ArrowUpRight size={13} /></>
+                ) : isDowngrade ? (
+                  'Downgrade'
+                ) : (
+                  'Choose plan'
+                )}
+              </button>
             </div>
           )
         })}
-      </div>
+      </section>
 
-      {/* Guarantees */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {[
-          { icon: Shield, label: 'Free Trial', sub: '14 days free, cancel anytime' },
-          { icon: CreditCard, label: 'Cancel Anytime', sub: 'No long-term contracts or penalties' },
-          { icon: Clock, label: 'Instant Access', sub: 'Set up in under 60 seconds' },
-        ].map(g => (
-          <div key={g.label} className="glass-card rounded-xl p-4 flex items-center gap-3">
-            <g.icon size={16} className="text-t3 shrink-0" />
-            <div>
-              <p className="text-[13px] font-semibold text-t2">{g.label}</p>
-              <p className="text-[12px] text-t3 font-mono">{g.sub}</p>
-            </div>
+      {/* ─── BOTTOM ASSURANCES ─── */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="glass-card p-4 flex items-start gap-3">
+          <div className="text-[20px]">⏱</div>
+          <div>
+            <div className="text-[13px] font-semibold text-t1 mb-0.5">14-day free trial</div>
+            <div className="text-[12px] text-t2">Full access. Cancel before day 14, no charge.</div>
           </div>
-        ))}
-      </div>
-
-      {/* Ecosystem cross-sell */}
-      <div className="glass-card rounded-xl p-5 border-purple/[0.12]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-purple/[0.08] flex items-center justify-center"><Zap size={16} className="text-purple" /></div>
-            <div>
-              <p className="text-[13px] font-semibold text-t1">Save 15% with the Suite Bundle</p>
-              <p className="text-[12px] text-t3 font-mono">Add FinanceOS (FP&A) or Parallax (Compliance) to your stack</p>
-            </div>
+        </div>
+        <div className="glass-card p-4 flex items-start gap-3">
+          <div className="text-[20px]">↺</div>
+          <div>
+            <div className="text-[13px] font-semibold text-t1 mb-0.5">Cancel anytime</div>
+            <div className="text-[12px] text-t2">No long-term contracts or penalties.</div>
           </div>
-          <Link to="/ecosystem" className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12px] font-mono font-semibold text-purple border border-purple/[0.12] hover:bg-purple/[0.04] active:scale-[0.98] transition-all">
-            VIEW ECOSYSTEM <ArrowRight size={10} />
-          </Link>
         </div>
-      </div>
-
-      {/* Terminal status */}
-      <div className="terminal-status flex items-center justify-between px-5 py-2 rounded-lg">
-        <div className="flex items-center gap-3 text-t3">
-          <span className="terminal-live">STRIPE</span>
-          <span>PLAN: <span className="text-cyan">{currentPlan.toUpperCase()}</span></span>
+        <div className="glass-card p-4 flex items-start gap-3">
+          <div className="text-[20px]">⚡</div>
+          <div>
+            <div className="text-[13px] font-semibold text-t1 mb-0.5">Instant access</div>
+            <div className="text-[12px] text-t2">Set up in under 60 seconds.</div>
+          </div>
         </div>
-        <span className="text-t3">PAYMENT: <span className="text-green">STRIPE CHECKOUT</span></span>
-      </div>
+      </section>
     </div>
   )
 }

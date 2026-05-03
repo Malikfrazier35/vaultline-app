@@ -12,6 +12,17 @@ const PLAN_LIMITS: Record<string, any> = {
   enterprise: { max_bank_connections: 999, max_team_members: 999, forecast_days: 365, copilot_enabled: true,  api_access: true,   multi_currency: true  },
 }
 
+// Map Stripe subscription status → our internal plan_status enum.
+// Used by both checkout.session.completed and customer.subscription.updated
+// so trial signups don't flicker through 'active' before correcting to 'trialing'.
+const deriveStatus = (subStatus: string): string => {
+  if (subStatus === 'active') return 'active'
+  if (subStatus === 'trialing') return 'trialing'
+  if (subStatus === 'past_due') return 'past_due'
+  if (subStatus === 'canceled' || subStatus === 'unpaid' || subStatus === 'incomplete_expired') return 'canceled'
+  return subStatus  // pass-through for anything else (incomplete, paused, etc.)
+}
+
 // Wrap every DB write so a single failed insert can't 500 the entire webhook
 const safeInsert = async (table: string, row: any) => {
   try {
@@ -111,28 +122,30 @@ serve(async (req) => {
           const sub = await stripe.subscriptions.retrieve(session.subscription as string)
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
+          const plan_status = deriveStatus(sub.status)  // ← was hardcoded 'active' — now respects trialing
 
           await safeUpdate('organizations', {
-            plan_status: 'active',
+            plan_status,
             plan,
             stripe_subscription_id: session.subscription,
             stripe_customer_id: session.customer,
+            trial_ends_at: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
             ...limits,
           }, { id: orgId })
 
           await safeInsert('growth_events', {
             org_id: orgId,
-            event: 'conversion',
-            metadata: { plan, price_id: sub.items.data[0]?.price?.id },
+            event: plan_status === 'trialing' ? 'trial_started' : 'conversion',
+            metadata: { plan, price_id: sub.items.data[0]?.price?.id, status: plan_status },
           })
 
           await safeInsert('audit_log', {
             org_id: orgId,
-            action: 'subscription_created',
-            details: { plan, subscription_id: session.subscription },
+            action: plan_status === 'trialing' ? 'trial_started' : 'subscription_created',
+            details: { plan, subscription_id: session.subscription, status: plan_status },
           })
 
-          await dispatchWebhook(orgId, 'subscription.created', { plan, status: 'active' })
+          await dispatchWebhook(orgId, plan_status === 'trialing' ? 'trial.started' : 'subscription.created', { plan, status: plan_status })
         } else {
           console.error('checkout.session.completed: could not resolve org_id', { customer: session.customer, subscription: session.subscription })
         }
@@ -143,18 +156,19 @@ serve(async (req) => {
         const sub = event.data.object as Stripe.Subscription
         const orgId = sub.metadata?.org_id || await orgFromCustomer(sub.customer as string)
         if (orgId) {
-          const status = sub.status === 'active' ? 'active'
-            : sub.status === 'past_due' ? 'past_due'
-            : sub.status === 'trialing' ? 'trialing'
-            : 'canceled'
+          const plan_status = deriveStatus(sub.status)
           const plan = sub.items.data[0]?.price?.metadata?.plan || 'starter'
           const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
 
           await safeUpdate('organizations', {
-            plan_status: status, plan, stripe_subscription_id: sub.id, ...limits,
+            plan_status,
+            plan,
+            stripe_subscription_id: sub.id,
+            trial_ends_at: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+            ...limits,
           }, { id: orgId })
 
-          await dispatchWebhook(orgId, 'subscription.updated', { plan, status })
+          await dispatchWebhook(orgId, 'subscription.updated', { plan, status: plan_status })
         }
         break
       }
@@ -176,6 +190,23 @@ serve(async (req) => {
           })
 
           await dispatchWebhook(orgId, 'subscription.canceled', { reason: 'subscription_deleted' })
+        }
+        break
+      }
+
+      case 'customer.subscription.trial_will_end': {
+        // Fires 3 days before trial ends. Useful for nudging the customer.
+        const sub = event.data.object as Stripe.Subscription
+        const orgId = sub.metadata?.org_id || await orgFromCustomer(sub.customer as string)
+        if (orgId) {
+          await safeInsert('notifications', {
+            org_id: orgId, type: 'trial_ending', severity: 'warning',
+            title: 'Your trial ends in 3 days',
+            body: 'Your Vaultline trial ends soon. Your subscription will start automatically — no action needed unless you want to cancel.',
+            action_url: '/billing',
+            channels_sent: ['in_app', 'email'],
+          })
+          await dispatchWebhook(orgId, 'trial.ending', { trial_end: sub.trial_end })
         }
         break
       }

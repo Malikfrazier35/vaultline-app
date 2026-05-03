@@ -1,0 +1,263 @@
+/* ────────────────────────────────────────────────────────────────────
+   PRINT.CSS — Vaultline
+   Treasury-grade print styles. Imported globally via main.jsx.
+   
+   Design philosophy:
+   - Force light mode (CFOs print on white paper)
+   - Hide chrome (nav, copilot, toasts, modals)
+   - Force serif body for legibility on paper
+   - Tabular numbers, parens for negatives
+   - Page breaks respect logical sections
+   - Repeating headers per page
+   - Page numbers via @page
+   ──────────────────────────────────────────────────────────────────── */
+
+@media print {
+  /* ── Page setup ───────────────────────────────────────────────── */
+  @page {
+    size: letter portrait;
+    margin: 0.6in 0.55in 0.7in 0.55in;
+    
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: 'Source Serif Pro', Georgia, serif;
+      font-size: 9pt;
+      color: #6b7280;
+    }
+  }
+  
+  @page :first {
+    @bottom-center { content: ""; }
+  }
+  
+  /* ── Force light mode regardless of user theme ─────────────────── */
+  :root,
+  [data-theme="dark"],
+  html, body {
+    --color-void: #ffffff !important;
+    --color-deep: #ffffff !important;
+    --color-canvas: #ffffff !important;
+    --color-surface: #ffffff !important;
+    --color-t1: #000000 !important;
+    --color-t2: #374151 !important;
+    --color-t3: #6b7280 !important;
+    --color-t4: #d1d5db !important;
+    --color-border: #d1d5db !important;
+    --color-cyan: #0A1F3D !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  
+  body, * {
+    background: transparent !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* ── Hide app chrome ───────────────────────────────────────────── */
+  .no-print,
+  nav,
+  aside,
+  header.app-header,
+  .app-sidebar,
+  .toast-container,
+  .copilot-panel,
+  .copilot-trigger,
+  .copilot-fab,
+  .modal-backdrop,
+  .toolbar,
+  .filter-bar,
+  .live-status,
+  .sync-button,
+  .notification-bell,
+  .theme-toggle,
+  .refer-earn-card,
+  .soc2-card,
+  button[data-action="logout"],
+  [data-print-hide="true"] {
+    display: none !important;
+  }
+  
+  /* Sidebar collapse override */
+  .layout-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* ── Typography for paper ──────────────────────────────────────── */
+  body {
+    font-family: 'Source Serif Pro', 'Charter', Georgia, 'Times New Roman', serif !important;
+    font-size: 10pt !important;
+    line-height: 1.45 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Source Serif Pro', 'Charter', Georgia, serif !important;
+    color: #000 !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  
+  h1 { font-size: 18pt !important; font-weight: 700; margin: 0 0 4pt 0; }
+  h2 { font-size: 14pt !important; font-weight: 700; margin: 14pt 0 4pt 0; border-bottom: 0.75pt solid #000; padding-bottom: 2pt; }
+  h3 { font-size: 11.5pt !important; font-weight: 700; margin: 10pt 0 3pt 0; }
+  h4 { font-size: 10.5pt !important; font-weight: 600; margin: 8pt 0 2pt 0; }
+  
+  p { margin: 0 0 6pt 0; orphans: 3; widows: 3; }
+  
+  /* ── Numbers: tabular, monospace where needed ─────────────────── */
+  .num,
+  .tabular,
+  td.num,
+  td[data-type="numeric"] {
+    font-family: 'Geist Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace !important;
+    font-variant-numeric: tabular-nums !important;
+    text-align: right;
+  }
+  
+  /* ── Tables ───────────────────────────────────────────────────── */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 6pt 0 12pt 0 !important;
+    page-break-inside: auto;
+  }
+  
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
+  
+  th {
+    font-family: 'Source Serif Pro', Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: 9pt !important;
+    text-align: left;
+    padding: 4pt 6pt !important;
+    border-bottom: 0.75pt solid #000 !important;
+    border-top: 0.75pt solid #000 !important;
+    background: transparent !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  
+  th.num, th[data-type="numeric"] { text-align: right; }
+  
+  td {
+    padding: 3pt 6pt !important;
+    font-size: 10pt !important;
+    border-bottom: 0.25pt solid #d1d5db !important;
+    vertical-align: top;
+  }
+  
+  tr.subtotal td {
+    font-weight: 600;
+    border-top: 0.5pt solid #000;
+  }
+  
+  tr.total td {
+    font-weight: 700;
+    border-top: 0.75pt solid #000;
+    border-bottom: 1.75pt double #000 !important;
+  }
+  
+  /* ── Cards/Tiles flatten ──────────────────────────────────────── */
+  .glass-card,
+  .card,
+  .tile {
+    background: transparent !important;
+    border: 0.5pt solid #d1d5db !important;
+    border-radius: 0 !important;
+    padding: 8pt !important;
+    box-shadow: none !important;
+  }
+  
+  /* ── KPI numbers prominent ────────────────────────────────────── */
+  .kpi-value {
+    font-family: 'Source Serif Pro', Georgia, serif !important;
+    font-size: 18pt !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+  }
+  .kpi-label {
+    font-size: 8pt !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280 !important;
+  }
+  
+  /* ── Charts: keep visible, force colors ───────────────────────── */
+  svg, canvas, .recharts-wrapper {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    max-width: 100% !important;
+  }
+  
+  .recharts-cartesian-grid line {
+    stroke: #e5e7eb !important;
+  }
+  .recharts-line .recharts-line-curve {
+    stroke: #0A1F3D !important;
+  }
+  .recharts-bar rect {
+    fill: #0A1F3D !important;
+  }
+  
+  /* ── Page-break utilities ─────────────────────────────────────── */
+  .page-break { page-break-after: always; break-after: page; }
+  .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+  .keep-with-next { page-break-after: avoid; break-after: avoid; }
+  
+  /* ── Print-only elements (cover pages, footnotes) ─────────────── */
+  .print-only { display: block !important; }
+  .screen-only { display: none !important; }
+  
+  /* ── Links: show URLs in print ────────────────────────────────── */
+  a[href]:after {
+    content: "";
+  }
+  a.show-url[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #6b7280;
+  }
+  
+  /* ── Footnotes ────────────────────────────────────────────────── */
+  .footnote {
+    font-size: 8pt !important;
+    color: #6b7280 !important;
+    border-top: 0.25pt solid #d1d5db;
+    padding-top: 4pt;
+    margin-top: 12pt;
+  }
+  .footnote-marker {
+    font-size: 7pt;
+    vertical-align: super;
+  }
+  
+  /* ── Currency: parens for negative, no minus ──────────────────── */
+  .negative {
+    color: #000 !important;
+  }
+  
+  /* ── Layout adjustments ───────────────────────────────────────── */
+  main, .main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  .grid {
+    display: block !important;
+  }
+  .grid > * {
+    margin-bottom: 8pt;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────
+   SCREEN-SIDE: classes used in print only need stub display rules
+   ──────────────────────────────────────────────────────────────────── */
+.print-only { display: none; }
+.screen-only { display: block; }
