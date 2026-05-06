@@ -24,6 +24,7 @@ function lazyRetry(importFn, retries = 3) {
 
 // Lazy load all pages — only Landing loads immediately
 import Landing from '@/pages/Landing'
+import CashMemoTemplate from '@/pages/print/CashMemoTemplate'
 const LPDemo = lazyRetry(() => import('@/pages/LPDemo'))
 const LPTrial = lazyRetry(() => import('@/pages/LPTrial'))
 const CopilotCenter = lazyRetry(() => import('@/pages/CopilotCenter'))
@@ -231,6 +232,7 @@ export default function App() {
               <Route path="audit-center" element={<SafePage name="Audit Center"><AuditCenter /></SafePage>} />
             </Route>
             <Route path="*" element={<NotFound />} />
+            <Route path="/print/cash-memo/:orgId/:date" element={<CashMemoTemplate />} />
           </Routes>
         </Suspense>
       </TreasuryProvider>
