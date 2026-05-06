@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { FileText, Download, Loader2, Plus, Calendar, ExternalLink } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/components/Toast'
 import PrintButton from '@/components/PrintButton'
 
 const REPORT_TYPES = {

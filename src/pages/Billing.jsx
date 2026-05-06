@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Check, Crown, Sparkles, Building2, Users, Eye, ArrowUpRight, AlertTriangle, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/components/Toast'
 
 /**
  * BILLING & PLANS — in-app subscription management.

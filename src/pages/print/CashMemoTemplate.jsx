@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import VaultlineLogo from '@/components/VaultlineLogo'
+
 
 /**
  * CashMemoTemplate — Daily Cash Position Memo (treasury-grade)
@@ -391,7 +391,7 @@ export default function CashMemoTemplate() {
           </div>
           {!isWhiteLabel && (
             <div className="vaultline-mark" style={{ fontSize: '10pt' }}>
-              <VaultlineLogo size={14} />
+              <svg width="10" height="10" viewBox="0 0 10 10" style={{display:"inline-block"}}><path d="M5 0 L10 5 L5 10 L0 5 Z" fill="currentColor"/></svg>
               <span>Vaultline</span>
             </div>
           )}

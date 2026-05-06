@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Users, Eye, UserPlus, AlertTriangle, ArrowUpRight, X, Loader2, Crown, Shield, User } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/components/Toast'
 
 /**
  * TEAM SETTINGS — /settings/team
